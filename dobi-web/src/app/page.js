@@ -1,14 +1,15 @@
 import Header from "../components/Header";
+import Hero from "../components/Hero";
 
-
-const BG_COLOR = '#fff0e8';
+const BG_COLOR = '#FFFCF9';
 export default function Home() {
   return (
-    <div style={{ backgroundColor: BG_COLOR, color: 'white' }}>
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white flex flex-col">
       <Header />
-      {/* Dummy content to allow scrolling */}
-      <main>
-        <div style={{ height: '200vh' }}>
+      <main className="flex-grow">
+        <Hero />
+        <div>
+          Body content here
         </div>
       </main>
     </div>
