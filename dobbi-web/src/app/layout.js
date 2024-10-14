@@ -4,8 +4,7 @@ import './globals.css';
 import { ScrollProvider } from '../contexts/ScrollContext';
 import { AuthProvider } from '../contexts/AuthContext';
 
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Footer from '../components/common/Footer';
 
 
 export default function RootLayout({ children }) {
@@ -14,7 +13,6 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <ScrollProvider>
-            <Header />
             <main className="flex-grow">
               {children}
             </main>
