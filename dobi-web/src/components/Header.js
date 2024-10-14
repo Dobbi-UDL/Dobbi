@@ -6,12 +6,15 @@ const BRAND_NAME = "Dobbi";
 const SIGN_UP_TEXT = "Sign Up";
 const LOG_IN_TEXT = "Log In";
 
+
+const SCROLL_THRESHOLD = 20;
+
+
 export default function Header() {
-    const { isScrolled, scrollTo } = useScroll();
+    const { scrollY } = useScroll();
 
     return (
-        <header id="header" className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
-            }`}>
+        <header id="header" className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${ scrollY > SCROLL_THRESHOLD ? 'bg-white shadow-md' : 'bg-transparent' }`}>
             <nav id="nav" className="container mx-auto px-6 py-3">
                 <div
                     id="nav-content"

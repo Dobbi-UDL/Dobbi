@@ -3,13 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { useScroll } from "@/contexts/ScrollContext";
 
 export default function Hero() {
-    const { isScrolled, scrollTo } = useScroll();
 
     return (
-        <section className="bg-gradient-to-br from-white to-[#FFF0F0] py-12 md:py-20 min-h-screen flex items-center">
+        <section id="hero" className="bg-gradient-to-br from-white to-[#FFF0F0] py-12 md:py-20 min-h-screen flex items-center">
             <div className="container mx-auto max-w-7xl px-4 md:px-6 xl:px-12 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4">
                 <div className="w-full lg:w-3/5 max-w-3xl flex flex-col justify-center text-center lg:text-left mt-10 sm:mt-12">
                     <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800 animate-fade-in-up">
@@ -32,8 +30,8 @@ export default function Hero() {
                         </p>
                     </div>
                     <div className="flex justify-center lg:justify-start">
-                        <button className="bg-[#F66C72] text-white px-6 py-3 md:px-8 md:py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition duration-300 animate-fade-in-up animation-delay-800 flex items-center group">
-                            Get Started Here
+                        <button className="bg-[#F66C72] text-white px-6 py-3 md:px-8 md:py-4 rounded-full text-lg font-semibold flex items-center group hover:bg-opacity-90 transition duration-300 transform hover:scale-105 shadow-lg">
+                            Get Started Now
                             <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>

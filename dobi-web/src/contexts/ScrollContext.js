@@ -1,21 +1,19 @@
-import { createContext, useState, useEffect } from 'react';
-import { useContext } from 'react';
-
-const SCROLL_THRESHOLD = 20;
+import { createContext, useState, useEffect, useContext } from 'react';
 
 const ScrollContext = createContext();
 
 export const ScrollProvider = ({ children }) => {
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [scrollY, setScrollY] = useState(0);
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
+            const currentScrollY = window.scrollY;
+            setScrollY(currentScrollY);
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    });
 
     const scrollTo = (elementId) => {
         const element = document.getElementById(elementId);
@@ -27,7 +25,7 @@ export const ScrollProvider = ({ children }) => {
     };
 
     return (
-        <ScrollContext.Provider value={{ isScrolled, scrollTo }}>
+        <ScrollContext.Provider value={{ scrollY, scrollTo }}>
             {children}
         </ScrollContext.Provider>
     );
