@@ -101,7 +101,7 @@ export default function Features() {
                         {userFeatures.map((feature, index) => (
                             <div
                                 key={index}
-                                className={`transition-transform duration-700 ease-in-out transform ${visibleElements.cards[index] ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[-50px]'}`}
+                                className={`transition-transform duration-700 ease-in-out transform ${visibleElements.cards[index] ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[-50px]'}`} // modify this transition
                             >
                                 <FeatureCard
                                     icon={feature.icon}
