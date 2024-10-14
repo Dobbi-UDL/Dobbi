@@ -15,12 +15,12 @@ export async function POST(request) {
 
         if (authUser && authUser.user) {
             // Insert user into companies table
-            const { data: companyData, error: profileError } = await supabase
+            const { data: companyData, error: companyError } = await supabase
                 .from('test_companies')
                 .insert([{ id: authUser.user.id, name, status: 'pending' }])
                 .select();
 
-            if (profileError) throw profileError;
+            if (companyError) throw companyError;
 
             return new Response(JSON.stringify(
                 {
@@ -34,6 +34,7 @@ export async function POST(request) {
         } else {
             throw new Error('Failed to create auth user');
         }
+        
     } catch (error) {
         console.error('Registration error:', error);
         return new Response(JSON.stringify({ error: error.message }), {

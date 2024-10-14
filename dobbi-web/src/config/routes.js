@@ -4,6 +4,7 @@ const routes = {
     register: "/register",
     forgotPassword: "/forgot-password",
     dashboard: "/dashboard",
+    adminDashboard: "/admin/dashboard",
     
 };
 

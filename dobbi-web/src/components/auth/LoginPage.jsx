@@ -8,6 +8,7 @@ import { AuthForm } from '@/components/auth/AuthForm';
 import { MailIcon, LockIcon } from 'lucide-react';
 import routes from '@/config/routes';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkIfAdmin } from '@/utils/adminUtils';
 
 export default function LoginPage() {
     const fields = [
@@ -25,10 +26,20 @@ export default function LoginPage() {
 
         try {
             console.log('Attempting login with:', { email, password });
-            const { error } = await signIn({ email, password });
+            const { data, error } = await signIn({ email, password });
 
             if (error) throw error;
             
+            // Check if user is admin (if it's in the test_admins table)
+            const isAdmin = await checkIfAdmin(data);
+
+            if (isAdmin) {
+                console.log('User is admin');
+                router.push(routes.adminDashboard);
+                return;
+            }
+            
+            // If not admin, redirect to the regular dashboard
             router.push(routes.dashboard);
 
         } catch (error) {

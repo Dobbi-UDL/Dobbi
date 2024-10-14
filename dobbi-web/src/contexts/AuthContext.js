@@ -40,13 +40,13 @@ export const AuthProvider = ({ children }) => {
             });
 
             const result = await response.json();
-
+            
             if (!response.ok) throw new Error(result.error);
 
-            return result;
+            return { data: result, error: null };
         } catch (error) {
             console.error('Registration error:', error);
-            return { error };
+            return { data: null, error };
         }
     };
 
