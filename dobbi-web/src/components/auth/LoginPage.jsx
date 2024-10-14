@@ -1,11 +1,13 @@
-"use client";
+'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthForm } from "@/components/auth/AuthForm";
+import { useRouter } from 'next/navigation';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { AuthForm } from '@/components/auth/AuthForm';
 import { MailIcon, LockIcon } from 'lucide-react';
 import routes from '@/config/routes';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
     const fields = [
@@ -13,9 +15,26 @@ export default function LoginPage() {
         { name: "password", label: "Access Key", type: "password", placeholder: "Enter your password", icon: LockIcon }
     ];
 
-    const handleLogin = (formData) => {
-        console.log("Login attempt with:", formData);
-        // Handle login logic
+    const { signIn } = useAuth();
+    const router = useRouter();
+    const [message, setMessage] = useState('');
+
+    const handleLogin = async (formData) => {
+        const email = formData.email;
+        const password = formData.password;
+
+        try {
+            console.log('Attempting login with:', { email, password });
+            const { error } = await signIn({ email, password });
+
+            if (error) throw error;
+            
+            router.push(routes.dashboard);
+
+        } catch (error) {
+            console.error('Login error:', error);
+            setMessage(error.message);
+        }
     };
 
     const footerContent = (
@@ -43,6 +62,11 @@ export default function LoginPage() {
                 onSubmit={handleLogin}
                 buttonLabel="Log In"
             />
+            {message && (
+                <div className="mt-4 text-center text-black-500">
+                    {message}
+                </div>
+            )}
         </AuthLayout>
     );
 }

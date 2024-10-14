@@ -11,8 +11,8 @@ export function AuthForm({ fields, onSubmit, buttonLabel }) {
     );
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
     };
 
     const handleSubmit = (e) => {

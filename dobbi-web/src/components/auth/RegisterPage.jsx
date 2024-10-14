@@ -1,11 +1,13 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { BuildingIcon, MailIcon, LockIcon } from 'lucide-react';
 import routes from '@/config/routes';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
     const fields = [
@@ -15,9 +17,29 @@ export default function RegisterPage() {
         { name: "confirmPassword", label: "Confirm Password", type: "password", placeholder: "Confirm your password", icon: LockIcon }
     ];
 
-    const handleRegister = (formData) => {
-        console.log("Registration attempt with:", formData);
-        // Handle registration logic
+    const { signUp } = useAuth();
+    const router = useRouter();
+    const [message, setMessage] = useState('');
+
+    const handleRegister = async (formData) => {
+        const { company: name, email, password, confirmPassword } = formData;
+
+        if (password !== confirmPassword) {
+            setMessage("Passwords do not match");
+            return;
+        }
+
+        try {
+            console.log('Attempting registration with:', { name, email, password });
+            const result = await signUp({ name, email, password });
+
+            if (result.error) throw result.error;
+
+            router.push(routes.dashboard);
+        } catch (error) {
+            console.error('Registration error:', error);
+            setMessage(error.message || "An error occurred during registration");
+        }
     };
 
     const footerContent = (
@@ -42,6 +64,11 @@ export default function RegisterPage() {
                 onSubmit={handleRegister}
                 buttonLabel="Sign Up"
             />
+            {message && (
+                <div className="mt-4 text-center text-red-500">
+                    {message}
+                </div>
+            )}
         </AuthLayout>
     );
 }
