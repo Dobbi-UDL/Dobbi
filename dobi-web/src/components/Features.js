@@ -81,7 +81,7 @@ export default function Features() {
     useEffect(() => {
         const newVisibleElements = {
             title: scrollY > title_threshold,
-            cards: features.map((_, index) => scrollY > (cards_threshold + index * 50)),
+            cards: features.map((_, index) => scrollY > (cards_threshold + index * 100)),
         };
 
         setVisibleElements(newVisibleElements);

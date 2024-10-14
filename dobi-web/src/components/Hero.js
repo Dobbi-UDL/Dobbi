@@ -4,8 +4,11 @@ import React from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-export default function Hero() {
+import { useScroll } from "@/contexts/ScrollContext";
 
+export default function Hero() {
+    const { scrollTo } = useScroll();
+    
     return (
         <section id="hero" className="bg-gradient-to-br from-white to-[#FFF0F0] py-12 md:py-20 min-h-screen flex items-center">
             <div className="container mx-auto max-w-7xl px-4 md:px-6 xl:px-12 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4">
@@ -30,7 +33,9 @@ export default function Hero() {
                         </p>
                     </div>
                     <div className="flex justify-center lg:justify-start">
-                        <button className="bg-[#F66C72] text-white px-6 py-3 md:px-8 md:py-4 rounded-full text-lg font-semibold flex items-center group hover:bg-opacity-90 transition duration-300 transform hover:scale-105 shadow-lg">
+                        <button 
+                            onClick={() => scrollTo("cta")} 
+                            className="bg-[#F66C72] text-white px-6 py-3 md:px-8 md:py-4 rounded-full text-lg font-semibold flex items-center group hover:bg-opacity-90 transition duration-300 transform hover:scale-105 shadow-lg">
                             Get Started Now
                             <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </button>
