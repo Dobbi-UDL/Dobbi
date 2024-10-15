@@ -5,6 +5,7 @@ const routes = {
     forgotPassword: "/forgot-password",
     dashboard: "/dashboard",
     adminDashboard: "/admin",
+    downloads: "/downloads",
     
 };
 
