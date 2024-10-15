@@ -51,11 +51,11 @@ function NavLink({ href, active, children }) {
   return (
     <Link
       href={href}
-      className={`text-sm font-medium transition-colors hover:text-primary ${
-        active ? 'text-primary' : 'text-muted-foreground'
-      }`}
+      className={`text-sm font-medium transition-colors hover:text-[#F66C72] relative group ${active ? 'text-[#F66C72]' : 'text-gray-600'
+        }`}
     >
       {children}
+      <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[#F66C72] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${active ? 'scale-x-100' : ''}`}></span>
     </Link>
   )
 }
