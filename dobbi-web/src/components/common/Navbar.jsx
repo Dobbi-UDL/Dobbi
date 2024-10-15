@@ -3,9 +3,17 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from "@/components/ui/button"
+import { useScroll } from "@/contexts/ScrollContext"
+import routes from "@/config/routes"
 
 // Text Constants
 const BRAND_NAME = "Dobbi"
+
+const NAV_LINKS = [
+  { name: "Dashboard", path: routes.dashboard },
+  { name: "Challenges", path: routes.challenges },
+  { name: "Offers", path: routes.offers },
+]
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -21,15 +29,12 @@ export default function Navbar() {
             <div className="hidden md:flex items-center">
               <div className="w-px h-6 bg-gray-300 mx-4"></div>
               <div className="flex space-x-4">
-                <NavLink href="/dashboard" active={pathname === '/dashboard'}>
-                  Dashboard
-                </NavLink>
-                <NavLink href="/challenges" active={pathname === '/challenges'}>
-                  Challenges
-                </NavLink>
-                <NavLink href="/offers" active={pathname === '/offers'}>
-                  Offers
-                </NavLink>
+                {NAV_LINKS.map((link) => (
+                  // If link doesn't exist yet, use a hash
+                  <NavLink href={link.path || '#' } active={pathname === link.path}>
+                    {link.name}
+                  </NavLink>
+                ))}
               </div>
             </div>
           </div>
