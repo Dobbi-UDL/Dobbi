@@ -15,7 +15,7 @@ export default function DashboardContent() {
         return null;
     }
 
-    const username = user_metadata.display_name || user.email;
+    const username = user.user_metadata.display_name || user.email;
 
     return (
         <div id="dashboard-container" className="container mx-auto px-4 py-8 bg-gradient-to-br from-white to-[#FFF0F0] border border-red-500">
