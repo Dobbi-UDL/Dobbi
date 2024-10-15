@@ -1,5 +1,5 @@
 import React from 'react';
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/auth/ui/label';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { cn } from "@/lib/utils";
 

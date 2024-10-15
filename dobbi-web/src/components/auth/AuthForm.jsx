@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { InputField } from "@/components/ui/InputField";
+import { Button } from "@/components/auth/ui/Button";
+import { InputField } from "@/components/auth/ui/InputField";
 
 export function AuthForm({ fields, onSubmit, buttonLabel }) {
     const [formData, setFormData] = useState(
