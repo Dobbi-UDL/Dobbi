@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from "@/components/ui/button"
-import { useScroll } from "@/contexts/ScrollContext"
 import routes from "@/config/routes"
+import  BrandButton  from './BrandButton'
 
 // Text Constants
 const BRAND_NAME = "Dobbi"
@@ -23,9 +23,7 @@ export default function Navbar() {
       <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="text-2xl font-bold text-gray-800">
-              {BRAND_NAME}
-            </Link>
+            <BrandButton />
             <div className="hidden md:flex items-center">
               <div className="w-px h-6 bg-gray-300 mx-4"></div>
               <div className="flex space-x-4">

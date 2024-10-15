@@ -1,11 +1,8 @@
 "use client";
 
-import Header from "@/components/common/Header";
-import Navbar from "@/components/common/Navbar";
 import Hero from "@/components/homepage/Hero";
 import Features from "@/components/homepage/Features";
 import CTA from "@/components/homepage/CTA";
-import Footer from "@/components/common/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -16,13 +13,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {user ? <Navbar /> : <Header />}
       <main className="flex-grow">
         <Hero />
         <Features />
         <CTA />
       </main>
-      <Footer />
     </div>
   );
 }

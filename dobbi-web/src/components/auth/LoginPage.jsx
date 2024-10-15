@@ -35,7 +35,7 @@ export default function LoginPage() {
 
             if (isAdmin) {
                 console.log('User is admin');
-                router.push(routes.adminDashboard);
+                router.push(routes.dashboard);
                 return;
             }
             

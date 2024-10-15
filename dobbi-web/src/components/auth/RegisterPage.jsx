@@ -10,6 +10,7 @@ import routes from '@/config/routes';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
+    // TODO: if too many fields, paginate the registration form
     const fields = [
         { name: "company", label: "Company Name", type: "text", placeholder: "Acme Corp", icon: BuildingIcon },
         { name: "email", label: "Work Email", type: "email", placeholder: "john@company.com", icon: MailIcon },
