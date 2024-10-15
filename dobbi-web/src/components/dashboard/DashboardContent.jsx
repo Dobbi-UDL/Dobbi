@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
+
 export default function DashboardContent() {
     const { user, signOut } = useAuth();
     const router = useRouter();
@@ -13,6 +14,8 @@ export default function DashboardContent() {
         router.push('/login');
         return null;
     }
+
+    const username = user_metadata.display_name || user.email;
 
     return (
         <div id="dashboard-container" className="container mx-auto px-4 py-8 bg-gradient-to-br from-white to-[#FFF0F0] border border-red-500">
@@ -25,7 +28,7 @@ export default function DashboardContent() {
                         transition={{ duration: 0.5 }}
                         className="text-3xl font-bold mb-6 text-gray-800"
                     >
-                        Welcome back, User!
+                        Welcome back, {username}!
                     </motion.h1>
                 </div>
                 <div id="logout-button" className="border">

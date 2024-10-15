@@ -9,6 +9,9 @@ export async function POST(request) {
             email,
             password,
             email_confirm: true,
+            user_metadata: { 
+                display_name: name,
+             },
         });
 
         if (authError) throw authError;
