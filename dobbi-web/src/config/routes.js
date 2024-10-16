@@ -4,8 +4,9 @@ const routes = {
     register: "/register",
     forgotPassword: "/forgot-password",
     dashboard: "/dashboard",
-    adminDashboard: "/admin",
-    
+    challenges: "/challenges",
+    offers: "/offers",
+    adminDashboard: "/admin/dashboard",
 };
 
 export default routes;
