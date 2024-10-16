@@ -4,41 +4,41 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Gift, Eye, MousePointer, CheckCircle } from 'lucide-react';
+import { Trophy, Star, Target, CheckCircle } from 'lucide-react';
 import StatCard from '@/components/dashboard/StatCard';
 
 const mockData = [
     {
-        title: 'Active Offers',
-        value: '5',
-        icon: Gift,
-        subtext: 'No change from last month',
-        color: 'orange',
+        title: 'Challenges Completed',
+        value: '8',
+        icon: Trophy,
+        subtext: '2 more than last month',
+        color: 'blue',
     },
     {
-        title: 'Views This Month',
-        value: '100',
-        icon: Eye,
-        subtext: '20% increase from last month',
+        title: 'Current Streak',
+        value: '5 days',
+        icon: Star,
+        subtext: 'Keep it up!',
+        color: 'yellow',
+    },
+    {
+        title: 'Goals Achieved',
+        value: '3',
+        icon: Target,
+        subtext: '1 more than last month',
         color: 'green',
     },
     {
-        title: 'Clicks This Month',
-        value: '50',
-        icon: MousePointer,
-        subtext: '10% increase from last month',
-        color: 'purple',
-    },
-    {
-        title: 'Redemptions This Month',
-        value: '10',
+        title: 'Milestones Reached',
+        value: '4',
         icon: CheckCircle,
-        subtext: '5% decrease from last month',
-        color: 'red',
+        subtext: 'No change from last month',
+        color: 'purple',
     },
 ];
 
-export default function DashboardContent() {
+export default function ChallengesContent() {
     const { user, signOut } = useAuth();
     const router = useRouter();
 
@@ -50,9 +50,9 @@ export default function DashboardContent() {
     const username = user.user_metadata.display_name || user.email;
 
     return (
-        <div id="dashboard-container" className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0] border border-red-500">
+        <div id="challenges-container" className="min-h-screen bg-gradient-to-br from-white to-[#E0F7FA] border border-blue-500">
             <div id="header-space" className="h-16 border"></div>
-            <div id="dashboard-content" className="container mx-auto px-4 py-8 border border-blue-500">
+            <div id="challenges-content" className="container mx-auto px-4 py-8 border border-green-500">
                 <div id="greeting" className="mb-8 border">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
@@ -66,6 +66,7 @@ export default function DashboardContent() {
                 <div id="stat-cards" className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                     {mockData.map((data) => (
                         <StatCard
+                            key={data.title}
                             title={data.title}
                             value={data.value}
                             icon={data.icon}
