@@ -7,6 +7,7 @@ const routes = {
     challenges: "/challenges",
     offers: "/offers",
     adminDashboard: "/admin/dashboard",
+    downloads: "/downloads",
 };
 
 export default routes;
