@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@/components/auth/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { InputField } from "@/components/auth/ui/InputField";
 
 export function AuthForm({ fields, onSubmit, buttonLabel }) {
@@ -42,7 +42,10 @@ export function AuthForm({ fields, onSubmit, buttonLabel }) {
                         showPassword={field.type === "password" ? showPasswords[field.name] : undefined}
                     />
                 ))}
-                <Button>
+                <Button
+                    type="submit"
+                    className="w-full mt-6"
+                >
                     {buttonLabel}
                 </Button>
             </form>
