@@ -5,23 +5,9 @@ import { Button } from "@/components/ui/Button"
 import { Divider } from "@mui/material"
 import { Edit, Trash2, MapPin, Phone, Mail, Globe, Twitter, Facebook, Linkedin } from 'lucide-react'
 import EditProfileModal from './EditProfileModal'
-import { useState } from 'react'
-
-// Mock company data --> replace with actual data from API
-const mockCompanyData = {
-    name: "TechCorp Solutions",
-    logo: "/images/placeholder-user.png",
-    description: "Leading provider of innovative tech solutions for modern businesses.",
-    address: "123 Tech Street, San Francisco, CA 94105",
-    phone: "+1 (555) 123-4567",
-    email: "contact@techcorpsolutions.com",
-    website: "https://www.techcorpsolutions.com",
-    social: {
-        twitter: "https://twitter.com/techcorp",
-        facebook: "https://facebook.com/techcorp",
-        linkedin: "https://linkedin.com/company/techcorp"
-    }
-};
+import { useState, useEffect } from 'react'
+import { getCompanyById } from '@/services/companyService'
+import { useAuth } from '@/contexts/AuthContext'
 
 const ContactItem = ({ icon: Icon, text }) => (
     text && (
@@ -41,8 +27,28 @@ const SocialMediaItem = ({ icon: Icon, link }) => (
 );
 
 const ProfileContent = () => {
-    const [company, setCompany] = useState(mockCompanyData);
+    const { user } = useAuth();
+    const [company, setCompany] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true); // Add a loading state
+
+    // Fetch company data
+    useEffect(() => {
+        const fetchCompanyData = async () => {
+            try {
+                if (!user?.id) return; // Avoid fetching if user ID is not available
+                console.log("Fetching company data... user.id: ", user.id);
+                const companyData = await getCompanyById(user.id);
+                setCompany(companyData);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false); // Set loading to false after fetch
+            }
+        };
+
+        fetchCompanyData();
+    }, [user?.id]);
 
     const handleEditProfile = () => {
         setIsModalOpen(true);
@@ -57,9 +63,16 @@ const ProfileContent = () => {
         setIsModalOpen(false);
     };
 
+    if (loading) {
+        return <div>Loading...</div>; // Add a loading indicator while fetching
+    }
+
+    if (!company) {
+        return <div>No company data available</div>; // Handle null company scenario
+    }
+
     return (
         <div id="profile-container" className="container mx-auto px-4 py-8 max-w-4xl min-h-screen">
-            {/* Motion for downward animation */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -68,7 +81,7 @@ const ProfileContent = () => {
             >
                 <div id="profile-header" className="flex flex-col md:flex-row items-center md:items-start gap-8">
                     <Image
-                        src={company.logo}
+                        src={company.logo || "/images/placeholder-user.png"} // Fallback in case logo is not available
                         alt={company.name}
                         width={200}
                         height={200}
@@ -97,19 +110,19 @@ const ProfileContent = () => {
                     <div id="contact-info" className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <ContactItem icon={MapPin} text={company.address} />
                         <ContactItem icon={Phone} text={company.phone} />
-                        <ContactItem icon={Mail} text={company.email} />
+                        <ContactItem icon={Mail} text={company.contact_email} />
                         <ContactItem icon={Globe} text={company.website} />
                     </div>
                 </div>
-
+                
                 <Divider />
 
                 <div id="social-media-section">
                     <h2 className="text-xl font-semibold mb-4">Social Media</h2>
                     <div id="social-media" className="flex gap-4">
-                        <SocialMediaItem icon={Twitter} link={company.social.twitter} />
-                        <SocialMediaItem icon={Facebook} link={company.social.facebook} />
-                        <SocialMediaItem icon={Linkedin} link={company.social.linkedin} />
+                        <SocialMediaItem icon={Twitter} link={company.twitter} />
+                        <SocialMediaItem icon={Facebook} link={company.facebook} />
+                        <SocialMediaItem icon={Linkedin} link={company.linkedin} />
                     </div>
                 </div>
             </motion.div>
@@ -120,7 +133,7 @@ const ProfileContent = () => {
                 onSave={handleSaveProfile}
             />
         </div>
-    )
+    );
 }
 
-export default ProfileContent
+export default ProfileContent;
