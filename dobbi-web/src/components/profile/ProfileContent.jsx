@@ -26,6 +26,19 @@ const SocialMediaItem = ({ icon: Icon, link }) => (
     )
 );
 
+const RenderedText = ({ text }) => {
+    return (
+        <>
+            {text.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                    {line}
+                    {index < text.split('\n').length - 1 && <br />}
+                </React.Fragment>
+            ))}
+        </>
+    );
+};
+
 const ProfileContent = () => {
     const { user } = useAuth();
     const [company, setCompany] = useState(null);
@@ -89,7 +102,9 @@ const ProfileContent = () => {
                     />
                     <div id="profile-info" className="flex-1 text-center md:text-left">
                         <h1 className="text-3xl font-bold mb-2">{company.name}</h1>
-                        <p className="text-gray-600 mb-4">{company.description}</p>
+                        <p className="text-gray-600 mb-4">
+                            <RenderedText text={company.description} />
+                        </p>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4">
                             <Button id="edit-profile" variant="default" size="default" onClick={handleEditProfile}>
                                 <Edit className="mr-2 h-4 w-4" />
