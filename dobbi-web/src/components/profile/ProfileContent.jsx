@@ -8,6 +8,7 @@ import EditProfileModal from './EditProfileModal'
 import { useState, useEffect } from 'react'
 import { getCompanyById } from '@/services/companyService'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const ContactItem = ({ icon: Icon, text }) => (
     text && (
@@ -41,6 +42,13 @@ const RenderedText = ({ text }) => {
 
 const ProfileContent = () => {
     const { user } = useAuth();
+    const router = useRouter();
+
+    if (!user) {
+        router.push('/login');
+        return null;
+    }
+
     const [company, setCompany] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true); // Add a loading state
@@ -93,16 +101,18 @@ const ProfileContent = () => {
                 className="space-y-8"
             >
                 <div id="profile-header" className="flex flex-col md:flex-row items-center md:items-start gap-8">
-                    <Image
-                        src={company.logo || "/images/placeholder-user.png"} // Fallback in case logo is not available
-                        alt={company.name}
-                        width={200}
-                        height={200}
-                        className="rounded-full"
-                    />
+                    <div id="profile-image">
+                        <Image
+                            src={company.logo || "/images/placeholder-user.png"} // Fallback in case logo is not available
+                            alt={company.name}
+                            width={200}
+                            height={200}
+                            className="rounded-full"
+                        />
+                    </div>
                     <div id="profile-info" className="flex-1 text-center md:text-left">
                         <h1 className="text-3xl font-bold mb-2">{company.name}</h1>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-gray-600 mb-4 text-justify">
                             <RenderedText text={company.description} />
                         </p>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4">

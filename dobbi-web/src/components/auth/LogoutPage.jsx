@@ -14,7 +14,7 @@ const LogoutPage = () => {
                 await signOut();
 
                 // Add a delay before redirecting 
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1200));
 
                 // Redirect to the home page after sign out is complete
                 router.push(routes.home);

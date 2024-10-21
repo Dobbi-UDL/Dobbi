@@ -217,7 +217,7 @@ const FormItem = ({ id, label, value, required, onChange, type = "input" }) => {
                 value={value}
                 onChange={onChange}
                 required={required}
-                rows={type === "textarea" ? 4 : undefined} // Set rows for Textarea
+                rows={type === "textarea" ? 6 : undefined} // Set rows for Textarea
             />
         </div>
     )

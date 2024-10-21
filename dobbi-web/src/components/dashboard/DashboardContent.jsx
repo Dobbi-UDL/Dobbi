@@ -39,7 +39,7 @@ const mockData = [
 ];
 
 export default function DashboardContent() {
-    const { user, signOut } = useAuth();
+    const { user } = useAuth();
     const router = useRouter();
 
     if (!user) {
@@ -73,14 +73,6 @@ export default function DashboardContent() {
                             color={data.color}
                         />
                     ))}
-                </div>
-                <div id="logout-button" className="border">
-                    <button
-                        onClick={signOut}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                    >
-                        Log Out
-                    </button>
                 </div>
                 <div id="empty-space" className='h-[400px]'></div>
             </div>
