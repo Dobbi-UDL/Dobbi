@@ -21,11 +21,16 @@ export default function Navbar() {
   const pathname = usePathname()
   const { scrollY } = useScroll()
 
+  const isHomepage = pathname === routes.home;
+  const headerClass = isHomepage
+    ? (scrollY > SCROLL_THRESHOLD ? 'bg-white shadow-md' : 'bg-transparent')
+    : 'bg-white shadow-md';
+
   return (
-    <header id="guest-header" className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > SCROLL_THRESHOLD ? 'bg-white shadow-md' : 'bg-transparent'}`}>
+    <header id="header" className={`top-0 left-0 right-0 z-50 transition-all duration-300 ${headerClass} border border-green-500`}>
       <nav id="navbar" className="container mx-auto px-4">
-        <div id="navbar-container" className="flex items-center justify-between h-16">
-          <div id="navbar-left" className="flex items-center space-x-4">
+        <div id="navbar-container" className="flex items-center justify-between h-16 border border-blue-500">
+          <div id="navbar-left" className="flex items-center space-x-4 border">
             <BrandButton />
             <div id="navbar-links" className="hidden md:flex items-center">
               <div id="navbar-divider" className="w-px h-6 bg-gray-300 mx-4"></div>
@@ -39,9 +44,11 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <Button id="navbar-menu-button" variant="outline" className="md:hidden">
-            Menu
-          </Button>
+          <div id="navbar-right" className="flex items-center space-x-4 border border-red-500">
+            <div id="user-profile" className="flex items-center space-x-4 border">
+              <UserProfile />
+            </div>
+          </div>
         </div>
       </nav>
     </header>

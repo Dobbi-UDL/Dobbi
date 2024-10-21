@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Gift, Eye, MousePointer, CheckCircle } from 'lucide-react';
-import StatCard from '@/components/dashboard/StatCard';
+import StatCard from '@/components/dashboard/StatsCard';
 
 const mockData = [
     {
@@ -51,8 +51,8 @@ export default function DashboardContent() {
 
     return (
         <div id="dashboard-container" className="bg-gradient-to-br from-white to-[#FFF0F0] border border-red-500">
-            <div id="header-space" className="h-16 border"></div>
-            <div id="dashboard-content" className="container mx-auto px-4 py-8 border border-blue-500">
+            <div id="header-space" className="h-16"></div>
+            <div id="dashboard-content" className="container mx-auto px-4 py-8">
                 <div id="greeting" className="mb-8 border">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
@@ -82,6 +82,7 @@ export default function DashboardContent() {
                         Log Out
                     </button>
                 </div>
+                <div id="empty-space" className='h-[400px]'></div>
             </div>
         </div>
     );
