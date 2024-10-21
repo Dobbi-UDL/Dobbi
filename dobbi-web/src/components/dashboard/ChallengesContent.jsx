@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Trophy, Star, Target, CheckCircle } from 'lucide-react';
-import StatCard from '@/components/dashboard/StatCard';
+import StatsCard from '@/components/dashboard/StatsCard';
 
 const mockData = [
     {
@@ -63,9 +63,9 @@ export default function ChallengesContent() {
                         Welcome back, {username}!
                     </motion.h1>
                 </div>
-                <div id="stat-cards" className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div id="stats-cards" className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                     {mockData.map((data) => (
-                        <StatCard
+                        <StatsCard
                             key={data.title}
                             title={data.title}
                             value={data.value}
