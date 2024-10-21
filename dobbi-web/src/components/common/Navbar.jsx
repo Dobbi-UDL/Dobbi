@@ -26,10 +26,10 @@ export default function Navbar() {
     : 'bg-white shadow-md';
 
   return (
-    <header id="header" className={`top-0 left-0 right-0 z-50 transition-all duration-300 ${headerClass} border border-green-500`}>
+    <header id="header" className={`top-0 left-0 right-0 z-50 transition-all duration-300 ${headerClass}`}>
       <nav id="navbar" className="container mx-auto px-4">
-        <div id="navbar-container" className="flex items-center justify-between h-16 border border-blue-500">
-          <div id="navbar-left" className="flex items-center space-x-4 border">
+        <div id="navbar-container" className="flex items-center justify-between h-16">
+          <div id="navbar-left" className="flex items-center space-x-4">
             <BrandButton />
             <div id="navbar-links" className="hidden md:flex items-center">
               <div id="navbar-divider" className="w-px h-6 bg-gray-300 mx-4"></div>
@@ -43,8 +43,8 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <div id="navbar-right" className="flex items-center space-x-4 border border-red-500">
-            <div id="user-profile" className="flex items-center space-x-4 border">
+          <div id="navbar-right" className="flex items-center space-x-4">
+            <div id="user-profile" className="flex items-center space-x-4">
               <UserProfile />
             </div>
           </div>
