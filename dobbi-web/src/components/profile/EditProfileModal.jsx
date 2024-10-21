@@ -4,7 +4,7 @@ import { X, Upload } from 'lucide-react'
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import { Textarea } from "@/components/ui/textarea"
+import { Textarea } from "@/components/ui/TextArea"
 import { updateCompanyById, uploadLogo, getPublicUrl } from '@/services/companyService'
 
 const EditProfileModal = ({ isOpen, onClose, company, onSave }) => {
@@ -112,7 +112,7 @@ const EditProfileModal = ({ isOpen, onClose, company, onSave }) => {
                                 onLogoChange={handleLogoChange} 
                             />
                             <FormItem id="name" label="Company Name" value={editedCompany.name} required={true} onChange={handleInputChange} />
-                            <FormItem id="description" label="Description" value={editedCompany.description} required={true} onChange={handleInputChange} />
+                            <FormItem id="description" label="Description" value={editedCompany.description} required={true} onChange={handleInputChange} type="textarea" />
                         </FormSection>
                     </div>
                 )
@@ -205,18 +205,23 @@ const FormSection = ({ id, label, children }) => (
     </div>
 )
 
-const FormItem = ({ id, label, value, required, onChange }) => (
-    <div id={`${id}-item`}>
-        <Label htmlFor={id} className="block mb-2">{label}</Label>
-        <Input
-            id={id}
-            name={id}
-            value={value}
-            onChange={onChange}
-            required={required}
-        />
-    </div>
-)
+const FormItem = ({ id, label, value, required, onChange, type = "input" }) => {
+    const InputComponent = type === "textarea" ? Textarea : Input; // Choose Input or Textarea based on type
+
+    return (
+        <div id={`${id}-item`}>
+            <Label htmlFor={id} className="block mb-2">{label}</Label>
+            <InputComponent
+                id={id}
+                name={id}
+                value={value}
+                onChange={onChange}
+                required={required}
+                rows={type === "textarea" ? 4 : undefined} // Set rows for Textarea
+            />
+        </div>
+    )
+}
 
 const LogoUpload = ({ logo, onLogoChange }) => (
     <div id="logo-upload-section">
