@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from "next/image"
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/auth/ui/Card"
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/auth/ui/AuthCard"
 
 export function AuthLayout({ children, title, description, footerContent }) {
     return (
