@@ -4,7 +4,24 @@ import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/Button"
 import { Divider } from "@mui/material"
 import { Edit, Trash2, MapPin, Phone, Mail, Globe, Twitter, Facebook, Linkedin } from 'lucide-react'
+import EditProfileModal from './EditProfileModal'
+import { useState } from 'react'
 
+// Mock company data --> replace with actual data from API
+const mockCompanyData = {
+    name: "TechCorp Solutions",
+    logo: "/images/placeholder-user.png",
+    description: "Leading provider of innovative tech solutions for modern businesses.",
+    address: "123 Tech Street, San Francisco, CA 94105",
+    phone: "+1 (555) 123-4567",
+    email: "contact@techcorpsolutions.com",
+    website: "https://www.techcorpsolutions.com",
+    social: {
+        twitter: "https://twitter.com/techcorp",
+        facebook: "https://facebook.com/techcorp",
+        linkedin: "https://linkedin.com/company/techcorp"
+    }
+};
 
 const ContactItem = ({ icon: Icon, text }) => (
     text && (
@@ -24,20 +41,21 @@ const SocialMediaItem = ({ icon: Icon, link }) => (
 );
 
 const ProfileContent = () => {
-    const company = {
-        name: "TechCorp Solutions",
-        logo: "/images/placeholder-user.png",
-        description: "Leading provider of innovative tech solutions for modern businesses.",
-        address: "123 Tech Street, San Francisco, CA 94105",
-        phone: "+1 (555) 123-4567",
-        email: "contact@techcorpsolutions.com",
-        website: "https://www.techcorpsolutions.com",
-        social: {
-            twitter: "https://twitter.com/techcorp",
-            facebook: "https://facebook.com/techcorp",
-            linkedin: "https://linkedin.com/company/techcorp"
-        }
-    }
+    const [company, setCompany] = useState(mockCompanyData);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleEditProfile = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSaveProfile = (updatedCompany) => {
+        setCompany(updatedCompany);
+        setIsModalOpen(false);
+    };
 
     return (
         <div id="profile-container" className="container mx-auto px-4 py-8 max-w-4xl">
@@ -60,7 +78,7 @@ const ProfileContent = () => {
                         <h1 className="text-3xl font-bold mb-2">{company.name}</h1>
                         <p className="text-gray-600 mb-4">{company.description}</p>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                            <Button id="edit-profile" variant="default" size="default">
+                            <Button id="edit-profile" variant="default" size="default" onClick={handleEditProfile}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Profile
                             </Button>
@@ -95,6 +113,12 @@ const ProfileContent = () => {
                     </div>
                 </div>
             </motion.div>
+            <EditProfileModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                company={company}
+                onSave={handleSaveProfile}
+            />
         </div>
     )
 }
