@@ -2,10 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from "@/components/auth/ui/button"
+import { Button } from "@/components/auth/ui/Button"
 import routes from "@/config/routes"
 import  BrandButton  from './BrandButton'
-import UserProfile from './UserProfile'
 import { useScroll } from "@/contexts/ScrollContext"
 
 

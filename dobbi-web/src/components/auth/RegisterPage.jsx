@@ -36,7 +36,7 @@ export default function RegisterPage() {
 
             if (result.error) throw result.error;
 
-            router.push(routes.dashboard);
+            router.push(routes.register_request);
         } catch (error) {
             console.error('Registration error:', error);
             setMessage(error.message || "An error occurred during registration");
