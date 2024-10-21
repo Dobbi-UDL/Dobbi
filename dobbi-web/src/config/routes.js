@@ -9,6 +9,9 @@ const routes = {
     offers: "/offers",
     adminDashboard: "/admin/dashboard",
     downloads: "/downloads",
+    profile: "/profile",
+    settings: "/settings",
+    logout: "/logout",
 }
 
 export default routes;
