@@ -14,10 +14,7 @@ const EditProfileModal = ({ isOpen, onClose, company, onSave }) => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         console.log(`Input changed: ${name}, New value: ${value}`);
-        setEditedCompany(prevCompany => ({
-            ...prevCompany,
-            [name]: value
-        }));
+        setEditedCompany((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleLogoChange = (e) => {

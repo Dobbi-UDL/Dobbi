@@ -58,7 +58,7 @@ const ProfileContent = () => {
     };
 
     return (
-        <div id="profile-container" className="container mx-auto px-4 py-8 max-w-4xl">
+        <div id="profile-container" className="container mx-auto px-4 py-8 max-w-4xl min-h-screen">
             {/* Motion for downward animation */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
