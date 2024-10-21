@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Upload } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/Button"
+import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import { Textarea } from "@/components/ui/textarea"
+//import { Textarea } from "@/components/ui/textarea"
 
 const EditProfileModal = ({ isOpen, onClose, company, onSave }) => {
     const [editedCompany, setEditedCompany] = useState(company)
