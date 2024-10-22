@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/config/routes';
 
-const LogoutPage = () => {
+const LogoutPage = ({ isAccountDeleted=false }) => {
     const router = useRouter();
     const { signOut } = useAuth();
 
@@ -36,7 +36,10 @@ const LogoutPage = () => {
                 className="text-center"
             >
                 <h1 className="text-3xl font-bold mb-4 text-gray-800">Logging you out...</h1>
-                <p className="text-lg text-gray-600">Thank you for using Dobbi. See you soon!</p>
+                <p className="text-lg text-gray-600">
+                    {isAccountDeleted ? "We're sorry to see you go!" : "See you soon!"}
+                </p>
+                   
             </motion.div>
         </div>
     );

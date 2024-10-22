@@ -28,6 +28,8 @@ const SocialMediaItem = ({ icon: Icon, link }) => (
 );
 
 const RenderedText = ({ text }) => {
+    if (!text) return null;
+    
     return (
         <>
             {text.split('\n').map((line, index) => (
@@ -41,7 +43,7 @@ const RenderedText = ({ text }) => {
 };
 
 const ProfileContent = () => {
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
     const router = useRouter();
 
     if (!user) {
@@ -84,6 +86,36 @@ const ProfileContent = () => {
         setIsModalOpen(false);
     };
 
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+        if (!confirmDelete) return;
+
+        // Delete user account
+        try {
+            const response = await fetch('/api/deleteUser', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: user.id }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message);
+                // Redirect to logout page to clear session
+                router.push(`/logout?deleted=true`);
+            } else {
+                console.error(data.error); 
+                alert("Error deleting account: " + data.error);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert("Error deleting account: " + error.message);
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>; // Add a loading indicator while fetching
     }
@@ -120,7 +152,7 @@ const ProfileContent = () => {
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Profile
                             </Button>
-                            <Button id="delete-account" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
+                            <Button id="delete-account" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50" onClick={handleDeleteAccount}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete Account
                             </Button>

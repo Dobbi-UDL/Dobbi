@@ -1,4 +1,4 @@
-import { supabase } from "../../../lib/supabaseAdmin";
+import { supabase } from "@/lib/supabaseAdmin";
 
 export async function POST(request) {
     const { name, email, password } = await request.json();
