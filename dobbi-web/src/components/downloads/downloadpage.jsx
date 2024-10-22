@@ -13,12 +13,12 @@ export default function AppDownload() {
           </h1>
           <div className="space-y-4 mb-8">
             <p className="text-lg md:text-xl text-gray-600">
-              We are working hard on the design and development of Dobbi to offer you the best possible experience. <p></p>
+              We are working hard on the design and development of Dobbi to offer you the best possible experience.
             </p>
             <p className="text-lg md:text-xl text-gray-600 justify-center">
-              <span className="font-semibold text-[#F66C72]">✓</span> Intuitive interface <p></p>
+              <span className="font-semibold text-[#F66C72]">✓</span> Intuitive interface
               <span className="font-semibold text-[#F66C72]"> ✓</span> Innovative functionalities <p></p>
-              <span className="font-semibold text-[#F66C72]"> ✓</span> Modern design <p></p>
+              <span className="font-semibold text-[#F66C72]"> ✓</span> Modern design
             </p>
             <p className="text-lg md:text-xl text-gray-600">
               Keep track of our progress and be the first to test our app when it's ready.            

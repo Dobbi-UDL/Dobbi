@@ -1,4 +1,4 @@
-import { supabase } from "../../../lib/supabaseAdmin";
+import { supabase } from "@/lib/supabaseAdmin";
 
 export async function POST(request) {
     const { name, email, password } = await request.json();
@@ -19,7 +19,7 @@ export async function POST(request) {
         if (authUser && authUser.user) {
             // Insert user into companies table
             const { data: companyData, error: companyError } = await supabase
-                .from('test_companies')
+                .from('companies')
                 .insert([{ id: authUser.user.id, name, status: 'pending' }])
                 .select();
 
