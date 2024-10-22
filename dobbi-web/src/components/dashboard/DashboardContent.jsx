@@ -50,10 +50,10 @@ export default function DashboardContent() {
     const username = user.user_metadata.display_name || user.email;
 
     return (
-        <div id="dashboard-container" className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0] border border-red-500">
-            <div id="header-space" className="h-16 border"></div>
-            <div id="dashboard-content" className="container mx-auto px-4 py-8 border border-blue-500">
-                <div id="greeting" className="mb-8 border">
+        <div id="dashboard-container" className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0]">
+            <div id="header-space" className="h-16"></div>
+            <div id="dashboard-content" className="container mx-auto px-4 py-8">
+                <div id="greeting" className="mb-8">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
