@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/Select";
 
 export default function OffersContent() {
   const [offers, setOffers] = useState([]);
+  const [offersCategories, setOffersCategories] = useState([]);
   const [filteredOffers, setFilteredOffers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState(initialFormData());
@@ -25,6 +26,7 @@ export default function OffersContent() {
       return;
     }
     fetchOffers();
+    fetchOffersCategories();
   }, [user]);
 
   useEffect(() => {
@@ -38,10 +40,22 @@ export default function OffersContent() {
     );
   }, [filterText, offers]);
 
+  const fetchOffersCategories = async () => {
+    const { data, error } = await supabase
+      .from("offer_categories")
+      .select("* ");
+    if (error) {
+      console.error("Error fetching offers categories:", error);
+    } else {
+      setOffersCategories(data);
+    }
+    console.log("Offers categories:", data);
+  };
+
   const fetchOffers = async () => {
     if (user) {
       const { data, error } = await supabase
-        .from("test_offers")
+        .from("offers")
         .select("*")
         .eq("company_id", user.id);
 
@@ -80,7 +94,7 @@ export default function OffersContent() {
 
   const updateOffer = async (id, offerData) => {
     const { error } = await supabase
-      .from("test_offers")
+      .from("offers")
       .update(offerData)
       .eq("id", id);
     if (error) {
@@ -89,7 +103,7 @@ export default function OffersContent() {
   };
 
   const createOffer = async (offerData) => {
-    const { error } = await supabase.from("test_offers").insert([offerData]);
+    const { error } = await supabase.from("offers").insert([offerData]);
     if (error) {
       console.error("Error creating offer:", error);
     }
@@ -102,8 +116,9 @@ export default function OffersContent() {
       discount_code: offer.discount_code,
       start_date: formatDateForInput(offer.start_date),
       end_date: formatDateForInput(offer.end_date),
-      points: offer.points,
+      points_required: offer.points_required,
       offer_status: offer.offer_status,
+      category_id: offer.category_id,
     });
     setEditingOfferId(offer.id);
     setIsEditing(true);
@@ -111,7 +126,7 @@ export default function OffersContent() {
   };
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from("test_offers").delete().eq("id", id);
+    const { error } = await supabase.from("offers").delete().eq("id", id);
     if (error) {
       console.error("Error deleting offer:", error);
     }
@@ -146,6 +161,16 @@ export default function OffersContent() {
       sortable: true,
     },
     {
+      name: "Category",
+      selector: (row) => {
+        const category = offersCategories.find(
+          (category) => category.id === row.category_id
+        );
+        return category?.name;
+      },
+      sortable: true,
+    },
+    {
       name: "Start Date",
       selector: (row) => new Date(row.start_date).toLocaleString(),
       sortable: true,
@@ -157,7 +182,7 @@ export default function OffersContent() {
     },
     {
       name: "Points",
-      selector: (row) => row.points,
+      selector: (row) => row.points_required,
       sortable: true,
     },
     {
@@ -297,9 +322,9 @@ export default function OffersContent() {
                 <span className="text-gray-700 font-semibold">Points</span>
                 <input
                   type="number"
-                  name="points"
+                  name="points_required"
                   placeholder="Points"
-                  value={formData.points}
+                  value={formData.points_required}
                   onChange={handleInputChange}
                   className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
                 />
@@ -323,6 +348,25 @@ export default function OffersContent() {
                     { value: "Expired", label: "Expired" },
                   ]}
                   placeholder="Select a status"
+                />
+              </label>
+
+              <label>
+                <span className="text-gray-700 font-semibold">Category</span>
+                <Select
+                  id="category_id"
+                  value={formData.category_id}
+                  onValueChange={(value) =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      category_id: value,
+                    }))
+                  }
+                  options={offersCategories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
+                  placeholder="Select a category"
                 />
               </label>
 
@@ -352,6 +396,7 @@ const initialFormData = () => ({
   discount_code: "",
   start_date: "",
   end_date: "",
-  points: 0,
+  points_required: 0,
   offer_status: "Draft",
+  category_id: "",
 });
