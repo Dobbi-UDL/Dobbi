@@ -8,6 +8,10 @@ import { styles } from '../assets/styles/register';
 const RegisterScreen = () => {
   const router = useRouter();
 
+  const handleRegister = (formData) => {
+    // Implementar la lógica de registro
+    console.log('Register attempt:', formData);
+  };
   
   const handleBack = () => {
     router.back();
