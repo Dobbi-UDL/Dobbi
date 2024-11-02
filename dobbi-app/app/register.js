@@ -19,6 +19,7 @@ const RegisterScreen = () => {
 
       // 1. Registrar usuario en auth.users
       const { data: authData, error: authError } = await supabase.auth.signUp({
+        username,
         email,
         password,
       });

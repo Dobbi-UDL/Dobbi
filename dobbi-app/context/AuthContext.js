@@ -11,14 +11,10 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar la sesión actual
     checkUser();
-
-    // Suscribirse a los cambios de autenticación
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN') {
         setUser(session?.user ?? null);
-        // Obtener datos adicionales del usuario desde la tabla users
         if (session?.user) {
           const { data: userData } = await supabase
             .from('users')

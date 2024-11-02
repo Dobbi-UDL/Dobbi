@@ -40,7 +40,7 @@ export const LoginForm = ({ onLogin, onRegister }) => {
 
       <TouchableOpacity 
         style={styles.loginButton}
-        onPress={() => onLogin(email, password)}
+        onPress={() => onLogin({ email, password })}
       >
         <Text style={styles.loginButtonText}>Log In</Text>
       </TouchableOpacity>
