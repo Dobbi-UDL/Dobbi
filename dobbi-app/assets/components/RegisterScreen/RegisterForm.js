@@ -19,6 +19,15 @@ export const RegisterForm = ({ onRegister }) => {
     }));
   };
 
+  const handleSubmit = () => {
+    // Aquí podrías añadir validaciones
+    onRegister(formData);
+  };
+
+  const handleLoginPress = () => {
+    router.push('/login');
+  };
+
   return (
     <View style={styles.formContainer}>
       <Text style={styles.title}>Create Account</Text>
