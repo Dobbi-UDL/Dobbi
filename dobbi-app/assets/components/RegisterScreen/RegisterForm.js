@@ -6,7 +6,7 @@ import { styles } from '../../styles/register';
 export const RegisterForm = ({ onRegister }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    fullName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -38,8 +38,8 @@ export const RegisterForm = ({ onRegister }) => {
         <TextInput
           style={styles.input}
           placeholder="Enter your full name"
-          value={formData.fullName}
-          onChangeText={(value) => handleInputChange('fullName', value)}
+          value={formData.username}
+          onChangeText={(value) => handleInputChange('username', value)}
           autoCapitalize="words"
         />
       </View>

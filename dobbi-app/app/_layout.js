@@ -1,12 +1,15 @@
 import { Stack } from 'expo-router';
+import { AuthProvider } from '../context/AuthContext';
 
 export default function Layout() {
   return (
-    <Stack 
-      screenOptions={{ 
-        headerShown: false,
-        animation: 'slide_from_right' 
-      }} 
-    />
+    <AuthProvider>
+      <Stack 
+        screenOptions={{ 
+          headerShown: false,
+          animation: 'slide_from_right' 
+        }} 
+      />
+    </AuthProvider>
   );
 }

@@ -8,15 +8,46 @@ import { styles } from '../assets/styles/login';
 const LoginScreen = () => {
   const router = useRouter();
 
-  const handleLogin = (email, password) => {
-    // Implementar la lógica de login
-    console.log('Login attempt:', email, password);
+  const handleLogin = async ({ email, password }) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data: { user }, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError) throw loginError;
+
+      if (user) {
+        // Verificar que el usuario existe en la tabla users
+        const { data: profileData, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        if (profileData) {
+          // Login exitoso, guardar datos del usuario si necesitas
+          // Puedes usar un estado global como Context o Redux aquí
+          router.replace('/'); // O la ruta que prefieras después del login
+        }
+      }
+    } catch (error) {
+      setError(error.message);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegister = () => {
-    // Navegación a la pantalla de registro (cuando la creemos)
     router.push('/register');
-  };
+  }
+
 
   const handleBack = () => {
     router.back();
