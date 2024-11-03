@@ -15,7 +15,7 @@ export const BottomNavBar = () => {
       route: '/budget' 
     },
     { 
-      name: 'Assistant', 
+      name: 'ChatBot', 
       icon: 'message-processing-outline', 
       route: '/assistant' 
     },
@@ -25,7 +25,7 @@ export const BottomNavBar = () => {
       route: '/home' 
     },
     { 
-      name: 'Offers', 
+      name: 'Marketplace', 
       icon: 'shopping-outline', 
       route: '/marketplace' 
     },

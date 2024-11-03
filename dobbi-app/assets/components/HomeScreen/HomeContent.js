@@ -7,8 +7,9 @@ export const HomeContent = ({ username }) => {
   console.log('Username:', username); // Debugging line to check if username is passed correctly
   return (
     <View style={styles.lowerSection}>
-      <Text style={styles.welcomeText}>Welcome back,</Text>
-      <Text style={styles.usernameText}>{username}</Text>
+      <Text style={styles.DobbiText}>Dobbi</Text>
+      <Text style={styles.WelcomeText}>Hi there, <Text style={{ fontWeight: 'bold' }}>{username}</Text>! Here is your summary report today.</Text>
+
     </View>
   );
 };
