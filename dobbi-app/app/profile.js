@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { supabase } from '../config/supabaseClient';
-import { HomeContent } from '../assets/components/HomeScreen/HomeContent';
-import { FinancialSummary } from '../assets/components/HomeScreen/FinancialSummary';
+import { ProfileContent } from '../assets/components/ProfileScreen/ProfileContent';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/home';
 
@@ -37,8 +36,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.contentContainer}>
-        <HomeContent username={username} />
-        <FinancialSummary />
+        <ProfileContent username={username} />
       </ScrollView>
       <BottomNavBar />
     </View>
