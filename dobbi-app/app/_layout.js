@@ -1,12 +1,18 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '../context/AuthContext';
+import Header from '../assets/components/Header/Header';
+
+const isAuthenticated = true; // Mock data to store if the user is authenticated
+
+const CustomHeader = () => <Header />;
 
 export default function Layout() {
   return (
     <AuthProvider>
       <Stack 
         screenOptions={{
-          headerShown: false,
+          headerShown: isAuthenticated, // Show or hide the header based on the user authentication
+          header: CustomHeader,
           animation: 'slide_from_right',
         }}
       >
