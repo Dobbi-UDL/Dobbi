@@ -1,20 +1,30 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const handleLogoPress = () => {
+    // TODO: Implement the scroll to top functionality
+    console.log('Scroll to top');
+}
 
+const handleProfilePress = () => {
+    // TODO: Implement settings menu toggle
+    console.log('Profile button pressed');
+}
 const Header = () => {
     return (
         <SafeAreaView>
-        <View style={styles.headerContainer}>
             <View style={styles.header}>
-                <Text style={styles.brandName}>Dobbi</Text>
-                <Image
-                source={require('../../images/profile-placeholder.png')}
-                style={styles.profilePic}
-                />
+                <TouchableOpacity style={styles.touchable} onPress={handleLogoPress}>
+                    <Text style={styles.brandName}>Dobbi</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.touchable} onPress={handleProfilePress}>
+                    <Image
+                    source={require('../../images/profile-placeholder.png')}
+                    style={styles.profileButton}
+                    />
+                </TouchableOpacity>
             </View>
-        </View>
         </SafeAreaView>
     );
 };
@@ -24,19 +34,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
         backgroundColor: '#ffffff',
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.8,
         borderBottomColor: '#e0e0e0',
+        
     },
     brandName: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: 'bold',
     },
-    profilePic: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+    profileButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,   // Make the image a circle
+    },
+    touchable: {
+        padding: 8,
+        margin: -8,
     },
 });
 
