@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { styles } from '../../styles/login';
+import i18n from '@i18n';
 
 export const LoginForm = ({ onLogin, onRegister }) => {
   const [email, setEmail] = useState('');
@@ -8,14 +9,14 @@ export const LoginForm = ({ onLogin, onRegister }) => {
 
   return (
     <View style={styles.formContainer}>
-      <Text style={styles.title}>Welcome Back!</Text>
-      <Text style={styles.subtitle}>Sign in to continue</Text>
+      <Text style={styles.title}>{i18n.t('loginWelcome')}</Text>
+      <Text style={styles.subtitle}>{i18n.t('loginSubtitle')}</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{i18n.t('email')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your email"
+          placeholder={i18n.t('emailPlaceholder')}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -24,10 +25,10 @@ export const LoginForm = ({ onLogin, onRegister }) => {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>{i18n.t('password')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your password"
+          placeholder={i18n.t('passwordPlaceholder')}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -35,20 +36,20 @@ export const LoginForm = ({ onLogin, onRegister }) => {
       </View>
 
       <TouchableOpacity style={styles.forgotPassword}>
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        <Text style={styles.forgotPasswordText}>{i18n.t('forgotPassword')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.loginButton}
         onPress={() => onLogin({ email, password })}
       >
-        <Text style={styles.loginButtonText}>Log In</Text>
+        <Text style={styles.loginButtonText}>{i18n.t('loginButton')}</Text>
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
-        <Text style={styles.registerText}>Don't have an account? </Text>
+        <Text style={styles.registerText}>{i18n.t('noAccount')} </Text>
         <TouchableOpacity onPress={onRegister}>
-          <Text style={styles.registerLink}>Register</Text>
+          <Text style={styles.registerLink}>{i18n.t('register')}</Text>
         </TouchableOpacity>
       </View>
     </View>
