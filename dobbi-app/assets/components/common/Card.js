@@ -1,11 +1,12 @@
 // Card.js
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
-const Card = ({ children }) => {
+const Card = ({ title, children }) => {
     return (
         <View style={styles.card}>
+            {title && <Text style={styles.title}>{title}</Text>}
             {children}
         </View>
     );
@@ -25,10 +26,16 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2, // for Android shadow
-    }
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
 });
 
 Card.propTypes = {
+    title: PropTypes.string,
     children: PropTypes.node.isRequired,
 };
 

@@ -9,8 +9,10 @@ const BudgetOverview = () => {
             <Card>
                 <Text>Here you can see an overview of your budget.</Text>
             </Card>
-            <Card>
-                <Text>Here you can see an overview of your budget.</Text>
+            <Card 
+                title="Income"
+            >
+                <Text>Your income is $3,000</Text>
             </Card>
         </View>
     );
