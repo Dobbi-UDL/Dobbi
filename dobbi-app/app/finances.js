@@ -1,14 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import BudgetOverview  from '../assets/components/finances/BudgetOverview';
-import FinancialDetails from '../assets/components/finances/FinancialDetails';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import BudgetOverview from '../assets/components/Finances/BudgetOverview';
+import FinancialDetails from '../assets/components/Finances/FinancialDetails';
+import TabBar from '../assets/components/common/TabBar';
+
 
 const Finances = () => {
+    const [activeTab, setActiveTab] = useState(0);  // Track the active tab
+    const tabs = ['Budget Overview', 'Financial Details'];
+
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>This is the Finances screen</Text>
-            <BudgetOverview />
-            <FinancialDetails />
+            <TabBar
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabPress={setActiveTab}
+            />
+            {activeTab === 0 ? <BudgetOverview /> : <FinancialDetails />}
         </View>
     );
 };
@@ -16,16 +24,7 @@ const Finances = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#F5FCFF',
-        borderWidth: 10,
-        borderColor: 'red',
-    },
-    text: {
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
     },
 });
 
