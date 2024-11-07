@@ -1,24 +1,29 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { styles } from './TabBar.styles';
+import { defaultTabBarStyles } from './TabBar.styles';
 
-const TabBar = ({ tabs, activeTab, onTabPress }) => {
+const TabBar = ({ tabs, activeTab, onTabPress, customTabBarStyles = {} }) => {
     return (
-        <View style={styles.tabContainer}>
+        <View style={[defaultTabBarStyles.tabContainer, customTabBarStyles.tabContainer]}>
             {tabs.map((tab, index) => (
-                // Render each tab as a TouchableOpacity
                 <TouchableOpacity
                     key={index}
                     style={[
-                        styles.tab,
-                        activeTab === index && styles.activeTab // Apply activeTab style if this tab is active
+                        defaultTabBarStyles.tab,
+                        activeTab === index && defaultTabBarStyles.activeTab,
+                        customTabBarStyles.tab,
+                        activeTab === index && customTabBarStyles.activeTab,
                     ]}
-                    onPress={() => onTabPress(index)} // Handle tab press
+                    onPress={() => onTabPress(index)}
                 >
-                    <Text style={[
-                        styles.tabText,
-                        activeTab === index && styles.activeTabText // Apply activeTabText style if this tab is active
-                    ]}>
+                    <Text
+                        style={[
+                            defaultTabBarStyles.tabText,
+                            activeTab === index && defaultTabBarStyles.activeTabText,
+                            customTabBarStyles.tabText,
+                            activeTab === index && customTabBarStyles.activeTabText,
+                        ]}
+                    >
                         {tab}
                     </Text>
                 </TouchableOpacity>

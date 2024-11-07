@@ -1,6 +1,14 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+/*  Note:
+    If you need to modify the styles, create a new object with the custom styles and pass it as a prop to the TabView component. 
+    
+    Use the same keys as the defaultTabBarStyles object and only modify the styles you need.
+
+    Don't modify the existing styles! It will affect all other components that use the TabBar.
+*/
+
+export const defaultTabBarStyles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         backgroundColor: '#FFF5F6',
@@ -26,6 +34,7 @@ export const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#F2B1B1',
         letterSpacing: 0.2,
+        textAlign: 'center',
     },
     activeTabText: {
         color: '#EE6567',

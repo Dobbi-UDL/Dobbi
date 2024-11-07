@@ -7,7 +7,7 @@ const Finances = () => {
     const tabs = ['Budget Overview', 'Financial Details'];
 
     return (
-        <TabView tabs={tabs} tabBarStyle={tabStyles}>
+        <TabView tabs={tabs}>
             <BudgetOverview />
             <FinancialDetails />
         </TabView>

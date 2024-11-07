@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, ScrollView, Dimensions } from 'react-native';
 import TabBar from './TabBar';
 
-const TabView = ({ tabs, children }) => {
+const TabView = ({ tabs, children, styles }) => {
     const [activeTab, setActiveTab] = useState(0);
     const scrollViewRef = useRef(null);
     const screenWidth = Dimensions.get('window').width;
@@ -30,6 +30,7 @@ const TabView = ({ tabs, children }) => {
                 tabs={tabs}
                 activeTab={activeTab}
                 onTabPress={handleTabPress}
+                customTabBarStyles={ styles }
             />
             <ScrollView
                 ref={scrollViewRef}
