@@ -1,6 +1,6 @@
 import React from 'react';
-import BudgetOverview from '../assets/components/Finances/BudgetOverview';
-import FinancialDetails from '../assets/components/Finances/FinancialDetails';
+import FinancesOverview from '../assets/components/Finances/Overview/FinancesOverview';
+import FinancialDetails from '../assets/components/Finances/Details/FinancialDetails';
 import TabView from '../assets/components/common/TabView';
 
 const Finances = () => {
@@ -8,7 +8,7 @@ const Finances = () => {
 
     return (
         <TabView tabs={tabs}>
-            <BudgetOverview />
+            <FinancesOverview />
             <FinancialDetails />
         </TabView>
     );

@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-
-const BudgetOverview = () => {
+import Card from '../../common/Card';
+import BudgetSummaryCard from './BudgetSummaryCard';
+const FinancesOverview = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Financial Details</Text>
-            {/* Add your components and logic here */}
+            <Text style={styles.title}>Finances Overview</Text>
+            <BudgetSummaryCard />
         </View>
     );
 };
@@ -16,6 +17,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#FFF5F6',
+        padding: 16,
     },
     title: {
         fontSize: 24,
@@ -24,4 +26,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BudgetOverview;
+export default FinancesOverview;
