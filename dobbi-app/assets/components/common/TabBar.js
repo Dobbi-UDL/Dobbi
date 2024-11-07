@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { styles } from './TabBar.styles';
 
 const TabBar = ({ tabs, activeTab, onTabPress }) => {
     return (
@@ -25,29 +26,5 @@ const TabBar = ({ tabs, activeTab, onTabPress }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    tabContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        height: 48,
-    },
-    tab: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    activeTab: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#000',
-    },
-    tabText: {
-        fontSize: 14,
-        color: '#666',
-    },
-    activeTabText: {
-        color: '#000',
-    },
-});
 
 export default TabBar;
