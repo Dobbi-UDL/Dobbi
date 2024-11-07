@@ -23,7 +23,7 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
-          name="budget"
+          name="finances"
           options={{
             animation: 'none'
           }}

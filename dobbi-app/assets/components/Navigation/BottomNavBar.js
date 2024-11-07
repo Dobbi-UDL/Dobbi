@@ -10,9 +10,9 @@ export const BottomNavBar = () => {
 
   const navigationItems = [
     { 
-      name: 'Budget', 
+      name: 'Finances', 
       icon: 'chart-pie', 
-      route: '/budget' 
+      route: '/finances' 
     },
     { 
       name: 'ChatBot', 
