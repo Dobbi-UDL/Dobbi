@@ -1,5 +1,6 @@
 // Card.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 
 const Card = ({ children }) => {
@@ -26,5 +27,9 @@ const styles = StyleSheet.create({
         elevation: 2, // for Android shadow
     }
 });
+
+Card.propTypes = {
+    children: PropTypes.node.isRequired,
+};
 
 export default Card;
