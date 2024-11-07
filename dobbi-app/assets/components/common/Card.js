@@ -1,7 +1,7 @@
-// Card.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Text } from 'react-native';
+import { styles } from './Card.styles';
 
 const Card = ({ title, children, cardStyle, titleStyle }) => {
     return (
@@ -12,32 +12,11 @@ const Card = ({ title, children, cardStyle, titleStyle }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 7,
-        padding: 16,
-        margin: 8,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2, // for Android shadow
-        width: '100%',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-});
-
 Card.propTypes = {
     title: PropTypes.string,
     children: PropTypes.node.isRequired,
+    cardStyle: PropTypes.object,
+    titleStyle: PropTypes.object,
 };
 
 export default Card;
