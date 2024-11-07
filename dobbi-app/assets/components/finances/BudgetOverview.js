@@ -6,13 +6,20 @@ const BudgetOverview = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Budget Overview</Text>
-            <Card>
-                <Text>Here you can see an overview of your budget.</Text>
-            </Card>
-            <Card 
-                title="Income"
+            <Card
+                title="Total Budget"
+                cardStyle={{ marginBottom: 16 }}
+                titleStyle={{ color: '#EE6567' }}
             >
-                <Text>Your income is $3,000</Text>
+                <Text>$1,000</Text>
+            </Card>
+            <Card
+                title="Income"
+                >
+                <Text>Expenses</Text>
+            </Card>
+            <Card>
+                <Text>Remaining Budget</Text>
             </Card>
         </View>
     );
@@ -24,6 +31,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#FFF5F6',
+        padding: 16,
     },
     title: {
         fontSize: 24,

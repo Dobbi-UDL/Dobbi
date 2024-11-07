@@ -3,10 +3,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Text } from 'react-native';
 
-const Card = ({ title, children }) => {
+const Card = ({ title, children, cardStyle, titleStyle }) => {
     return (
-        <View style={styles.card}>
-            {title && <Text style={styles.title}>{title}</Text>}
+        <View style={StyleSheet.flatten([styles.card, cardStyle])}>
+            {title && <Text style={StyleSheet.flatten([styles.title, titleStyle])}>{title}</Text>}
             {children}
         </View>
     );
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2, // for Android shadow
+        width: '100%',
     },
     title: {
         fontSize: 18,
