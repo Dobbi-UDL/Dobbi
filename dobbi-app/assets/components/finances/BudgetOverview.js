@@ -1,11 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Card from '../common/Card';
 
 const BudgetOverview = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Budget Overview</Text>
-            {/* Add your components and logic here */}
+            <Card>
+                <Text>Here you can see an overview of your budget.</Text>
+            </Card>
+            <Card>
+                <Text>Here you can see an overview of your budget.</Text>
+            </Card>
         </View>
     );
 };
