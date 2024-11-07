@@ -1,30 +1,17 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
 import BudgetOverview from '../assets/components/Finances/BudgetOverview';
 import FinancialDetails from '../assets/components/Finances/FinancialDetails';
-import TabBar from '../assets/components/common/TabBar';
-
+import TabView from '../assets/components/common/TabView';
 
 const Finances = () => {
-    const [activeTab, setActiveTab] = useState(0);  // Track the active tab
     const tabs = ['Budget Overview', 'Financial Details'];
 
     return (
-        <View style={styles.container}>
-            <TabBar
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabPress={setActiveTab}
-            />
-            {activeTab === 0 ? <BudgetOverview /> : <FinancialDetails />}
-        </View>
+        <TabView tabs={tabs} tabBarStyle={tabStyles}>
+            <BudgetOverview />
+            <FinancialDetails />
+        </TabView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-});
 
 export default Finances;
