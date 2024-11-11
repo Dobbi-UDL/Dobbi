@@ -1,11 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import BudgetSummaryCard from './BudgetSummaryCard';
+import BudgetSummaryCard from './BudgetSummary';
+import ExpensesChart from './ExpensesChart';
+import Card from '../../common/Card';
+import Chart from './ChartTest';
+
 const FinancesOverview = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Finances Overview</Text>
             <BudgetSummaryCard />
+            <ExpensesChart />
+            
         </View>
     );
 };

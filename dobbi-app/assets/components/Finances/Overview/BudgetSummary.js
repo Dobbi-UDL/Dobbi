@@ -3,9 +3,9 @@ import { View } from 'react-native';
 import Card from '../../common/Card';
 import BudgetValue from './BudgetValue';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from './BudgetSummaryCard.styles';
+import { styles } from './BudgetSummary.styles';
 
-const BudgetSummaryCard = () => {
+const BudgetSummary = () => {
     const balance = 2500;
     const income = 5000;
     const expenses = 2500;
@@ -47,4 +47,4 @@ const BudgetSummaryCard = () => {
     );
 };
 
-export default BudgetSummaryCard;
+export default BudgetSummary;
