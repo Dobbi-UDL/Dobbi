@@ -15,6 +15,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2, // for Android shadow
         width: '100%',
+        alignItems: 'center',
     },
     title: {
         fontSize: 18,
