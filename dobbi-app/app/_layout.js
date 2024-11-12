@@ -17,7 +17,7 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
-          name="budget"
+          name="finances"
           options={{
             animation: 'none'
           }}
@@ -29,7 +29,13 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
-          name="marketplace"
+          name="challenges"
+          options={{
+            animation: 'none'
+          }}
+        />
+        <Stack.Screen
+          name="offers"
           options={{
             animation: 'none'
           }}

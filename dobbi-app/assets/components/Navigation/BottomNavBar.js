@@ -22,12 +22,12 @@ export const BottomNavBar = () => {
     { 
       name: 'Offers', 
       icon: 'tag-outline', 
-      route: '/marketplace/offers' 
+      route: '/offers' 
     },
     { 
       name: 'Challenges', 
       icon: 'trophy-outline', 
-      route: '/marketplace/challenges' 
+      route: '/challenges' 
     },
     { 
       name: 'ChatBot', 
