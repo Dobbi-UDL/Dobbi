@@ -22,5 +22,11 @@
   "fullNamePlaceholder": "Enter your full name",
   "createPasswordPlaceholder": "Create a password",
   "confirmPassword": "Confirm Password",
-  "confirmPasswordPlaceholder": "Confirm your password"
+  "confirmPasswordPlaceholder": "Confirm your password",
+
+  "settings": "Settings",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "logout": "Log Out",
+    "editProfile": "Edit Profile"
 }

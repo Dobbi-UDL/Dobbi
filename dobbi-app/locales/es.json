@@ -23,6 +23,12 @@
   "fullNamePlaceholder": "Ingresa tu nombre completo",
   "createPasswordPlaceholder": "Crea una contraseña",
   "confirmPassword": "Confirmar Contraseña",
-  "confirmPasswordPlaceholder": "Confirma tu contraseña"
+  "confirmPasswordPlaceholder": "Confirma tu contraseña",
+
+  "settings": "Configuración",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos y Condiciones", 
+    "logout": "Cerrar Sesión",
+    "editProfile": "Editar Perfil"
   
 }
