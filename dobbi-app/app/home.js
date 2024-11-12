@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { supabase } from '../config/supabaseClient';
-import { HomeContent } from '../assets/components/HomeScreen/HomeContent';
-import { FinancialSummary } from '../assets/components/HomeScreen/FinancialSummary';
+import { NetCashFlow } from '../assets/components/HomeScreen/NetCashFlow';
+import { QuickActions } from '../assets/components/HomeScreen/QuickActions';
+import { ActiveGoals } from '../assets/components/HomeScreen/ActiveGoals';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/home';
 
@@ -36,10 +37,28 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.contentContainer}>
-        <HomeContent username={username} />
-        <FinancialSummary />
-      </ScrollView>
+      <FlatList
+        style={styles.contentContainer}
+        data={[
+          { key: 'netCashFlow' },
+          { key: 'quickActions' },
+          { key: 'activeGoals' },
+          { key: 'savingGoals' },
+        ]}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item }) => {
+          switch (item.key) {
+            case 'netCashFlow':
+              return <NetCashFlow />;
+            case 'quickActions':
+              return <QuickActions />;
+            case 'activeGoals':
+              return <ActiveGoals />;
+            default:
+              return null;
+          }
+        }}
+      />
       <BottomNavBar />
     </View>
   );

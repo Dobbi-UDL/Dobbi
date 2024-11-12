@@ -178,4 +178,14 @@ export const styles = StyleSheet.create({
   pointsTextDisabled: {
     color: '#999999',
   },
+  flexContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+
+  contentContainer: {
+    flex: 1,
+    paddingBottom: 64, 
+  },
 });

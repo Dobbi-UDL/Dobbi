@@ -10,29 +10,29 @@ export const BottomNavBar = () => {
 
   const navigationItems = [
     { 
-      name: 'Budget', 
-      icon: 'chart-pie', 
-      route: '/budget' 
-    },
-    { 
-      name: 'ChatBot', 
-      icon: 'message-processing-outline', 
-      route: '/assistant' 
-    },
-    { 
       name: 'Home', 
       icon: 'home', 
       route: '/home' 
     },
     { 
-      name: 'Marketplace', 
-      icon: 'shopping-outline', 
-      route: '/marketplace' 
+      name: 'Budget', 
+      icon: 'chart-pie', 
+      route: '/budget' 
     },
     { 
-      name: 'Profile', 
-      icon: 'account-outline', 
-      route: '/profile' 
+      name: 'Offers', 
+      icon: 'tag-outline', 
+      route: '/offers' 
+    },
+    { 
+      name: 'Challenges', 
+      icon: 'trophy-outline', 
+      route: '/challenges' 
+    },
+    { 
+      name: 'ChatBot', 
+      icon: 'message-processing-outline', 
+      route: '/assistant' 
     },
   ];
 
@@ -50,7 +50,7 @@ export const BottomNavBar = () => {
   };
 
   return (
-    <View style={styles.navContainer}>
+    <View style={[styles.navContainer]}>
       {navigationItems.map((item) => {
         const isActive = currentPath === item.route;
         return (
