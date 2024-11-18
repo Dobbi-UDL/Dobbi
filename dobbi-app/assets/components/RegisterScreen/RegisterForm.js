@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { styles } from '../../styles/register';
+import i18n from '@i18n';
 
 export const RegisterForm = ({ onRegister }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -20,15 +21,15 @@ export const RegisterForm = ({ onRegister }) => {
   };
 
   const handleSubmit = () => {
-    const { name, email, password, confirmPassword } = formData;
+    const { username, email, password, confirmPassword } = formData;
 
-    if (!name || !email || !password || !confirmPassword) {
-      alert('Please fill in all fields.');
+    if (!username || !email || !password || !confirmPassword) {
+      alert(i18n.t('fillAllFields'));
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match.');
+      alert(i18n.t('passwordsDoNotMatch'));
       return;
     }
 
@@ -41,25 +42,25 @@ export const RegisterForm = ({ onRegister }) => {
 
   return (
     <View style={styles.formContainer}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Join Dobbi and start managing your finances</Text>
+      <Text style={styles.title}>{i18n.t('registerTitle')}</Text>
+      <Text style={styles.subtitle}>{i18n.t('registerSubtitle')}</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Full Name</Text>
+        <Text style={styles.label}>{i18n.t('fullName')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your full name"
-          value={formData.name}
-          onChangeText={(value) => handleInputChange('name', value)}
+          placeholder={i18n.t('fullNamePlaceholder')}
+          value={formData.username}
+          onChangeText={(value) => handleInputChange('username', value)}
           autoCapitalize="words"
         />
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{i18n.t('email')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your email"
+          placeholder={i18n.t('emailPlaceholder')}
           value={formData.email}
           onChangeText={(value) => handleInputChange('email', value)}
           keyboardType="email-address"
@@ -68,10 +69,10 @@ export const RegisterForm = ({ onRegister }) => {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>{i18n.t('password')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Create a password"
+          placeholder={i18n.t('createPasswordPlaceholder')}
           value={formData.password}
           onChangeText={(value) => handleInputChange('password', value)}
           secureTextEntry
@@ -79,10 +80,10 @@ export const RegisterForm = ({ onRegister }) => {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Password</Text>
+        <Text style={styles.label}>{i18n.t('confirmPassword')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Confirm your password"
+          placeholder={i18n.t('confirmPasswordPlaceholder')}
           value={formData.confirmPassword}
           onChangeText={(value) => handleInputChange('confirmPassword', value)}
           secureTextEntry
@@ -93,13 +94,13 @@ export const RegisterForm = ({ onRegister }) => {
         style={styles.registerButton}
         onPress={handleSubmit}
       >
-        <Text style={styles.registerButtonText}>Create Account</Text>
+        <Text style={styles.registerButtonText}>{i18n.t('registerButton')}</Text>
       </TouchableOpacity>
 
       <View style={styles.loginContainer}>
-        <Text style={styles.loginText}>Already have an account? </Text>
+        <Text style={styles.loginText}>{i18n.t('haveAccount')} </Text>
         <TouchableOpacity onPress={handleLoginPress}>
-          <Text style={styles.loginLink}>Log In</Text>
+          <Text style={styles.loginLink}>{i18n.t('loginButton')}</Text>
         </TouchableOpacity>
       </View>
     </View>
