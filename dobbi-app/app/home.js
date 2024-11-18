@@ -6,10 +6,13 @@ import { QuickActions } from '../assets/components/HomeScreen/QuickActions';
 import { ActiveGoals } from '../assets/components/HomeScreen/ActiveGoals';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/home';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from 'react-native';
 
 const HomeScreen = () => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     getUserData();

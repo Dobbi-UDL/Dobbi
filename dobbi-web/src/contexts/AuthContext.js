@@ -1,3 +1,4 @@
+//Web app context for user authentication
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { supabase } from '../lib/supabase';
 
