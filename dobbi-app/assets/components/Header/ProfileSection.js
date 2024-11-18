@@ -1,13 +1,15 @@
 // assets/components/Header/ProfileSection.js
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/header';
+import { styles } from '../../styles/profile';
 import i18n from '@i18n';
 import { useAuth } from '../../../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const ProfileSection = ({ userData, onClose }) => {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const { signOut } = useAuth();
 
@@ -24,6 +26,7 @@ export const ProfileSection = ({ userData, onClose }) => {
     const handleLogout = async () => {
         try {
             onClose(); // Close settings panel first
+            await signOut(); // Use signOut from AuthContext
             router.replace('/login'); // Use replace instead of push to prevent going back
         } catch (error) {
             console.error('Error signing out:', error);
@@ -55,23 +58,17 @@ export const ProfileSection = ({ userData, onClose }) => {
     ];
 
     return (
-        <View style={styles.settingsContainer}>
+        <View style={[styles.settingsContainer, { paddingTop: insets.top }]}>
             <View style={styles.settingsHeader}>
                 <View style={styles.profileSection}>
-                    {userData?.avatar_url ? (
-                        <Image 
-                            source={{ uri: userData.avatar_url }}
-                            style={styles.profileAvatar}
-                        />
-                    ) : (
-                        <Image
-                            source={userData?.avatar || require('../../../assets/images/profile-placeholder.png')}
-                            style={styles.profileAvatar}
-                        />
-                    )}
+                    <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
+                        <Text style={styles.avatarText}>
+                            {getInitials(userData?.username)}
+                        </Text>
+                    </View>
                     <View style={styles.profileInfo}>
                         <Text style={styles.profileName}>
-                            {userData?.user || 'User'}
+                            {userData?.username || 'User'}
                         </Text>
                         <TouchableOpacity onPress={handleEditProfile}>
                             <Text style={styles.editProfileLink}>
@@ -89,23 +86,13 @@ export const ProfileSection = ({ userData, onClose }) => {
                 {menuItems.map((item, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={styles.menuItem}
                         onPress={item.onPress}
+                        style={styles.menuItem}
                     >
                         <View style={styles.menuItemContent}>
-                            <Icon 
-                                name={item.icon} 
-                                size={24} 
-                                color={item.danger ? '#ff6b6b' : '#333'} 
-                            />
-                            <Text style={[
-                                styles.menuItemText,
-                                item.danger && styles.menuItemTextDanger
-                            ]}>
-                                {item.title}
-                            </Text>
+                            <Icon name={item.icon} size={24} color={item.danger ? 'red' : '#000'} />
+                            <Text style={item.danger ? styles.menuItemTextDanger : styles.menuItemText}>{item.title}</Text>
                         </View>
-                        <Icon name="chevron-right" size={20} color="#666" />
                     </TouchableOpacity>
                 ))}
             </ScrollView>

@@ -104,30 +104,4 @@ export const styles = StyleSheet.create({
         color: '#ff6b6b',
         fontSize: 14,
     },
-    settingsContainer: {
-        flex: 1,
-    },
-    menuContainer: {
-        flex: 1,
-    },
-    menuItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    menuItemContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    menuItemText: {
-        fontSize: 16,
-        marginLeft: 16,
-        color: '#333',
-    },
-    menuItemTextDanger: {
-        color: '#ff6b6b',
-    },
 });
