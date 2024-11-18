@@ -27,7 +27,7 @@ export const RegisterHeader = ({ onBack }) => (
                 ${Dimensions.get('window').width} 60 
               L ${Dimensions.get('window').width} 60 
               L 0 60 Z`}
-          fill="#fff0f0"
+          fill="#ffffff"
         />
       </Svg>
     </View>

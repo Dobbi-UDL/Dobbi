@@ -29,6 +29,25 @@
     "privacy": "Política de Privacidad",
     "terms": "Términos y Condiciones", 
     "logout": "Cerrar Sesión",
-    "editProfile": "Editar Perfil"
+    "editProfile": "Editar Perfil",
+  
+    "netCashFlowTitle": "Flujo Neto de Efectivo",
+    "monthlyIncome": "Ingresos Mensuales",
+    "monthlyExpenses": "Gastos Mensuales",
+    "netCashFlow": "Flujo Neto de Efectivo",
+
+    "quickActionsTitle": "Acciones Rápidas",
+    "addIncome": "Agregar Ingreso",
+    "addExpense": "Agregar Gasto",
+    "budget": "Finanzas",
+    "setGoal": "Nuevo Objetivo",
+
+    "activeGoalsTitle": "Metas Activas",
+    "viewAll": "Ver Todas",
+    "goalVacation": "Ahorrar para las vacaciones",
+    "goalCreditCard": "Pagar tarjeta de crédito",
+    "goalInvest": "Invertir en acciones",
+    "goalProgress": "{{progress}}% completado",
+    "viewAllGoalsAction": "Ver todos los objetivos"
   
 }

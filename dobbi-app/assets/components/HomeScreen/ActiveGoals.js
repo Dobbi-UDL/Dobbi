@@ -1,20 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import i18n from '@i18n';
 
 export const ActiveGoals = () => {
+
   const goals = [
-    { id: 1, title: 'Save for vacation', progress: 75 },
-    { id: 2, title: 'Pay off credit card', progress: 50 },
-    { id: 3, title: 'Invest in stocks', progress: 30 },
+    { id: 1, title: i18n.t('goalVacation'), progress: 75 },
+    { id: 2, title: i18n.t('goalCreditCard'), progress: 50 },
+    { id: 3, title: i18n.t('goalInvest'), progress: 30 },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Active Goals</Text>
-        <TouchableOpacity onPress={() => console.log('View all goals')}>
-          <Text style={styles.viewAll}>View All</Text>
+        <Text style={styles.title}>{i18n.t('activeGoalsTitle')}</Text>
+        <TouchableOpacity onPress={() => console.log(i18n.t('viewAllGoalsAction'))}>
+          <Text style={styles.viewAll}>{i18n.t('viewAll')}</Text>
         </TouchableOpacity>
       </View>
       <FlatList
@@ -24,7 +26,9 @@ export const ActiveGoals = () => {
           <View style={styles.goalItem}>
             <View style={styles.goalInfo}>
               <Text style={styles.goalTitle}>{item.title}</Text>
-              <Text style={styles.goalProgress}>{item.progress}% complete</Text>
+              <Text style={styles.goalProgress}>
+                {i18n.t('goalProgress', { progress: item.progress })}
+              </Text>
             </View>
             <Icon name="chevron-right" size={24} color="#666" />
           </View>

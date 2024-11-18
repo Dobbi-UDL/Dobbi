@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import i18n from '@i18n';
 
 export const NetCashFlow = () => {
+
   // Datos de ejemplo
   const monthlyIncome = 5000;
   const monthlyExpenses = 3500;
@@ -9,17 +11,21 @@ export const NetCashFlow = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Net Cash Flow</Text>
+      <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
       <View style={styles.infoContainer}>
-        <Text style={styles.label}>Monthly Income</Text>
-        <Text style={styles.value}>{monthlyIncome.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}</Text>
+        <Text style={styles.label}>{i18n.t('monthlyIncome')}</Text>
+        <Text style={styles.value}>
+          {monthlyIncome.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
+        </Text>
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.label}>Monthly Expenses</Text>
-        <Text style={styles.value}>{monthlyExpenses.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}</Text>
+        <Text style={styles.label}>{i18n.t('monthlyExpenses')}</Text>
+        <Text style={styles.value}>
+          {monthlyExpenses.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
+        </Text>
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.label}>Net Cash Flow</Text>
+        <Text style={styles.label}>{i18n.t('netCashFlow')}</Text>
         <Text style={[styles.value, netCashFlow >= 0 ? styles.positive : styles.negative]}>
           {netCashFlow.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
         </Text>

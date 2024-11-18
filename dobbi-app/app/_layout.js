@@ -9,8 +9,8 @@ export default function Layout() {
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
-          statusBarColor: 'white',
-          statusBarStyle: 'dark',
+          statusBarColor: '#ffffff',
+          statusBarStyle: '#000000',
         }}
       >
         <Stack.Screen

@@ -34,7 +34,6 @@ export default function HomeScreen() {
     <>
       <Header />
       <View style={styles.container}>
-        <Text>Hi there, {session.user.name}</Text>
         <FlatList
           style={styles.contentContainer}
           data={[

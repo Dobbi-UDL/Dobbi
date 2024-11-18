@@ -28,5 +28,25 @@
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
     "logout": "Log Out",
-    "editProfile": "Edit Profile"
+    "editProfile": "Edit Profile",
+
+    "netCashFlowTitle": "Net Cash Flow",
+    "monthlyIncome": "Monthly Income",
+    "monthlyExpenses": "Monthly Expenses",
+    "netCashFlow": "Net Cash Flow",
+
+    "quickActionsTitle": "Quick Actions",
+    "addIncome": "Add Income",
+    "addExpense": "Add Expense",
+    "budget": "finances",
+    "setGoal": "Set Goal",
+
+    "activeGoalsTitle": "Active Goals",
+    "viewAll": "View All",
+    "goalVacation": "Save for vacation",
+    "goalCreditCard": "Pay off credit card",
+    "goalInvest": "Invest in stocks",
+    "goalProgress": "{{progress}}% complete",
+    "viewAllGoalsAction": "View all goals"
+  
 }

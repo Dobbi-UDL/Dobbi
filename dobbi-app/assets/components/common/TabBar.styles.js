@@ -11,7 +11,7 @@ import { StyleSheet } from 'react-native';
 export const defaultTabBarStyles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
-        backgroundColor: '#FFF5F6',
+        backgroundColor: '#FFFfFf',
         height: 48,
         paddingHorizontal: 16,
         shadowRadius: 2,
