@@ -28,7 +28,7 @@ const SuccessScreen = () => {
     if (remainingTime === 0) {
       router.replace('/home');
     }
-  }, [remainingTime]);
+  }, [remainingTime, router]);
 
   return (
     <KeyboardAvoidingView

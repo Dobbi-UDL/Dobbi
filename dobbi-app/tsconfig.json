@@ -6,7 +6,8 @@
       "@/*": [
         "./*"
       ],
-      "@i18n": ["./i18n.js"]
+      "@i18n": ["./i18n.js"],
+      "@authcontext": ["./contexts/AuthContext"]
     }
   },
   "include": [

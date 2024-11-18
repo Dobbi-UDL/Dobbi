@@ -5,8 +5,8 @@ import { I18n } from 'i18n-js';
 const i18n = new I18n();
 
 // Import translations
-const en = require('./locales/en.json');
-const es = require('./locales/es.json');
+import en from './locales/en.json';
+import es from './locales/es.json';
 
 // Configure i18n
 i18n.enableFallback = true;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Text } from 'react-native';
 import { supabase } from '../config/supabaseClient';
 import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
