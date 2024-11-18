@@ -1,0 +1,34 @@
+{
+  "welcomeTitle": "Bienvenido a Dobbi",
+  "welcomeSubtitle": "Tu Asistente Financiero Inteligente\nHaciendo la Gestión del Dinero Simple",
+  "loginButton": "Iniciar Sesión",
+  "registerButton": "Registrarse",
+  "questionText": "¿Eres nuevo? \n",
+  
+  "loginWelcome": "¡Bienvenido de nuevo!",
+  "loginSubtitle": "Inicia sesión para continuar",
+  "email": "Correo electrónico",
+  "emailPlaceholder": "Ingresa tu correo electrónico",
+  "password": "Contraseña",
+  "passwordPlaceholder": "Ingresa tu contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "noAccount": "¿No tienes una cuenta?",
+  "register": "Regístrate",
+
+  
+  "haveAccount": "¿Ya tienes una cuenta?",
+  "registerTitle": "Crear Cuenta",
+  "registerSubtitle": "Únete a Dobbi y comienza a administrar tus finanzas",
+  "fullName": "Nombre Completo",
+  "fullNamePlaceholder": "Ingresa tu nombre completo",
+  "createPasswordPlaceholder": "Crea una contraseña",
+  "confirmPassword": "Confirmar Contraseña",
+  "confirmPasswordPlaceholder": "Confirma tu contraseña",
+
+  "settings": "Configuración",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos y Condiciones", 
+    "logout": "Cerrar Sesión",
+    "editProfile": "Editar Perfil"
+  
+}

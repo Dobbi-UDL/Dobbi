@@ -1,0 +1,32 @@
+{
+  "welcomeTitle": "Welcome to Dobbi",
+  "welcomeSubtitle": "Your Smart Financial Assistant\nMaking Money Management Simple",
+  "loginButton": "Log In",
+  "registerButton": "Register",
+  "questionText": "Are you new? \n",
+  
+  "loginWelcome": "Welcome Back!",
+  "loginSubtitle": "Sign in to continue",
+  "email": "Email",
+  "emailPlaceholder": "Enter your email",
+  "password": "Password",
+  "passwordPlaceholder": "Enter your password",
+  "forgotPassword": "Forgot Password?", 
+  "noAccount": "Don't have an account?",
+  "register": "Register",
+
+  "haveAccount": "Already have an account?",
+  "registerTitle": "Create Account",
+  "registerSubtitle": "Join Dobbi and start managing your finances",
+  "fullName": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "createPasswordPlaceholder": "Create a password",
+  "confirmPassword": "Confirm Password",
+  "confirmPasswordPlaceholder": "Confirm your password",
+
+  "settings": "Settings",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "logout": "Log Out",
+    "editProfile": "Edit Profile"
+}

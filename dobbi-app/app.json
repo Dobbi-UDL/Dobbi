@@ -27,7 +27,8 @@
       "favicon": null
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
