@@ -4,6 +4,7 @@ import { supabase } from '../config/supabaseClient';
 import { ProfileContent } from '../assets/components/ProfileScreen/ProfileContent';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/home';
+import Header from '../assets/components/Header/Header';
 
 const HomeScreen = () => {
   const [username, setUsername] = useState('');
@@ -34,12 +35,15 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.contentContainer}>
-        <ProfileContent username={username} />
-      </ScrollView>
-      <BottomNavBar />
-    </View>
+    <>
+      <Header />
+      <View style={styles.container}>
+        <ScrollView style={styles.contentContainer}>
+          <ProfileContent username={username} />
+        </ScrollView>
+        <BottomNavBar />
+      </View>
+    </>
   );
 };
 

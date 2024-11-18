@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, FlatList, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { ChatBubble } from '../assets/components/ChatbotScreen/ChatBubble';
+import Header from '../assets/components/Header/Header';
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -18,6 +19,8 @@ const ChatbotScreen = () => {
   };
 
   return (
+    <>
+    <Header />
     <View style={styles.container}>
       <FlatList
         style={styles.chatContainer}
@@ -45,13 +48,14 @@ const ChatbotScreen = () => {
       </View>
       <BottomNavBar />
     </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#ffffff',
   },
   chatContainer: {
     flex: 1,

@@ -4,7 +4,7 @@ export const styles = StyleSheet.create({
   navContainer: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#ffffff',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingBottom: 10,

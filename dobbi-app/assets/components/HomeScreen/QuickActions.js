@@ -1,18 +1,20 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import i18n from '@i18n';
 
 export const QuickActions = () => {
+
   const actions = [
-    { icon: 'plus', label: 'Add Income' },
-    { icon: 'minus', label: 'Add Expense' },
-    { icon: 'chart-line', label: 'Budget' },
-    { icon: 'bookmark-plus-outline', label: 'Set Goal' },
+    { icon: 'plus', label: i18n.t('addIncome') },
+    { icon: 'minus', label: i18n.t('addExpense') },
+    { icon: 'chart-line', label: i18n.t('budget') },
+    { icon: 'bookmark-plus-outline', label: i18n.t('setGoal') },
   ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quick Actions</Text>
+      <Text style={styles.title}>{i18n.t('quickActionsTitle')}</Text>
       <View style={styles.actionsContainer}>
         {actions.map((action, index) => (
           <TouchableOpacity
@@ -34,14 +36,17 @@ export const QuickActions = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 16,
-    elevation: 2,
+    borderRadius: 15,
+    padding: 15,
+    margin: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   title: {
     fontSize: 18,
@@ -55,6 +60,7 @@ const styles = StyleSheet.create({
   },
   actionItem: {
     alignItems: 'center',
+    textAlign: 'center',
     flex: 1,
   },
   iconContainer: {

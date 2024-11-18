@@ -4,6 +4,7 @@ import { supabase } from '../config/supabaseClient';
 import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/marketplace';
+import Header from '../assets/components/Header/Header';
 
 const OffersScreen = () => {
   const [offers, setOffers] = useState([]);
@@ -114,6 +115,8 @@ const OffersScreen = () => {
   }
 
   return (
+    <>
+    <Header />
     <View style={[styles.container, styles.flexContainer]}>
       <ScrollView style={styles.contentContainer}>
         {offers.map((offer) => (
@@ -127,6 +130,7 @@ const OffersScreen = () => {
       </ScrollView>
       <BottomNavBar />
     </View>
+    </>
   );
 };
 

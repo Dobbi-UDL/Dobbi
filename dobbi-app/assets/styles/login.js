@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 24,
