@@ -15,9 +15,9 @@ export const BottomNavBar = () => {
       route: '/home' 
     },
     { 
-      name: 'Budget', 
+      name: 'Finances', 
       icon: 'chart-pie', 
-      route: '/budget' 
+      route: '/finances' 
     },
     { 
       name: 'Offers', 
