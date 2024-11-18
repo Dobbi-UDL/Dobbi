@@ -1,14 +1,14 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { supabase } from '../config/supabaseClient';
-import { useRouter } from 'expo-router';
+//import { useRouter } from 'expo-router';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  //const router = useRouter();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       return { user: authUser, error: null };
 
     } catch (error) {
-      console.error('Signup error:', error);
+      console.log('Signup error:', error);
       return { user: null, error };
     }
   };
@@ -82,15 +82,15 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     setLoading(true);
     await supabase.auth.signOut();
-    router.push('/');
+    //router.push('/');
   }
 
-  const value = useMemo(() => ({
+  const value = {
     signUp,
     signIn,
     signOut,
     session,
-  }), [session]);
+  };
 
   return (
     <AuthContext.Provider value={value}>
