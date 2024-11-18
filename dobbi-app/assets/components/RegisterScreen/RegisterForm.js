@@ -6,7 +6,7 @@ import { styles } from '../../styles/register';
 export const RegisterForm = ({ onRegister }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -20,7 +20,18 @@ export const RegisterForm = ({ onRegister }) => {
   };
 
   const handleSubmit = () => {
-    // Aquí podrías añadir validaciones
+    const { name, email, password, confirmPassword } = formData;
+
+    if (!name || !email || !password || !confirmPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
     onRegister(formData);
   };
 
@@ -38,8 +49,8 @@ export const RegisterForm = ({ onRegister }) => {
         <TextInput
           style={styles.input}
           placeholder="Enter your full name"
-          value={formData.username}
-          onChangeText={(value) => handleInputChange('username', value)}
+          value={formData.name}
+          onChangeText={(value) => handleInputChange('name', value)}
           autoCapitalize="words"
         />
       </View>

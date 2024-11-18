@@ -26,7 +26,7 @@ const SuccessScreen = () => {
   // Navigate after countdown completes
   useEffect(() => {
     if (remainingTime === 0) {
-      router.replace('/login');
+      router.replace('/home');
     }
   }, [remainingTime]);
 

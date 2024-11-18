@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Dimensions } from 'react-native';
+import { Dimensions } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import Card from '../../common/Card';
 import { styles } from './ExpensesChart.styles';

@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/header';
+import { useRouter } from 'expo-router';
+
+const router = useRouter();
 
 const handleLogoPress = () => {
-    // TODO: Implement the scroll to top functionality
-    console.log('Scroll to top');
+    router.push('/');
 }
 
 const handleProfilePress = () => {
