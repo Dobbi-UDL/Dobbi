@@ -4,6 +4,7 @@ import { supabase } from '../config/supabaseClient';
 import { ChallengeCard } from '../assets/components/ChallengesScreen/ChallengeCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/marketplace';
+import Header from '../assets/components/Header/Header';
 
 const ChallengesScreen = () => {
   const [challenges, setChallenges] = useState([]);
@@ -42,6 +43,8 @@ const ChallengesScreen = () => {
   }
 
   return (
+    <>
+    <Header />
     <View style={[styles.container, styles.flexContainer]}>
       <ScrollView style={styles.contentContainer}>
         {challenges.map((challenge) => (
@@ -50,6 +53,7 @@ const ChallengesScreen = () => {
       </ScrollView>
       <BottomNavBar />
     </View>
+    </>
   );
 };
 
