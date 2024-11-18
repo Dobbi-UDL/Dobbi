@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   successIcon: {

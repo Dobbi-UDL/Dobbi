@@ -13,7 +13,7 @@ export const OvalShape = () => (
               ${Dimensions.get('window').width} 80 
             L ${Dimensions.get('window').width} 80 
             L 0 80 Z`}
-        fill="#fff0f0"
+        fill="#ffffff"
       />
     </Svg>
   </View>

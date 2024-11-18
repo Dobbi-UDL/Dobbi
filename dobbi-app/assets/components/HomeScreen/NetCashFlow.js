@@ -31,14 +31,17 @@ export const NetCashFlow = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 16,
-    elevation: 2,
+    borderRadius: 15,
+    padding: 15,
+    margin: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   title: {
     fontSize: 18,

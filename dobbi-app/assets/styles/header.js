@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
     brandName: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: '#ff6b6b',
     },
     profileButton: {
         width: 32,

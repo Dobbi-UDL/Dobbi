@@ -51,7 +51,7 @@ const ChatbotScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#ffffff',
   },
   chatContainer: {
     flex: 1,
