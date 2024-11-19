@@ -11,7 +11,7 @@ import { StyleSheet } from 'react-native';
 export const defaultTabBarStyles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
-        backgroundColor: '#FFFfFf',
+        backgroundColor: '#FFF5F5',
         height: 48,
         paddingHorizontal: 16,
         shadowRadius: 2,
@@ -23,16 +23,15 @@ export const defaultTabBarStyles = StyleSheet.create({
         padding: 8,
         position: 'relative',
         borderBottomWidth: 2,
-        borderBottomColor: '#ffd9d9',
+        borderBottomColor: '#FFE5E5',
     },
     activeTab: {
-        borderBottomWidth: 2,
         borderBottomColor: '#EE6567',
     },
     tabText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#F2B1B1',
+        color: '#FFB3B3',
         letterSpacing: 0.2,
         textAlign: 'center',
     },

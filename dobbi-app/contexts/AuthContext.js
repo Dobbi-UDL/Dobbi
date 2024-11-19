@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
       console.log('Auth state changed:', event, session);
+      console.log('Loading:', loading); 
     });
 
     return () => {
