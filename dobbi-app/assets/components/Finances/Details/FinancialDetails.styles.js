@@ -73,11 +73,13 @@ const styles = StyleSheet.create({
   entryName: {
     fontSize: 16,
     color: '#666666',
+    marginLeft: 12,
   },
   entryAmount: {
     fontSize: 16,
     color: '#666666',
     fontWeight: '500',
+    marginRight: 12,
   },
   touchable: {
     marginBottom: 12,

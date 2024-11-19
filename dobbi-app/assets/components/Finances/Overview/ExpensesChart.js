@@ -1,52 +1,68 @@
 import React from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import Card from '../../common/Card';
 import { styles } from './ExpensesChart.styles';
 
-
 const ExpensesChart = () => {
     const screenWidth = Dimensions.get('window').width;
     const chartConfig = {
-        backgroundGradientFrom: '#ffffff',
-        backgroundGradientTo: '#ffffff',
-        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        backgroundGradientFrom: '#FFF5F5',
+        backgroundGradientTo: '#FFF5F5',
+        color: (opacity = 1) => `rgba(51, 51, 51, ${opacity})`,
     };
 
-    const data = [
-        { name: 'Category 1', population: 10, color: '#EE6567', legendFontColor: '#7F7F7F' }, // Main color
-        { name: 'Category 2', population: 12, color: '#F5A623', legendFontColor: '#7F7F7F' }, // Orange
-        { name: 'Category 3', population: 8, color: '#F8E71C', legendFontColor: '#7F7F7F' }, // Yellow
-        { name: 'Category 4', population: 15, color: '#7ED321', legendFontColor: '#7F7F7F' }, // Light Green
-        { name: 'Category 5', population: 9, color: '#50E3C2', legendFontColor: '#7F7F7F' }, // Turquoise
-        { name: 'Category 6', population: 7, color: '#4A90E2', legendFontColor: '#7F7F7F' }, // Blue
-        { name: 'Category 7', population: 11, color: '#9013FE', legendFontColor: '#7F7F7F' }, // Purple
-        { name: 'Category 8', population: 13, color: '#BD10E0', legendFontColor: '#7F7F7F' }, // Magenta
-        { name: 'Category 9', population: 6, color: '#FF7F50', legendFontColor: '#7F7F7F' }, // Coral
-        { name: 'Category 10', population: 14, color: '#FFA07A', legendFontColor: '#7F7F7F' }, // Light Salmon
+    // Calculate total for percentages
+    const rawData = [
+        { name: 'Entertainment', amount: 95.98, color: '#EE6567' },  // Primary accent color
+        { name: 'Food', amount: 120.45, color: '#F5A623' },         // Text secondary color
+        { name: 'Transport', amount: 45, color: '#F8E71C' },        // Text primary color
     ];
 
+    const total = rawData.reduce((sum, item) => sum + item.amount, 0);
+
+    const data = rawData.map(item => ({
+        name: item.name,
+        population: item.amount,
+        color: item.color,
+        legendFontColor: '#2D3436',
+        legendFontSize: 14,
+        percentage: ((item.amount / total) * 100).toFixed(1)
+    }));
+
     return (
-        <Card 
+        <Card
             title="Expense Breakdown"
             cardStyle={styles.card}>
-
+            <View style={styles.chartContainer}>
                 <PieChart
                     data={data}
-                    width={screenWidth - 80}    
-                    height={220}
+                    width={screenWidth - 80}
+                    height={200}
                     chartConfig={chartConfig}
                     accessor="population"
                     backgroundColor="transparent"
-                    paddingLeft="24"
-                    style={{
-                        borderWidth: 1,
-                        borderColor: '#E0E0E0',
-                    }}
+                    paddingLeft="70"
+                    center={[0, 0]}
+                    hasLegend={false}
                 />
 
+                <View style={styles.legendContainer}>
+                    {data.map((item, index) => (
+                        <View key={index} style={styles.legendItem}>
+                            <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                            <View style={styles.legendText}>
+                                <Text style={styles.legendLabel}>{item.name}</Text>
+                                <Text style={styles.legendValue}>${item.population.toFixed(2)} ({item.percentage}%)</Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </View>
         </Card>
     );
 };
+
+
 
 export default ExpensesChart;
