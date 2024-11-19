@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import i18n from '@i18n';
+import Card from '../common/Card';
 
 export const QuickActions = () => {
 
@@ -13,7 +14,7 @@ export const QuickActions = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <Card>
       <Text style={styles.title}>{i18n.t('quickActionsTitle')}</Text>
       <View style={styles.actionsContainer}>
         {actions.map((action, index) => (
@@ -29,7 +30,7 @@ export const QuickActions = () => {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </Card>
   );
 };
 

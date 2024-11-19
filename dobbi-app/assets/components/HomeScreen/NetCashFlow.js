@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import i18n from '@i18n';
+import Card from '../common/Card';
 
 export const NetCashFlow = () => {
 
@@ -10,7 +11,7 @@ export const NetCashFlow = () => {
   const netCashFlow = monthlyIncome - monthlyExpenses;
 
   return (
-    <View style={styles.container}>
+    <Card>
       <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
       <View style={styles.infoContainer}>
         <Text style={styles.label}>{i18n.t('monthlyIncome')}</Text>
@@ -30,7 +31,7 @@ export const NetCashFlow = () => {
           {netCashFlow.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
         </Text>
       </View>
-    </View>
+    </Card>
   );
 };
 

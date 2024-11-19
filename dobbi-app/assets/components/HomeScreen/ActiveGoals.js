@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import i18n from '@i18n';
+import Card from '../common/Card';
 
 export const ActiveGoals = () => {
 
@@ -12,7 +13,7 @@ export const ActiveGoals = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <Card>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>{i18n.t('activeGoalsTitle')}</Text>
         <TouchableOpacity onPress={() => console.log(i18n.t('viewAllGoalsAction'))}>
@@ -34,7 +35,7 @@ export const ActiveGoals = () => {
           </View>
         )}
       />
-    </View>
+    </Card>
   );
 };
 

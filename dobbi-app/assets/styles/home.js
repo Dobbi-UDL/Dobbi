@@ -3,9 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFF5F5',
   },
   contentContainer: {
+    padding: 16,
     flex: 1,
   },
   lowerSection: {
@@ -34,8 +35,7 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 10,
+    marginBottom: 20,
   },
 });
