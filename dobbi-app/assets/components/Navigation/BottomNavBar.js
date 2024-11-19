@@ -1,52 +1,30 @@
 import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/navigation';
+import { styles } from './BottomNavBar.styles';
+import { Ionicons } from '@expo/vector-icons';
 
 export const BottomNavBar = () => {
+  const showText = false;
   const router = useRouter();
   const currentPath = usePathname();
 
+  const activeColor = '#EE6567';
+  const inactiveColor = '#FFB3B3';
+
   const navigationItems = [
-    { 
-      name: 'Home', 
-      icon: 'home', 
-      route: '/home' 
-    },
-    { 
-      name: 'Finances', 
-      icon: 'chart-pie', 
-      route: '/finances' 
-    },
-    { 
-      name: 'Offers', 
-      icon: 'tag-outline', 
-      route: '/offers' 
-    },
-    { 
-      name: 'Challenges', 
-      icon: 'trophy-outline', 
-      route: '/challenges' 
-    },
-    { 
-      name: 'ChatBot', 
-      icon: 'message-processing-outline', 
-      route: '/assistant' 
-    },
+    { name: 'Home', icon: 'home', route: '/home' },
+    { name: 'Finances', icon: 'pie-chart', route: '/finances' },
+    { name: 'Offers', icon: 'pricetags', route: '/offers' },
+    { name: 'Challenges', icon: 'trophy', route: '/challenges' },
+    { name: 'ChatBot', icon: 'chatbox-ellipses', route: '/assistant' },
   ];
 
   const handleNavigation = (route) => {
-    // Si ya estamos en la ruta actual, no hacemos nada
-    if (currentPath === route) {
-      return;
-    }
-
-    try {
+    if (currentPath !== route) {
       router.push(route);
-    } catch (error) {
-      console.error('Error navigating to:', route, error);
     }
+    // If the current path is the same as the route, do nothing
   };
 
   return (
@@ -59,18 +37,19 @@ export const BottomNavBar = () => {
             style={styles.navItem}
             onPress={() => handleNavigation(item.route)}
           >
-            <Icon
+            <Ionicons
               name={item.icon}
               size={24}
-              color={isActive ? '#ff6b6b' : '#757575'}
-              style={styles.icon}
+              color={isActive ? activeColor : inactiveColor}
             />
-            <Text style={[
-              styles.navText,
-              isActive && styles.activeNavText
-            ]}>
-              {item.name}
-            </Text>
+            {showText && (
+              <Text style={[
+                styles.navText,
+                isActive && styles.activeNavText
+              ]}>
+                {item.name}
+              </Text>
+            )}
           </TouchableOpacity>
         );
       })}
