@@ -1,27 +1,21 @@
 import { StyleSheet } from "react-native";
-
 export const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 7,
-        paddingVertical: 16,
-        paddingHorizontal: 24,
-        margin: 8,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,   //20
+        shadowColor: '#EE6567',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2, // for Android shadow
+        shadowRadius: 8,
+        elevation: 4,
         width: '100%',
-        alignItems: 'center',
     },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#333333',
         marginBottom: 8,
-        alignSelf: 'flex-start',
     },
 });
