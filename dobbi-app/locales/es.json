@@ -26,28 +26,31 @@
   "confirmPasswordPlaceholder": "Confirma tu contraseña",
 
   "settings": "Configuración",
-    "privacy": "Política de Privacidad",
-    "terms": "Términos y Condiciones", 
-    "logout": "Cerrar Sesión",
-    "editProfile": "Editar Perfil",
-  
-    "netCashFlowTitle": "Flujo Neto de Efectivo",
-    "monthlyIncome": "Ingresos Mensuales",
-    "monthlyExpenses": "Gastos Mensuales",
-    "netCashFlow": "Flujo Neto de Efectivo",
+  "privacy": "Política de Privacidad",
+  "terms": "Términos y Condiciones", 
+  "logout": "Cerrar Sesión",
+  "editProfile": "Editar Perfil",
+  "language": "Idioma",
 
-    "quickActionsTitle": "Acciones Rápidas",
-    "addIncome": "Agregar Ingreso",
-    "addExpense": "Agregar Gasto",
-    "budget": "Finanzas",
-    "setGoal": "Nuevo Objetivo",
+  "netCashFlowTitle": "Flujo Neto de Efectivo",
+  "monthlyIncome": "Ingresos Mensuales",
+  "monthlyExpenses": "Gastos Mensuales",
+  "netCashFlow": "Flujo Neto de Efectivo",
 
-    "activeGoalsTitle": "Metas Activas",
-    "viewAll": "Ver Todas",
-    "goalVacation": "Ahorrar para las vacaciones",
-    "goalCreditCard": "Pagar tarjeta de crédito",
-    "goalInvest": "Invertir en acciones",
-    "goalProgress": "{{progress}}% completado",
-    "viewAllGoalsAction": "Ver todos los objetivos"
+  "quickActionsTitle": "Acciones Rápidas",
+  "addIncome": "Agregar Ingreso",
+  "addExpense": "Agregar Gasto",
+  "budget": "Finanzas",
+  "setGoal": "Nuevo Objetivo",
+
+  "activeGoalsTitle": "Metas Activas",
+  "viewAll": "Ver Todas",
+  "goalVacation": "Ahorrar para las vacaciones",
+  "goalCreditCard": "Pagar tarjeta de crédito",
+  "goalInvest": "Invertir en acciones",
+  "goalProgress": "{{progress}}% completado",
+  "viewAllGoalsAction": "Ver todos los objetivos",
+  "selectLanguage": "Seleccionar Idioma",
+  "cancel": "Cancelar"
   
 }

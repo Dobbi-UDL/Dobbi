@@ -1,17 +1,19 @@
 // assets/components/Header/ProfileSection.js
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/profile.js';
 import i18n from '@i18n';
 import { useAuth } from '@authcontext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LanguageModal } from './LanguageModal';
 
 export const ProfileSection = ({ userData, onClose }) => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const { signOut } = useAuth();
+    const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
 
     const getInitials = (name) => {
         if (!name) return '?';
@@ -32,6 +34,9 @@ export const ProfileSection = ({ userData, onClose }) => {
             console.error('Error signing out:', error);
         }
     };
+    const handleLanguagePress = () => {
+        setIsLanguageModalVisible(true);
+    };
 
     const menuItems = [
         {
@@ -48,6 +53,11 @@ export const ProfileSection = ({ userData, onClose }) => {
             icon: 'file-document',
             title: i18n.t('terms'),
             onPress: () => console.log('Terms pressed')
+        },
+        {
+            icon: 'translate',
+            title: i18n.t('language'),
+            onPress: handleLanguagePress // Updated handler
         },
         {
             icon: 'logout',
@@ -96,6 +106,10 @@ export const ProfileSection = ({ userData, onClose }) => {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+            <LanguageModal 
+                isVisible={isLanguageModalVisible}
+                onClose={() => setIsLanguageModalVisible(false)}
+            />
         </View>
     );
 };
