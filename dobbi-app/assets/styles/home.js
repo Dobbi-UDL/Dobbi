@@ -30,4 +30,12 @@ export const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 8,
   },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 10,
+  },
 });

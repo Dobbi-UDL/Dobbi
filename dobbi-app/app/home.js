@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, FlatList, ActivityIndicator, Text } from 'react-native';
 import { NetCashFlow } from '../assets/components/HomeScreen/NetCashFlow';
 import { QuickActions } from '../assets/components/HomeScreen/QuickActions';
 import { ActiveGoals } from '../assets/components/HomeScreen/ActiveGoals';
@@ -9,18 +9,11 @@ import { useAuth } from '../contexts/AuthContext';
 import Header from '../assets/components/Header/Header';
 import { useRouter } from 'expo-router';
 
-export default function HomeScreen() {
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { session } = useAuth();
 
-  useEffect(() => {
-    if (session?.user) {
-      setLoading(false);
-    } else {
-      router.push('/login');
-    }
-  }, [session, router]);
+export default function HomeScreen() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const userName = user.username || 'User';
 
   if (loading) {
     return (
@@ -28,6 +21,11 @@ export default function HomeScreen() {
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
+  }
+
+  if (!user) {
+    router.replace('/login');
+    return null;
   }
 
   return (
@@ -43,6 +41,9 @@ export default function HomeScreen() {
             { key: 'savingGoals' },
           ]}
           keyExtractor={(item) => item.key}
+          ListHeaderComponent={() => (
+            <Text style={styles.welcomeText}>Welcome {userName}!</Text>
+          )}
           renderItem={({ item }) => {
             switch (item.key) {
               case 'netCashFlow':
