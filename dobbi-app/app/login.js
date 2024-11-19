@@ -9,17 +9,18 @@ import { useAuth } from '../contexts/AuthContext';
 const LoginScreen = () => {
   const router = useRouter();
   const { signIn, user, loading: authLoading } = useAuth();
-
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     // Redirect to home if user is authenticated
-    if ( user && !authLoading ) {
+    if (user && !authLoading) {
       router.replace('/home');
     }
   }, [user, authLoading]);
 
   const handleLogin = async ({ email, password }) => {
+
     if (!email || !password) {
       alert("Please enter both email and password.");
       return;
@@ -27,13 +28,17 @@ const LoginScreen = () => {
 
     try {
       setLoading(true);
-      const { error } = await signIn({ email, password });
-      if (error) throw error;
+      const { error: signInError } = await signIn({ email, password });
+      
+      if (signInError) {
+        throw signInError;
+      }
 
     } catch (error) {
       console.log('Login error:', error);
-      alert("Login error: " + error.message);
-    } finally {
+      alert(error.message);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -46,13 +51,16 @@ const LoginScreen = () => {
     router.back();
   };
 
+  // Only show loading when both local loading and auth loading are false
+  const isLoading = loading && authLoading;
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {loading || authLoading ? (
+        {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
