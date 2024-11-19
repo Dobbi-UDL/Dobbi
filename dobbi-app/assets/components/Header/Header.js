@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { supabase } from '../../../config/supabaseClient';
 import { useAuth } from '@authcontext';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/header.js';
+import { styles } from './Header.styles.js';
 import { ProfileSection } from './ProfileSection';
+import { Ionicons } from '@expo/vector-icons';
 
 const Header = () => {
     const insets = useSafeAreaInsets();
@@ -20,7 +19,7 @@ const Header = () => {
         console.log('Scroll to top');
     }
 
-    const handleProfilePress = () => {
+    const handleMenuPress = () => {
         setIsSettingsOpen(true);
         Animated.parallel([
             Animated.timing(slideAnim, {
@@ -54,14 +53,15 @@ const Header = () => {
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.touchable} onPress={handleLogoPress}>
+                <TouchableOpacity style={styles.logoContainer} onPress={handleLogoPress}>
+                    <Image
+                        source={require('../../images/dobbi-logo.png')}
+                        style={styles.logo}
+                    />
                     <Text style={styles.brandName}>Dobbi</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.touchable} onPress={handleProfilePress}>
-                    <Image
-                        source={require('../../images/profile-placeholder.png')}
-                        style={styles.profileButton}
-                    />
+                <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
+                    <Ionicons name="menu" size={24} color="#EE6567" />
                 </TouchableOpacity>
             </View>
 
@@ -73,13 +73,13 @@ const Header = () => {
                 />
             )}
 
-            <Animated.View 
+            <Animated.View
                 style={[
                     styles.settingsMenu,
                     { transform: [{ translateX: slideAnim }] }
                 ]}
             >
-                <ProfileSection 
+                <ProfileSection
                     userData={user}
                     onClose={handleCloseSettings}
                 />
