@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/marketplace';
+import Card from '../common/Card';
 
 export const ChallengeCard = ({ challenge }) => {
   // Función para formatear el monto como moneda
@@ -26,7 +27,8 @@ export const ChallengeCard = ({ challenge }) => {
   const remainingDays = getRemainingDays(challenge.target_date);
 
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity>
+      <Card>    
       <View style={styles.cardHeader}>
         <Text style={styles.companyName}>{challenge.companies.name}</Text>
         <View style={styles.rewardContainer}>
@@ -58,6 +60,7 @@ export const ChallengeCard = ({ challenge }) => {
           Target Date: {new Date(challenge.target_date).toLocaleDateString()}
         </Text>
       </View>
+      </Card>
     </TouchableOpacity>
   );
 };
