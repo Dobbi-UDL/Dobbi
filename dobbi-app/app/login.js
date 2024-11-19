@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LoginHeader } from '../assets/components/LoginScreen/LoginHeader';
@@ -8,9 +8,16 @@ import { useAuth } from '../contexts/AuthContext';
 
 const LoginScreen = () => {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Redirect to home if user is authenticated
+    if ( user && !authLoading ) {
+      router.replace('/home');
+    }
+  }, [user, authLoading]);
 
   const handleLogin = async ({ email, password }) => {
     if (!email || !password) {
@@ -20,26 +27,12 @@ const LoginScreen = () => {
 
     try {
       setLoading(true);
+      const { error } = await signIn({ email, password });
+      if (error) throw error;
 
-      const { error: loginError } = await signIn({ email, password });
-
-      if (loginError) throw loginError;
-
-      // Check if user exists in the 'users' table
-      const { data: profileData, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      if (profileData) {
-        // Successful login
-        router.replace('/home');
-      }
     } catch (error) {
-      alert(error.message);
+      console.log('Login error:', error);
+      alert("Login error: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -59,7 +52,7 @@ const LoginScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {loading ? (
+        {loading || authLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
           </View>

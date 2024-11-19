@@ -12,7 +12,8 @@ export default function Layout() {
           statusBarColor: '#ffffff',
           statusBarStyle: '#000000',
         }}
-      >
+      > 
+        
         <Stack.Screen
           name="home"
           options={{

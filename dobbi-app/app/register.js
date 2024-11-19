@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { RegisterHeader } from '../assets/components/RegisterScreen/RegisterHeader';
@@ -9,18 +9,25 @@ import { useAuth } from '../contexts/AuthContext';
 export default function RegisterScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, user, loading: authLoading } = useAuth();
 
-  const handleRegister = async ({ name, email, password }) => {
+  useEffect(() => {
+    // Redirect to home if user is authenticated
+    if ( user && !authLoading ) {
+      router.replace('/success');
+    }
+  }, [user, authLoading]);
+
+  const handleRegister = async ({ username, email, password }) => {
     try {
       console.log("Register button pressed");
       setLoading(true);
-      const { error } = await signUp({ name, email, password });
+      const { error } = await signUp({ username, email, password });
 
       if (error) throw error;
-      router.push('/success');
 
     } catch (error) {
+      console.log('Registration error:', error);
       alert(error.message);
     } finally {
       setLoading(false);
@@ -37,7 +44,7 @@ export default function RegisterScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {loading ? (
+        {loading || authLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
