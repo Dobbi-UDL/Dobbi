@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/marketplace';
+import Card from '../common/Card';
 
 export const OfferCard = ({ offer, userPoints, onRedeem }) => {
   const [showCode, setShowCode] = useState(offer.isRedeemed);
@@ -41,7 +42,8 @@ export const OfferCard = ({ offer, userPoints, onRedeem }) => {
   };
 
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity>
+      <Card>
       <View style={styles.cardHeader}>
         <Text style={styles.companyName}>{offer.companies.name}</Text>
         <View style={[
@@ -89,6 +91,7 @@ export const OfferCard = ({ offer, userPoints, onRedeem }) => {
           Valid: {new Date(offer.start_date).toLocaleDateString()} - {new Date(offer.end_date).toLocaleDateString()}
         </Text>
       </View>
+      </Card>
     </TouchableOpacity>
   );
 };

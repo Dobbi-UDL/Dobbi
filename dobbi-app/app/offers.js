@@ -6,6 +6,7 @@ import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/marketplace';
 import Header from '../assets/components/Header/Header';
 
+
 const OffersScreen = () => {
   const [offers, setOffers] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
