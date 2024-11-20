@@ -50,5 +50,46 @@
   "goalProgress": "{{progress}}% complete",
   "viewAllGoalsAction": "View all goals",
   "selectLanguage": "Select Language",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+
+  "languageChanged": "Language Changed",
+  "languageChangedMessage": "The app language has been changed to {{language}}",
+  
+  "overview": "Overview",
+  "details": "Details",
+  "financesOverview": "Finances Overview",
+  "remainingBalance": "Remaining Balance",
+  "totalIncome": "Total Income",
+  "totalExpenses": "Total Expenses",
+
+  "entertainment": "Entertainment",
+  "food": "Food",
+  "transport": "Transport",
+  "expenseBreakdown": "Expense Breakdown",
+
+  "totalIncome": "Total Income",
+  "salary": "Salary",
+  "freelance": "Freelance",
+
+  "netflixSubscription": "Netflix Subscription",
+  "gymMembership": "Gym Membership",
+  "movieTickets": "Movie Tickets",
+
+  "groceries": "Groceries",
+  "dinnerOut": "Dinner Out",
+
+  "busTickets": "Bus Tickets",
+  "uber": "Uber",
+
+  "statsScreenNotImplemented": "Stats screen not implemented",
+  "editCategory": "Edit Category not implemented",
+  "addEntryNotImplemented": "Add Entry not implemented",  
+
+  "financialDetails": "Financial Details",
+  "income": "Income",
+  "expenses": "Expenses",
+  "edit": "Edit",
+  "addNewEntry": "Add New Entry",
+
+  "welcome" : "Welcome"
 }

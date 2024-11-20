@@ -51,6 +51,21 @@
   "goalProgress": "{{progress}}% completado",
   "viewAllGoalsAction": "Ver todos los objetivos",
   "selectLanguage": "Seleccionar Idioma",
-  "cancel": "Cancelar"
+  "cancel": "Cancelar",
+
+  "languageChanged": "Idioma Cambiado",
+  "languageChangedMessage": "El idioma de la aplicación se ha cambiado a {{language}}",
+
+  "overview": "Resumen",
+  "details": "Detalles",
+  "financesOverview": "Resumen Financiero",
+  "remainingBalance": "Saldo Restante",
+  "totalIncome": "Ingresos Totales",
+  "totalExpenses": "Gastos Totales",
+  "entertainment": "Entretenimiento",
+  "food": "Comida",
+  "transport": "Transporte",
+  "expenseBreakdown": "Desglose de Gastos",
   
+  "welcome" : "Bienvenid@"
 }

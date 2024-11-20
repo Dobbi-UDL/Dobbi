@@ -3,6 +3,8 @@ import { Dimensions, View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import Card from '../../common/Card';
 import { styles } from './ExpensesChart.styles';
+import i18n from '@i18n';
+
 
 const ExpensesChart = () => {
     const screenWidth = Dimensions.get('window').width;
@@ -14,9 +16,9 @@ const ExpensesChart = () => {
 
     // Calculate total for percentages
     const rawData = [
-        { name: 'Entertainment', amount: 95.98, color: '#EE6567' },  // Primary accent color
-        { name: 'Food', amount: 120.45, color: '#F5A623' },         // Text secondary color
-        { name: 'Transport', amount: 45, color: '#F8E71C' },        // Text primary color
+        { name: i18n.t('entertainment'), amount: 95.98, color: '#EE6567' },  // Primary accent color
+        { name: i18n.t('food'), amount: 120.45, color: '#F5A623' },         // Text secondary color
+        { name: i18n.t('transport'), amount: 45, color: '#F8E71C' },        // Text primary color
     ];
 
     const total = rawData.reduce((sum, item) => sum + item.amount, 0);
@@ -32,7 +34,7 @@ const ExpensesChart = () => {
 
     return (
         <Card
-            title="Expense Breakdown"
+            title={i18n.t('expenseBreakdown')}
             cardStyle={styles.card}>
             <View style={styles.chartContainer}>
                 <PieChart

@@ -2,15 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import BudgetSummaryCard from './BudgetSummary';
 import ExpensesChart from './ExpensesChart';
-import Card from '../../common/Card';
-import Chart from './ChartTest';
+import i18n from '@i18n';
 
 const FinancesOverview = () => {
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.header}>
-                <Text style={styles.headerTitle}>Finances Overview</Text>
+                <Text style={styles.headerTitle}>{i18n.t('financesOverview')}</Text>
                 </View>
                 <BudgetSummaryCard />
                 <ExpensesChart />

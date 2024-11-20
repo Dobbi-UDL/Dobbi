@@ -4,10 +4,10 @@ import FinancialDetails from '../assets/components/Finances/Details/FinancialDet
 import TabView from '../assets/components/common/TabView';
 import Header from '../assets/components/Header/Header';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
-
+import i18n from '../i18n';
 
 const Finances = () => {
-    const tabs = ['Overview', 'Details'];
+    const tabs = [i18n.t('overview'), i18n.t('details')];
 
     return (
         <>

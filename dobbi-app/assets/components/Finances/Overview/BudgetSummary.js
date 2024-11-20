@@ -4,6 +4,7 @@ import Card from '../../common/Card';
 import BudgetValue from './BudgetValue';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from './BudgetSummary.styles';
+import i18n from '@i18n';
 
 const BudgetSummary = () => {
     const balance = 2500;
@@ -14,13 +15,13 @@ const BudgetSummary = () => {
         <Card cardStyle={styles.card}>
             <BudgetValue
                 amount={balance}
-                label="Remaining Balance"
+                label={i18n.t('remainingBalance')}
                 valueStyle={styles.balance}
             />
             <View style={styles.row}>
                 <BudgetValue
                     amount={income}
-                    label="Total Income"
+                    label={i18n.t('totalIncome')}
                     valueStyle={styles.income}
                     icon={
                         <MaterialCommunityIcons
@@ -32,7 +33,7 @@ const BudgetSummary = () => {
                 />
                 <BudgetValue
                     amount={expenses}
-                    label="Total Expenses"
+                    label={i18n.t('totalExpenses')}
                     valueStyle={styles.expenses}
                     icon={
                         <MaterialCommunityIcons

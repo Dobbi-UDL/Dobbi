@@ -2,6 +2,7 @@
   "expo": {
     "name": "dobbi-app",
     "slug": "dobbi-app",
+    "owner": "eeriiclopeezz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": null,
@@ -22,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": null,
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.eeriiclopeezz.dobbiapp"
     },
     "web": {
       "bundler": "metro",

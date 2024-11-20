@@ -9,7 +9,13 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
     },
     "production": {
       "autoIncrement": true
@@ -17,11 +23,5 @@
   },
   "submit": {
     "production": {}
-  },
-  "ios": {
-  "supportsTablet": true,
-  "infoPlist": {
-    "UIViewControllerBasedStatusBarAppearance": true
   }
-}
 }

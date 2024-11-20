@@ -8,6 +8,7 @@ import { styles } from '../assets/styles/home';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../assets/components/Header/Header';
 import { useRouter } from 'expo-router';
+import i18n from '../i18n';
 
 
 export default function HomeScreen() {
@@ -42,7 +43,7 @@ export default function HomeScreen() {
           ]}
           keyExtractor={(item) => item.key}
           ListHeaderComponent={() => (
-            <Text style={styles.welcomeText}>Welcome {userName}!</Text>
+            <Text style={styles.welcomeText}>{i18n.t("welcome")} {userName}!</Text>
           )}
           renderItem={({ item }) => {
             switch (item.key) {
