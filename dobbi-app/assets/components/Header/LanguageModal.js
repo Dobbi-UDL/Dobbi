@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import i18n from '@i18n';
+import { useLanguage } from '@languagecontext';
 
 export const LanguageModal = ({ isVisible, onClose }) => {
+    const { locale, changeLanguage } = useLanguage();
     const [currentLocale, setCurrentLocale] = useState(i18n.locale);
 
     useEffect(() => {
@@ -16,10 +18,9 @@ export const LanguageModal = ({ isVisible, onClose }) => {
         { code: 'es', label: 'Español' }
     ];
 
-    const handleLanguageSelect = (langCode) => {
+    const handleLanguageSelect = async (langCode) => {
         try {
-            i18n.locale = langCode;
-            setCurrentLocale(langCode);
+            await changeLanguage(langCode);
             Alert.alert(
                 i18n.t('languageChanged'),
                 i18n.t('languageChangedMessage', { 
