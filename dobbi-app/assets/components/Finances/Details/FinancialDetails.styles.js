@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666666',
     marginLeft: 12,
+    width: 190,
   },
   entryAmount: {
     fontSize: 16,
@@ -104,6 +105,41 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         fontWeight: 'bold',
     },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
 });
 
 export default styles;
