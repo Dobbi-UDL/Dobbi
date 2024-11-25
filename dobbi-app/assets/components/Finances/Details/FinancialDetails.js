@@ -43,6 +43,7 @@ export default function FinancialDetails() {
             const { expenseCategories, incomeCategories } = sortEntriesIntoCategories(categories, entries);
 
             setFinancialData({ income: incomeCategories, expenses: expenseCategories });
+            
         } catch (error) {
             console.error("Error loading financial data: ", error);
         }   
