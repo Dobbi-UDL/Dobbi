@@ -3,8 +3,10 @@ import { View, FlatList, TextInput, TouchableOpacity, Text, StyleSheet } from 'r
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { ChatBubble } from '../assets/components/ChatbotScreen/ChatBubble';
 import Header from '../assets/components/Header/Header';
+import { useLanguage } from '@languagecontext';
 
 const ChatbotScreen = () => {
+  const { locale } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
 

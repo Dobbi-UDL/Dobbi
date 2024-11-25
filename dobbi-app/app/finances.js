@@ -5,8 +5,10 @@ import TabView from '../assets/components/common/TabView';
 import Header from '../assets/components/Header/Header';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import i18n from '../i18n';
+import { useLanguage } from '@languagecontext';
 
 const Finances = () => {
+    const { locale } = useLanguage();
     const tabs = [i18n.t('overview'), i18n.t('details')];
 
     return (

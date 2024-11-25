@@ -5,8 +5,10 @@ import { LoginHeader } from '../assets/components/LoginScreen/LoginHeader';
 import { LoginForm } from '../assets/components/LoginScreen/LoginForm';
 import { styles } from '../assets/styles/login';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '@languagecontext';
 
 const LoginScreen = () => {
+  const { locale } = useLanguage();
   const router = useRouter();
   const { signIn, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);

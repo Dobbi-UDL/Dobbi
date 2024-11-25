@@ -5,8 +5,10 @@ import { RegisterHeader } from '../assets/components/RegisterScreen/RegisterHead
 import { RegisterForm } from '../assets/components/RegisterScreen/RegisterForm';
 import { styles } from '../assets/styles/register';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '@languagecontext';
 
 export default function RegisterScreen() {
+  const { locale } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { signUp, user, loading: authLoading } = useAuth();

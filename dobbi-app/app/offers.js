@@ -5,9 +5,10 @@ import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/marketplace';
 import Header from '../assets/components/Header/Header';
-
+import { useLanguage } from '@languagecontext';
 
 const OffersScreen = () => {
+  const { locale } = useLanguage();
   const [offers, setOffers] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
   const [loading, setLoading] = useState(true);

@@ -5,8 +5,10 @@ import { ChallengeCard } from '../assets/components/ChallengesScreen/ChallengeCa
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { styles } from '../assets/styles/marketplace';
 import Header from '../assets/components/Header/Header';
+import { useLanguage } from '@languagecontext';
 
 const ChallengesScreen = () => {
+  const { locale } = useLanguage();
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -4,8 +4,10 @@ import { useRouter } from 'expo-router';
 import { WelcomeHeader } from '../assets/components/WelcomeScreen/WelcomeHeader';
 import { WelcomeContent } from '../assets/components/WelcomeScreen/WelcomeContent';
 import { styles } from '../assets/styles/welcome';
+import { useLanguage } from '@languagecontext';
 
 const WelcomeScreen = () => {
+  const { locale } = useLanguage();
   const router = useRouter();
 
   const handleRegisterPress = () => {

@@ -9,9 +9,11 @@ import { useAuth } from '../contexts/AuthContext';
 import Header from '../assets/components/Header/Header';
 import { useRouter } from 'expo-router';
 import i18n from '../i18n';
+import { useLanguage } from '@languagecontext';
 
 
 export default function HomeScreen() {
+  const { locale } = useLanguage();
   const router = useRouter();
   const { user, loading } = useAuth();
   const userName = user.username || 'User';
