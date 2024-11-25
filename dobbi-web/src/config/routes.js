@@ -12,6 +12,9 @@ const routes = {
     profile: "/profile",
     settings: "/settings",
     logout: "/logout",
+    companies: "/companies",
+    admins: "/admins",
+    users: "/admin/users",
 }
 
 export default routes;

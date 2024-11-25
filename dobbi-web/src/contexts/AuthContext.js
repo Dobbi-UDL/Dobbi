@@ -7,12 +7,14 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         console.log('AuthProvider useEffect running');
 
         const fetchSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
+            supabase.auth.
             setUser(session?.user ?? null);
             setLoading(false);
         };
@@ -51,11 +53,35 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const signIn = async (data) => {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword(data);
+        if (signInError) {
+            return { data: null, error: signInError };
+        }
+
+        const { data: companyData, error: companyError } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', signInData.user.id)
+            .single();
+        console.log('companyData:', companyData.rol);
+        if (companyData.role === 'admin') {
+            setIsAdmin(true);
+        }
+        if (companyError) {
+            return { data: null, error: companyError };
+        }
+
+        return { data: signInData, error: null };
+    };
+
+
     const value = {
         signUp,
-        signIn: (data) => supabase.auth.signInWithPassword(data),
+        signIn,
         signOut: () => supabase.auth.signOut(),
         user,
+        isAdmin,
     };
 
     console.log('AuthProvider rendering, user:', user);

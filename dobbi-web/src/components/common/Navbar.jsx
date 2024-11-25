@@ -3,10 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import routes from "@/config/routes"
-import  BrandButton  from './BrandButton'
+import BrandButton from './BrandButton'
 import UserProfile from './UserProfile'
 import { useScroll } from "@/contexts/ScrollContext"
-
+import { useAuth } from "@/contexts/AuthContext"
 
 const NAV_LINKS = [
   { name: "Dashboard", path: routes.dashboard },
@@ -14,11 +14,18 @@ const NAV_LINKS = [
   { name: "Offers", path: routes.offers },
 ]
 
+const ADMIN_NAV_LINKS = [
+  { name: "Companies", path: routes.companies },
+  { name: "Admins", path: routes.admins },
+  { name: "Users", path: routes.users },
+]
+
 const SCROLL_THRESHOLD = 20;
 
 export default function Navbar() {
   const pathname = usePathname()
   const { scrollY } = useScroll()
+  const { isAdmin } = useAuth()
 
   const isHomepage = pathname === routes.home;
   const headerClass = isHomepage
@@ -35,8 +42,12 @@ export default function Navbar() {
               <div id="navbar-divider" className="w-px h-6 bg-gray-300 mx-4"></div>
               <div id="navbar-nav-links" className="flex space-x-4">
                 {NAV_LINKS.map((link) => (
-                  // If link doesn't exist yet, use a hash
-                  <NavLink key={link.name} href={link.path || '#'} active={pathname === link.path}>
+                  <NavLink key={link.name} href={link.path} active={pathname === link.path}>
+                    {link.name}
+                  </NavLink>
+                ))}
+                {!isAdmin && ADMIN_NAV_LINKS.map((link) => (
+                  <NavLink key={link.name} href={link.path} active={pathname === link.path}>
                     {link.name}
                   </NavLink>
                 ))}
@@ -44,9 +55,7 @@ export default function Navbar() {
             </div>
           </div>
           <div id="navbar-right" className="flex items-center space-x-4">
-            <div id="user-profile" className="flex items-center space-x-4">
-              <UserProfile />
-            </div>
+            <UserProfile />
           </div>
         </div>
       </nav>
@@ -54,15 +63,8 @@ export default function Navbar() {
   )
 }
 
-function NavLink({ href, active, children }) {
-  return (
-    <Link
-      href={href}
-      className={`text-sm font-medium transition-colors hover:text-[#F66C72] relative group ${active ? 'text-[#F66C72]' : 'text-gray-600'
-        }`}
-    >
-      {children}
-      <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[#F66C72] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${active ? 'scale-x-100' : ''}`}></span>
-    </Link>
-  )
-}
+const NavLink = ({ href, active, children }) => (
+  <Link href={href} className={`nav-link ${active ? 'active' : ''}`}>
+    {children}
+  </Link>
+);
