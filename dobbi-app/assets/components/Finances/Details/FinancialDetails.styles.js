@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: '#F0F4F8',
   },
   scrollView: {
     padding: 16,
-},  
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -15,40 +15,38 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#2C3E50',
   },
   statsButton: {
     padding: 8,
     borderRadius: 8,
+    backgroundColor: '#E8F0FE',
   },
-  section: {
+  card: {
     marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#333333',
+    borderRadius: 12,
+    elevation: 4,
   },
   categoryHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   categoryIcon: {
-    backgroundColor: '#333333',
     borderRadius: 20,
     padding: 8,
   },
   categoryName: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '500',
     flex: 1,
     marginLeft: 12,
-    color: '#333333',
+    color: '#2C3E50',
   },
   categoryAmount: {
     flexDirection: 'row',
@@ -59,87 +57,53 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 4,
-    color: '#333333',
+    color: '#2C3E50',
   },
   entriesContainer: {
     marginTop: 12,
+    paddingLeft: 40,
   },
   entryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12
+    paddingVertical: 12,
   },
   entryName: {
     fontSize: 16,
-    color: '#666666',
-    marginLeft: 12,
-    width: 190,
+    color: '#34495E',
+    flex: 1,
   },
   entryAmount: {
     fontSize: 16,
-    color: '#666666',
+    color: '#34495E',
     fontWeight: '500',
-    marginRight: 12,
-  },
-  touchable: {
-    marginBottom: 12,
   },
   editButton: {
     marginLeft: 12,
   },
-    floatingButton: {
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: '#EE6567',
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        fontWeight: 'bold',
-    },
-  modalOverlay: {
+  floatingButton: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#4A90E2',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: 3.84,
   },
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
-    fontSize: 18,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2C3E50',
   },
 });
 
-export default styles;

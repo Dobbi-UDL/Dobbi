@@ -4,19 +4,19 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../common/Card';
 import { useAuth } from '../../../../contexts/AuthContext';
-import Button from '../../common/Button';
-import styles from './FinancialDetails.styles';
+import { Button } from '../../common/Button';
+import { styles } from './FinancialDetails.styles';
 import i18n from '../../../../i18n';
 import { supabase } from '../../../../config/supabaseClient';
 import { fetchCategories, fetchEntries } from '../../../../services/financesService';
+import { CategoryHeader } from './CategoryHeader';
 
 export default function FinancialDetails() {
     const router = useRouter();
     const { user } = useAuth();
 
     const [categories, setCategories] = useState([]);
-    const [expenses, setExpenses] = useState([]);
-    const [income, setIncome] = useState([]);
+    const [financialData, setFinancialData] = useState({ income: [], expenses: [] });
 
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -34,14 +34,15 @@ export default function FinancialDetails() {
 
     const loadFinancialData = async () => {
         try{
-            const fetchedCategories = await fetchCategories();
-            setCategories(fetchedCategories);
+            if (!categories){
+                const fetchedCategories = await fetchCategories();
+                setCategories(fetchedCategories);
+            }
 
             const entries = await fetchEntries(user.id);
-            const { expenseCategories, incomeCategories } = sortEntriesIntoCategories(fetchedCategories, entries);
+            const { expenseCategories, incomeCategories } = sortEntriesIntoCategories(categories, entries);
 
-            setExpenses(expenseCategories);
-            setIncome(incomeCategories);
+            setFinancialData({ income: incomeCategories, expenses: expenseCategories });
         } catch (error) {
             console.error("Error loading financial data: ", error);
         }   
@@ -68,23 +69,30 @@ export default function FinancialDetails() {
         return { expenseCategories, incomeCategories };
     };
 
+    const handleNumberClick = (number) => {
+        alert(number);
+    };
+
+    const handleEdit = (categoryId) => {
+        alert("Not implemented yet");
+    };
+
     return (
         <View>
-            <Card title={i18n.t("income")} cardStyle={styles.card}>
-                {income.map((category) => (
-                    <Text>
-                        {category.name} - ${category.total}
-                    </Text>
-                ))}
-            </Card>
-
-            <Card title={i18n.t("expenses")} cardStyle={styles.card}>
-                {expenses.map((category) => (
-                    <Text>
-                        {category.name} - ${category.total}
-                    </Text>
-                ))}
-            </Card>
+            {['income', 'expenses'].map((type) => (
+                <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
+                    {financialData[type].map((category) => (
+                        <CategoryHeader
+                            key={category.id}
+                            category={category}
+                            expandedCategory={expandedCategory}
+                            setExpandedCategory={setExpandedCategory}
+                            handleNumberClick={handleNumberClick}
+                            handleEdit={handleEdit}
+                        />
+                    ))}
+                </Card>
+            ))}
         </View>
     )
 }
