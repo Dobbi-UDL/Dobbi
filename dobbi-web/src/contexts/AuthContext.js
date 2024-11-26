@@ -98,6 +98,20 @@ export const AuthProvider = ({ children }) => {
       };
     }
 
+    if (companyData[0].status === "pending") {
+      return {
+        data: companyData[0],
+        error: new Error("User registration is pending"),
+      };
+    }
+
+    if (companyData[0].status === "rejected") {
+      return {
+        data: companyData[0],
+        error: new Error("User registration is rejected"),
+      };
+    }
+
     // Proceed with sign in if user exists in companies table
     const { user: signInData, error: signInError } =
       await supabase.auth.signInWithPassword(data);
@@ -109,7 +123,7 @@ export const AuthProvider = ({ children }) => {
       setIsAdmin(true);
     }
 
-    return { data: signInData, error: null };
+    return { data: companyData[0], error: null };
   };
 
   const value = {

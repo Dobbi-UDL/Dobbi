@@ -35,7 +35,7 @@ export function CompanyTable() {
 
   async function updateCompanyStatus(id, newStatus) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("companies")
         .update({ status: newStatus })
         .eq("id", id);
@@ -62,6 +62,20 @@ export function CompanyTable() {
       name: "Status",
       selector: (row) => row.status,
       sortable: true,
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold
+          ${
+            row.status === "verified"
+              ? "bg-green-100 text-green-800"
+              : row.status === "rejected"
+              ? "bg-red-100 text-red-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
     },
     {
       name: "Created At",
@@ -71,11 +85,17 @@ export function CompanyTable() {
     {
       name: "Actions",
       cell: (row) => (
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={() => updateCompanyStatus(row.id, "verified")}>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => updateCompanyStatus(row.id, "verified")}
+            className="p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          >
             ✓
           </button>
-          <button onClick={() => updateCompanyStatus(row.id, "rejected")}>
+          <button
+            onClick={() => updateCompanyStatus(row.id, "rejected")}
+            className="p-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          >
             ✗
           </button>
         </div>
@@ -84,15 +104,34 @@ export function CompanyTable() {
   ];
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center py-4">Loading...</div>;
   }
 
   return (
-    <DataTable
-      title="Companies"
-      columns={columns}
-      data={companies}
-      pagination
-    />
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <DataTable
+        columns={columns}
+        data={companies}
+        pagination
+        responsive
+        highlightOnHover
+        striped
+        customStyles={{
+          headRow: {
+            style: {
+              backgroundColor: "#f3f4f6",
+              fontWeight: "bold",
+            },
+          },
+          rows: {
+            style: {
+              "&:nth-of-type(odd)": {
+                backgroundColor: "#f9fafb",
+              },
+            },
+          },
+        }}
+      />
+    </div>
   );
 }

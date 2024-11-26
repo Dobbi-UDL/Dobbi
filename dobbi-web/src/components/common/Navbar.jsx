@@ -17,7 +17,6 @@ const NAV_LINKS = [
 const ADMIN_NAV_LINKS = [
   { name: "Companies", path: routes.companies },
   { name: "Admins", path: routes.admins },
-  { name: "Users", path: routes.users },
 ];
 
 const SCROLL_THRESHOLD = 20;
@@ -52,15 +51,16 @@ export default function Navbar() {
                 className="w-px h-6 bg-gray-300 mx-4"
               ></div>
               <div id="navbar-nav-links" className="flex space-x-4">
-                {NAV_LINKS.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    href={link.path}
-                    active={pathname === link.path}
-                  >
-                    {link.name}
-                  </NavLink>
-                ))}
+                {!isAdmin &&
+                  NAV_LINKS.map((link) => (
+                    <NavLink
+                      key={link.name}
+                      href={link.path}
+                      active={pathname === link.path}
+                    >
+                      {link.name}
+                    </NavLink>
+                  ))}
                 {isAdmin &&
                   ADMIN_NAV_LINKS.map((link) => (
                     <NavLink

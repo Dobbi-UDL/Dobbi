@@ -39,12 +39,22 @@ export default function LoginPage() {
     try {
       console.log("Attempting login with:", { email, password });
       const { data, error } = await signIn({ email, password });
-
+      console.log("signIn response:", { status: data?.status, error });
+      if (data.status === "pending") {
+        router.push(routes.register_request);
+        return;
+      } else if (data.status === "rejected") {
+        setMessage("Your account is rejected. Please contact support.");
+        return;
+      }
       if (error) {
         setMessage("User not found or incorrect password.");
         return;
       }
-
+      if (data.role === "admin") {
+        router.push(routes.companies);
+        return;
+      }
       router.push(routes.dashboard);
     } catch (error) {
       setMessage("An unexpected error occurred. Please try again.");
