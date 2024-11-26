@@ -4,14 +4,13 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../common/Card';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { Button } from '../../common/Button';
 import { CustomModal } from '../../common/Modal';
 import { styles } from './FinancialDetails.styles';
 import i18n from '../../../../i18n';
-import { supabase } from '../../../../config/supabaseClient';
 import { fetchCategories, fetchEntries } from '../../../../services/financesService';
 import { CategoryHeader } from './CategoryHeader';
 import { formatNumberWithCommas } from '../../../../utils/numberFormatting';
+import { AddEntryForm } from './AddEntryForm';
 
 export default function FinancialDetails() {
     const router = useRouter();
@@ -21,7 +20,8 @@ export default function FinancialDetails() {
     const [financialData, setFinancialData] = useState({ income: [], expenses: [] });
 
     const [expandedCategory, setExpandedCategory] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [numberModalVisible, setNumberModalVisible] = useState(false);
+    const [addEntryModalVisible, setAddEntryModalVisible] = useState(false);
     const [fullNumber, setFullNumber] = useState('');
     
     const [refreshing, setRefreshing] = useState(false);
@@ -80,7 +80,7 @@ export default function FinancialDetails() {
     const handleNumberClick = (number) => {
         setFullNumber(formatNumberWithCommas(number.toFixed(2)));
         console.log("fullNumber: ", fullNumber);
-        setModalVisible(true);
+        setNumberModalVisible(true);
     };
 
     const handleEdit = (categoryId) => {
@@ -88,7 +88,8 @@ export default function FinancialDetails() {
     };
 
     const handleAddEntry = () => {
-        alert("Not implemented yet");
+        console.log("Add entry");
+        setAddEntryModalVisible(true);
     };
 
     const onRefresh = async () => {
@@ -137,13 +138,22 @@ export default function FinancialDetails() {
             </TouchableOpacity>
 
             <CustomModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
+                visible={numberModalVisible}
+                onClose={() => setNumberModalVisible(false)}
             >
                 <Text style={styles.modalText}>
                     {"Your total amount is:\n\n"} ${fullNumber}
                 </Text>
             </CustomModal>
+
+            <AddEntryForm
+                visible={addEntryModalVisible}
+                categories={categories}
+                onSubmit={null}
+                onClose={() => setAddEntryModalVisible(false)}
+
+            />
+
                     
         </View>
     );
