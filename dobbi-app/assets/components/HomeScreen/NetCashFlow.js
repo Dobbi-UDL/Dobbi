@@ -3,30 +3,28 @@ import { View, Text, StyleSheet } from 'react-native';
 import i18n from '@i18n';
 import Card from '../common/Card';
 import { supabase } from '../../../config/supabaseClient';
+import { useAuth } from '../../../contexts/AuthContext'; // Ajusta el path según tu estructura
 
 export default function FetchIncome() {
+  const { user } = useAuth(); 
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchFinancialIncomes = async () => {
     try {
-      // Obtener el user_id del usuario logueado
-      const { data: { user } } = await supabase.auth.getUser();
-      const userId = user?.id;
-  
-      if (!userId) throw new Error('Usuario no logueado.');
-  
+      if (!user?.id) throw new Error('Usuario no logueado.');
+
       // Consultar ingresos del usuario logueado
       const { data, error } = await supabase
         .from('financial_entries')
         .select('amount')
         .join('financial_categories', 'financial_entries.category_id', 'financial_categories.id')
         .eq('financial_categories.type', 'income')
-        .eq('financial_entries.user_id', userId); // Filtrar por usuario logueado
-      
+        .eq('financial_entries.user_id', user.id); // Usa el ID del contexto
+
       if (error) throw error;
-  
+
       // Sumar los montos
       const totalIncome = data.reduce((sum, entry) => sum + entry.amount, 0);
       setIncome(totalIncome);
@@ -34,25 +32,21 @@ export default function FetchIncome() {
       console.error('Error fetching incomes:', error);
     }
   };
-  
+
   const fetchFinancialExpenses = async () => {
     try {
-      // Obtener el user_id del usuario logueado
-      const { data: { user } } = await supabase.auth.getUser();
-      const userId = user?.id;
-  
-      if (!userId) throw new Error('Usuario no logueado.');
-  
+      if (!user?.id) throw new Error('Usuario no logueado.');
+
       // Consultar gastos del usuario logueado
       const { data, error } = await supabase
         .from('financial_entries')
         .select('amount')
         .join('financial_categories', 'financial_entries.category_id', 'financial_categories.id')
         .eq('financial_categories.type', 'expense')
-        .eq('financial_entries.user_id', userId); // Filtrar por usuario logueado
-      
+        .eq('financial_entries.user_id', user.id); // Usa el ID del contexto
+
       if (error) throw error;
-  
+
       // Sumar los montos
       const totalExpense = data.reduce((sum, entry) => sum + entry.amount, 0);
       setExpense(totalExpense);
@@ -60,7 +54,7 @@ export default function FetchIncome() {
       console.error('Error fetching expenses:', error);
     }
   };
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -70,7 +64,7 @@ export default function FetchIncome() {
     };
 
     fetchData();
-  }, []);
+  }, [user]); // Ejecutar solo si cambia el usuario
 
   if (loading) {
     return (
@@ -92,19 +86,19 @@ export const NetCashFlow = ({ income, expense }) => {
       <View style={styles.infoContainer}>
         <Text style={styles.label}>{i18n.t('monthlyIncome')}</Text>
         <Text style={styles.value}>
-          {income.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
+          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(income)}
         </Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.label}>{i18n.t('monthlyExpenses')}</Text>
         <Text style={styles.value}>
-          {expense.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
+          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(expense)}
         </Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.label}>{i18n.t('netCashFlow')}</Text>
         <Text style={[styles.value, netCashFlow >= 0 ? styles.positive : styles.negative]}>
-          {netCashFlow.toLocaleString('en-US', { style: 'currency', currency: 'EUR' })}
+          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(netCashFlow)}
         </Text>
       </View>
     </Card>
