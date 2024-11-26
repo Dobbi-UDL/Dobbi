@@ -1,57 +1,104 @@
-import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+import DataTable from "react-data-table-component";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export function AdminTable() {
-    const [admins, setAdmins] = useState([])
-    const [loading, setLoading] = useState(true)
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchAdmins()
-    }, [])
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
 
-    async function fetchAdmins() {
-        try {
-            setLoading(true)
-            const { data, error } = await supabase
-                .from('test_admin')
-                .select('*')
-                .order('created_at', { ascending: false })
+  async function fetchCompanies() {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("companies")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .eq("role", "admin");
 
-            if (error) throw error
-            setAdmins(data)
-        } catch (error) {
-            console.error('Error fetching admins:', error)
-        } finally {
-            setLoading(false)
-        }
+      if (error) throw error;
+      setCompanies(data);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    if (loading) {
-        return <div>Loading...</div>
-    }
+  const columns = [
+    {
+      name: "ID",
+      selector: (row) => row.id,
+      sortable: true,
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => row.status,
+      sortable: true,
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold
+                    ${
+                      row.status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : row.status === "inactive"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      name: "Created At",
+      selector: (row) => new Date(row.created_at).toLocaleDateString(),
+      sortable: true,
+    },
+  ];
 
-    return (
-        <div className="bg-white shadow-md rounded my-6">
-            <table className="min-w-max w-full table-auto">
-                <thead>
-                    <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                        <th className="py-3 px-6 text-left">ID</th>
-                        <th className="py-3 px-6 text-left">Name</th>
-                        <th className="py-3 px-6 text-center">Created At</th>
-                    </tr>
-                </thead>
-                <tbody className="text-gray-600 text-sm font-light">
-                    {admins.map((admin) => (
-                        <tr key={admin.id} className="border-b border-gray-200 hover:bg-gray-100">
-                            <td className="py-3 px-6 text-left whitespace-nowrap">{admin.id}</td>
-                            <td className="py-3 px-6 text-left">{admin.name}</td>
-                            <td className="py-3 px-6 text-center">{new Date(admin.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    )
+  if (loading) {
+    return <div className="text-center py-4">Loading...</div>;
+  }
+
+  return (
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <DataTable
+        columns={columns}
+        data={companies}
+        pagination
+        responsive
+        highlightOnHover
+        striped
+        customStyles={{
+          headRow: {
+            style: {
+              backgroundColor: "#f3f4f6",
+              fontWeight: "bold",
+            },
+          },
+          rows: {
+            style: {
+              "&:nth-of-type(odd)": {
+                backgroundColor: "#f9fafb",
+              },
+            },
+          },
+        }}
+      />
+    </div>
+  );
 }

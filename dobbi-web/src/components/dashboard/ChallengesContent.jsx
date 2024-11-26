@@ -6,6 +6,12 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Label } from "@/components/ui/Label";
+import { Textarea } from "@/components/ui/TextArea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Heart, Pencil, Trash2 } from "lucide-react";
 
 export default function ChallengeContent() {
   const [challenges, setChallenges] = useState([]);
@@ -54,7 +60,6 @@ export default function ChallengeContent() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Limit to 2 decimal places for target_amount
     if (name === "target_amount") {
       const formattedValue = parseFloat(value).toFixed(2);
       if (!isNaN(formattedValue)) {
@@ -75,7 +80,7 @@ export default function ChallengeContent() {
     const challengeData = {
       ...formData,
       company_id: user.id,
-      is_sponsored: true, // Set is_sponsored to true by default
+      is_sponsored: true,
       target_date: new Date(formData.target_date).toISOString(),
     };
 
@@ -169,150 +174,170 @@ export default function ChallengeContent() {
       name: "Actions",
       cell: (row) => (
         <div className="flex space-x-2">
-          <button
+          <Button
             onClick={() => handleEdit(row)}
-            className="bg-green-500 text-white px-3 py-1 rounded font-bold"
+            variant="ghost"
+            size="icon"
+            className="text-green-600 hover:text-green-700 hover:bg-green-50"
           >
-            Edit
-          </button>
-          <button
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
             onClick={() => handleDelete(row.id)}
-            className="bg-red-500 text-white px-3 py-1 rounded font-bold"
+            variant="ghost"
+            size="icon"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            Delete
-          </button>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0]">
-      <div className="h-16"></div>
+    <div className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0] p-6">
+      <Card className="max-w-6xl mx-auto">
+        <CardHeader>
+          <CardTitle>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-bold text-gray-800"
+            >
+              Welcome back, {user?.user_metadata.display_name || user?.email}!
+            </motion.h1>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center mb-6">
+            <Input
+              type="text"
+              placeholder="Search challenges..."
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="max-w-sm"
+            />
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="bg-[#ff7b92] hover:bg-[#ff6b85] text-white"
+            >
+              <Heart className="mr-2 h-4 w-4" /> Create Challenge
+            </Button>
+          </div>
 
-      <div className="container mx-auto px-4 py-8 bg-white border border-gray-300 rounded-lg shadow-lg">
-        <div className="flex justify-between items-center mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-gray-800"
-          >
-            Welcome back, {user?.user_metadata.display_name || user?.email}!
-          </motion.h1>
-        </div>
+          <div className="rounded-lg border border-pink-100 overflow-hidden">
+            <DataTable
+              columns={columns}
+              data={filteredChallenges}
+              pagination
+              highlightOnHover
+              defaultSortField="title"
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "white",
+                  },
+                },
+                headRow: {
+                  style: {
+                    backgroundColor: "#FFF0F0",
+                    color: "#4A5568",
+                    fontWeight: "bold",
+                  },
+                },
+                rows: {
+                  style: {
+                    "&:nth-of-type(even)": {
+                      backgroundColor: "#FFF5F5",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#FFEAEA",
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex justify-between mb-4">
-          <input
-            type="text"
-            placeholder="Search challenges..."
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            className="border p-2 rounded w-1/2"
-          />
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-          >
-            Create Challenge
-          </button>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={filteredChallenges}
-          pagination
-          highlightOnHover
-          defaultSortField="title"
-          className="border"
-        />
-
-        {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 space-y-4">
-              <h2 className="text-2xl font-bold">
-                {isEditing ? "Edit Challenge" : "Create Challenge"}
-              </h2>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Title</span>
-                <input
-                  type="text"
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">
+              {isEditing ? "Edit Challenge" : "Create Challenge"}
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
                   name="title"
-                  placeholder="Title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Description</span>
-                <textarea
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
                   name="description"
-                  placeholder="Description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Target Amount
-                </span>
-                <input
-                  type="number"
+              </div>
+              <div>
+                <Label htmlFor="target_amount">Target Amount</Label>
+                <Input
+                  id="target_amount"
                   name="target_amount"
-                  placeholder="Target Amount"
+                  type="number"
+                  step="0.01"
                   value={formData.target_amount}
                   onChange={handleInputChange}
-                  step="0.01" // Sets the step to 0.01 for 2 decimal precision
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Target Date</span>
-                <input
-                  type="datetime-local"
+              </div>
+              <div>
+                <Label htmlFor="target_date">Target Date</Label>
+                <Input
+                  id="target_date"
                   name="target_date"
+                  type="datetime-local"
                   value={formData.target_date}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Sponsor Reward
-                </span>
-                <input
-                  type="text"
+              </div>
+              <div>
+                <Label htmlFor="sponsor_reward">Sponsor Reward</Label>
+                <Input
+                  id="sponsor_reward"
                   name="sponsor_reward"
-                  placeholder="Sponsor Reward"
                   value={formData.sponsor_reward}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <button
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <Button variant="outline" onClick={closeModal}>
+                Cancel
+              </Button>
+              <Button
                 onClick={handleSaveChallenge}
-                className="bg-blue-500 text-white w-full py-2 rounded font-bold mt-4"
+                className="bg-[#ff7b92] hover:bg-[#ff6b85] text-white"
               >
                 {isEditing ? "Update Challenge" : "Create Challenge"}
-              </button>
-              <button
-                onClick={closeModal}
-                className="bg-gray-500 text-white w-full py-2 rounded font-bold mt-2"
-              >
-                Cancel
-              </button>
+              </Button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,7 +6,13 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Label } from "@/components/ui/Label";
+import { Textarea } from "@/components/ui/TextArea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
+import { Heart, Pencil, Trash2 } from "lucide-react";
 
 export default function OffersContent() {
   const [offers, setOffers] = useState([]);
@@ -49,7 +55,6 @@ export default function OffersContent() {
     } else {
       setOffersCategories(data);
     }
-    console.log("Offers categories:", data);
   };
 
   const fetchOffers = async () => {
@@ -194,146 +199,175 @@ export default function OffersContent() {
       name: "Actions",
       cell: (row) => (
         <div className="flex space-x-2">
-          <button
+          <Button
             onClick={() => handleEdit(row)}
-            className="bg-green-500 text-white px-3 py-1 rounded font-bold"
+            variant="ghost"
+            size="icon"
+            className="text-green-600 hover:text-green-700 hover:bg-green-50"
           >
-            Edit
-          </button>
-          <button
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
             onClick={() => handleDelete(row.id)}
-            className="bg-red-500 text-white px-3 py-1 rounded font-bold"
+            variant="ghost"
+            size="icon"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            Delete
-          </button>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0]">
-      <div className="h-16"></div>
+    <div className="min-h-screen bg-gradient-to-br from-white to-[#FFF0F0] p-6">
+      <Card className="max-w-6xl mx-auto">
+        <CardHeader>
+          <CardTitle>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-bold text-gray-800"
+            >
+              Welcome back, {user?.user_metadata.display_name || user?.email}!
+            </motion.h1>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center mb-6">
+            <Input
+              type="text"
+              placeholder="Search offers..."
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="max-w-sm"
+            />
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="bg-[#ff7b92] hover:bg-[#ff6b85] text-white"
+            >
+              <Heart className="mr-2 h-4 w-4" /> Create Offer
+            </Button>
+          </div>
 
-      <div className="container mx-auto px-4 py-8 bg-white border border-gray-300 rounded-lg shadow-lg">
-        <div className="flex justify-between items-center mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-gray-800"
-          >
-            Welcome back, {user?.user_metadata.display_name || user?.email}!
-          </motion.h1>
-        </div>
+          <div className="rounded-lg border border-pink-100 overflow-hidden">
+            <DataTable
+              columns={columns}
+              data={filteredOffers}
+              pagination
+              highlightOnHover
+              defaultSortField="title"
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "white",
+                  },
+                },
+                headRow: {
+                  style: {
+                    backgroundColor: "#FFF0F0",
+                    color: "#4A5568",
+                    fontWeight: "bold",
+                  },
+                },
+                rows: {
+                  style: {
+                    "&:nth-of-type(even)": {
+                      backgroundColor: "#FFF5F5",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#FFEAEA",
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex justify-between mb-4">
-          <input
-            type="text"
-            placeholder="Search offers..."
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            className="border p-2 rounded w-1/2"
-          />
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-          >
-            Create Offer
-          </button>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={filteredOffers}
-          pagination
-          highlightOnHover
-          defaultSortField="title"
-          className="border"
-        />
-
-        {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 space-y-4">
-              <h2 className="text-2xl font-bold">
-                {isEditing ? "Edit Offer" : "Create Offer"}
-              </h2>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Title</span>
-                <input
-                  type="text"
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">
+              {isEditing ? "Edit Offer" : "Create Offer"}
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
                   name="title"
-                  placeholder="Title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Description</span>
-                <textarea
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
                   name="description"
-                  placeholder="Description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">
-                  Discount Code
-                </span>
-                <input
-                  type="text"
+              </div>
+              <div>
+                <Label htmlFor="discount_code">Discount Code</Label>
+                <Input
+                  id="discount_code"
                   name="discount_code"
-                  placeholder="Discount Code"
                   value={formData.discount_code}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Start Date</span>
-                <input
-                  type="datetime-local"
+              </div>
+              <div>
+                <Label htmlFor="start_date">Start Date</Label>
+                <Input
+                  id="start_date"
                   name="start_date"
+                  type="datetime-local"
                   value={formData.start_date}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">End Date</span>
-                <input
-                  type="datetime-local"
+              </div>
+              <div>
+                <Label htmlFor="end_date">End Date</Label>
+                <Input
+                  id="end_date"
                   name="end_date"
+                  type="datetime-local"
                   value={formData.end_date}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Points</span>
-                <input
-                  type="number"
+              </div>
+              <div>
+                <Label htmlFor="points_required">Points</Label>
+                <Input
+                  id="points_required"
                   name="points_required"
-                  placeholder="Points"
+                  type="number"
                   value={formData.points_required}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:outline-none text-gray-800 font-medium"
+                  className="mt-1"
                 />
-              </label>
-
-              <label className="block">
-                <span className="text-gray-700 font-semibold">Status</span>
+              </div>
+              <div>
+                <Label htmlFor="offer_status">Status</Label>
                 <Select
                   id="offer_status"
+                  options={[
+                    { value: "Draft", label: "Draft" },
+                    { value: "Active", label: "Active" },
+                    { value: "Pending", label: "Pending" },
+                    { value: "Expired", label: "Expired" },
+                  ]}
                   value={formData.offer_status}
                   onValueChange={(value) =>
                     setFormData((prevData) => ({
@@ -341,20 +375,17 @@ export default function OffersContent() {
                       offer_status: value,
                     }))
                   }
-                  options={[
-                    { value: "Draft", label: "Draft" },
-                    { value: "Active", label: "Active" },
-                    { value: "Pending", label: "Pending" },
-                    { value: "Expired", label: "Expired" },
-                  ]}
                   placeholder="Select a status"
                 />
-              </label>
-
-              <label>
-                <span className="text-gray-700 font-semibold">Category</span>
+              </div>
+              <div>
+                <Label htmlFor="category_id">Category</Label>
                 <Select
                   id="category_id"
+                  options={offersCategories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
                   value={formData.category_id}
                   onValueChange={(value) =>
                     setFormData((prevData) => ({
@@ -362,30 +393,24 @@ export default function OffersContent() {
                       category_id: value,
                     }))
                   }
-                  options={offersCategories.map((category) => ({
-                    value: category.id,
-                    label: category.name,
-                  }))}
                   placeholder="Select a category"
                 />
-              </label>
-
-              <button
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <Button variant="outline" onClick={closeModal}>
+                Cancel
+              </Button>
+              <Button
                 onClick={handleSaveOffer}
-                className="bg-blue-500 text-white w-full py-2 rounded font-bold mt-4"
+                className="bg-[#ff7b92] hover:bg-[#ff6b85] text-white"
               >
                 {isEditing ? "Update Offer" : "Create Offer"}
-              </button>
-              <button
-                onClick={closeModal}
-                className="bg-gray-500 text-white w-full py-2 rounded font-bold mt-2"
-              >
-                Cancel
-              </button>
+              </Button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
