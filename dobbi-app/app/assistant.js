@@ -1,36 +1,61 @@
-import React, { useState } from 'react';
-import { View, FlatList, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
-import { ChatBubble } from '../assets/components/ChatbotScreen/ChatBubble';
-import Header from '../assets/components/Header/Header';
-import { useLanguage } from '@languagecontext';
+import React, { useState, useCallback } from "react";
+import {
+  View,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
+import { ChatBubble } from "../assets/components/ChatbotScreen/ChatBubble";
+import Header from "../assets/components/Header/Header";
+import { useLanguage } from "@languagecontext";
 
 const ChatbotScreen = () => {
   const { locale } = useLanguage();
   const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
 
-  const sendMessage = () => {
-    if (inputText.trim() !== '') {
-      setMessages([...messages, { text: inputText, isUser: true }]);
-      setInputText('');
-      // Aquí llamarías a la lógica del chatbot para obtener la respuesta
-      const response = 'This is a sample response from the chatbot.';
-      setMessages([...messages, { text: response, isUser: false }]);
+  const sendMessage = useCallback(() => {
+    if (inputText.trim() !== "") {
+      setMessages((prevMessages) => [
+        { text: inputText, isUser: true },
+        ...prevMessages,
+      ]);
+      setInputText("");
+      // Here you would call the chatbot logic to get the response
+      setTimeout(() => {
+        const response = "This is a sample response from the chatbot.";
+        setMessages((prevMessages) => [
+          { text: response, isUser: false },
+          ...prevMessages,
+        ]);
+      }, 1000); // Simulating a delay in the chatbot response
     }
-  };
+  }, [inputText]);
+
+  const renderItem = useCallback(
+    ({ item }) => <ChatBubble text={item.text} isUser={item.isUser} />,
+    []
+  );
+
+  const keyExtractor = useCallback((_, index) => index.toString(), []);
 
   return (
-    <>
-    <Header />
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      <Header />
       <FlatList
         style={styles.chatContainer}
         data={messages}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <ChatBubble text={item.text} isUser={item.isUser} />
-        )}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         inverted
         showsVerticalScrollIndicator={false}
       />
@@ -49,46 +74,46 @@ const ChatbotScreen = () => {
         </TouchableOpacity>
       </View>
       <BottomNavBar />
-    </View>
-    </>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: "#FFF5F5",
   },
   chatContainer: {
     flex: 1,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
+    backgroundColor: "#FFF5F5",
   },
   input: {
     flex: 1,
-    backgroundColor: '#F2D4D4',
+    backgroundColor: "#F2D4D4",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#333333',
+    color: "#333333",
   },
   sendButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginLeft: 12,
   },
   sendButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
