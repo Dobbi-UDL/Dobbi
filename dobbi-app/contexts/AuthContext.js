@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
       // Set current user if session exists, else remain null
       if(data?.session?.user) {
-        await fetchUserData(session.id);
+        await fetchUserData(data.session.user.id);
       }
 
       setLoading(false);

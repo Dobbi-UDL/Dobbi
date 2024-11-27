@@ -1,83 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import i18n from '@i18n';
 import Card from '../common/Card';
 import { supabase } from '../../../config/supabaseClient';
-import { useAuth } from '../../../contexts/AuthContext'; // Ajusta el path según tu estructura
+import { useAuth } from '../../../contexts/AuthContext';
 
-export default function FetchIncome() {
-  const { user } = useAuth(); 
+export const NetCashFlow = () => {
+  const { user } = useAuth();
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchFinancialIncomes = async () => {
-    try {
-      if (!user?.id) throw new Error('Usuario no logueado.');
-
-      // Consultar ingresos del usuario logueado
-      const { data, error } = await supabase
-        .from('financial_entries')
-        .select('amount')
-        .join('financial_categories', 'financial_entries.category_id', 'financial_categories.id')
-        .eq('financial_categories.type', 'income')
-        .eq('financial_entries.user_id', user.id); // Usa el ID del contexto
-
-      if (error) throw error;
-
-      // Sumar los montos
-      const totalIncome = data.reduce((sum, entry) => sum + entry.amount, 0);
-      setIncome(totalIncome);
-    } catch (error) {
-      console.error('Error fetching incomes:', error);
+  const fetchFinancialData = async () => {
+    if (!user?.id) {
+      setError('Usuario no logueado.');
+      setLoading(false);
+      return;
     }
-  };
 
-  const fetchFinancialExpenses = async () => {
     try {
-      if (!user?.id) throw new Error('Usuario no logueado.');
+      setLoading(true);
+      setError(null);
 
-      // Consultar gastos del usuario logueado
-      const { data, error } = await supabase
+      // Fetch incomes
+      const { data: incomeData, error: incomeError } = await supabase
         .from('financial_entries')
-        .select('amount')
-        .join('financial_categories', 'financial_entries.category_id', 'financial_categories.id')
+        .select('amount, financial_categories!inner(type)')
+        .eq('financial_categories.type', 'income')
+        .eq('user_id', user.id);
+
+      if (incomeError) throw new Error(incomeError.message);
+
+      const totalIncome = incomeData?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
+      setIncome(totalIncome);
+
+      // Fetch expenses
+      const { data: expenseData, error: expenseError } = await supabase
+        .from('financial_entries')
+        .select('amount, financial_categories(type)')
         .eq('financial_categories.type', 'expense')
-        .eq('financial_entries.user_id', user.id); // Usa el ID del contexto
+        .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (expenseError) throw new Error(expenseError.message);
 
-      // Sumar los montos
-      const totalExpense = data.reduce((sum, entry) => sum + entry.amount, 0);
+      const totalExpense = expenseData?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
       setExpense(totalExpense);
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
+    } catch (err) {
+      console.error('Error fetching financial data:', err.message);
+      setError(err.message || 'Error al obtener los datos financieros.');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      await fetchFinancialIncomes();
-      await fetchFinancialExpenses();
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [user]); // Ejecutar solo si cambia el usuario
+    fetchFinancialData();
+  }, [user]);
 
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>{i18n.t('loading')}</Text>
       </View>
     );
   }
 
-  return <NetCashFlow income={income} expense={expense} />;
-}
-
-export const NetCashFlow = ({ income, expense }) => {
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.error}>{i18n.t('error')}: {error}</Text>
+      </View>
+    );
+  }
+  
   const netCashFlow = income - expense;
 
   return (
@@ -111,6 +108,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     margin: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -145,5 +144,10 @@ const styles = StyleSheet.create({
   },
   negative: {
     color: '#FF5252',
+  },
+  error: {
+    color: '#FF5252',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
