@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { CustomModal } from '../../common/Modal';
 import { styles } from './FinancialDetails.styles';
 import i18n from '../../../../i18n';
-import { fetchCategories, fetchEntries } from '../../../../services/financesService';
+import { fetchCategories, fetchEntries, addEntry } from '../../../../services/financesService';
 import { CategoryHeader } from './CategoryHeader';
 import { formatNumberWithCommas } from '../../../../utils/numberFormatting';
 import { AddEntryForm } from './AddEntryForm';
@@ -149,7 +149,8 @@ export default function FinancialDetails() {
             <AddEntryForm
                 visible={addEntryModalVisible}
                 categories={categories}
-                onSubmit={null}
+                userId={user.id}
+                onSubmit={addEntry}
                 onClose={() => setAddEntryModalVisible(false)}
 
             />

@@ -1,5 +1,5 @@
-import { Modal, View, Text, StyleSheet } from 'react-native';
-import { Button } from './Button'; // Adjust the import path as necessary
+import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export const CustomModal = ({ visible, onClose, title, children }) => {
     return (
@@ -12,10 +12,12 @@ export const CustomModal = ({ visible, onClose, title, children }) => {
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContainer}>
                     <Text style={styles.modalTitle}>{title}</Text>
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                        <Ionicons name="close" size={24} color="#666666" />
+                    </TouchableOpacity>
                     <View style={styles.modalContent}>
                         {children}
                     </View>
-                    <Button title="Close" onPress={onClose} variant="outline" />
                 </View>
             </View>
         </Modal>
@@ -30,16 +32,22 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContainer: {
-        width: '80%',
+        width: '90%',
         backgroundColor: 'white',
         borderRadius: 8,
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 10,
         alignItems: 'center',
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginVertical: 10,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 22,
+        right: 20,
     },
     modalContent: {
         marginBottom: 20,

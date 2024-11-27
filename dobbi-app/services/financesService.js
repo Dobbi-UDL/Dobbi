@@ -29,3 +29,17 @@ export const fetchEntries = async (userId) => {
     }
 };
 
+export const addEntry = async (entry) => {
+    try {
+        const { data, error } = await supabase
+            .from('financial_entries')
+            .insert(entry);
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error adding financial entry: ", error.message);
+        throw error;
+    }
+}
+
