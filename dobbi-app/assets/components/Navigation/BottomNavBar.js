@@ -32,7 +32,7 @@ export const BottomNavBar = () => {
       edges={["bottom"]}
       style={[
         styles.safeArea,
-        Platform.OS === "ios" && { marginTop: 20 }, // Aplica margen extra solo en iOS
+        Platform.OS === "ios", // Aplica margen extra solo en iOS
       ]}
     >
       <View style={[styles.navContainer]}>
