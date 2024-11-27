@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
-import { ChatBubble } from "../assets/components/ChatbotScreen/ChatBubble";
+import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
 import { useLanguage } from "@languagecontext";
 
@@ -45,36 +45,37 @@ const ChatbotScreen = () => {
   const keyExtractor = useCallback((_, index) => index.toString(), []);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-    >
-      <Header />
-      <FlatList
-        style={styles.chatContainer}
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        inverted
-        showsVerticalScrollIndicator={false}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message..."
-          value={inputText}
-          onChangeText={setInputText}
-          onSubmitEditing={sendMessage}
-          returnKeyType="send"
-          blurOnSubmit={false}
+    <>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <Header />
+        <FlatList
+          style={styles.chatContainer}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          inverted
+          showsVerticalScrollIndicator={false}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type your message..."
+            value={inputText}
+            onChangeText={setInputText}
+            onSubmitEditing={sendMessage}
+            returnKeyType="send"
+            blurOnSubmit={false}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
       <BottomNavBar />
-    </KeyboardAvoidingView>
+    </>
   );
 };
 
