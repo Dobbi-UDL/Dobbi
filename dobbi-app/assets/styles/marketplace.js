@@ -189,4 +189,90 @@ export const styles = StyleSheet.create({
     paddingBottom: 64, 
     padding: 16,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    paddingHorizontal: 16,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    height: 50,
+    marginRight: 10,
+  },
+  searchButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    backgroundColor: '#FFF9E6',
+    borderRadius: 10,
+  },
+  categoryContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    maxWidth: '100%', // Asegura que ocupe todo el ancho
+    width: '100%',
+    marginBottom: 15,
+    flexGrow: 0, // Impide que el ScrollView crezca
+    alignSelf: 'flex-start', // Mantiene el tamaño ajustado al contenido
+  },
+  categoryItem: {
+    backgroundColor: 'white',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginRight: 10,
+    marginHorizontal: 5,
+    marginVertical: 5,
+    marginBottom: 10,
+  },
+  selectedCategoryItem: {
+    backgroundColor: '#ff6b6b',
+  },
+  categoryText: {
+    color: '#666666',
+  },
+  selectedCategoryText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  categoryScrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    flexDirection: 'row', // Hace que los elementos se distribuyan horizontalmente
+    flexWrap: 'wrap', // Permite que los elementos pasen a la siguiente línea si no caben
+  },
+  userPointsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    marginBottom: 15,
+  },
+  userPointsText: {
+    fontSize: 16,
+    color: '#333333',
+  },
+  userPointsUsername: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  userPointsText: {
+    fontSize: 16,
+    color: '#333333',
+  },
+  pointsHighlight: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#B8860B',
+  },
+  pointsIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

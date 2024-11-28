@@ -18,34 +18,21 @@ export const NetCashFlow = () => {
       setLoading(false);
       return;
     }
-
+  
     try {
       setLoading(true);
       setError(null);
-
-      // Fetch incomes
-      const { data: incomeData, error: incomeError } = await supabase
-        .from('financial_entries')
-        .select('amount, financial_categories!inner(type)')
-        .eq('financial_categories.type', 'income')
+  
+      const { data, error } = await supabase
+        .from('user_financial_summary')
+        .select('total_income, total_expense')
         .eq('user_id', user.id);
-
-      if (incomeError) throw new Error(incomeError.message);
-
-      const totalIncome = incomeData?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-      setIncome(totalIncome);
-
-      // Fetch expenses
-      const { data: expenseData, error: expenseError } = await supabase
-        .from('financial_entries')
-        .select('amount, financial_categories(type)')
-        .eq('financial_categories.type', 'expense')
-        .eq('user_id', user.id);
-
-      if (expenseError) throw new Error(expenseError.message);
-
-      const totalExpense = expenseData?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-      setExpense(totalExpense);
+  
+      if (error) throw new Error(error.message);
+  
+      const [result] = data || [{ total_income: 0, total_expense: 0 }];
+      setIncome(result.total_income || 0);
+      setExpense(result.total_expense || 0);
     } catch (err) {
       console.error('Error fetching financial data:', err.message);
       setError(err.message || 'Error al obtener los datos financieros.');
@@ -53,7 +40,8 @@ export const NetCashFlow = () => {
       setLoading(false);
     }
   };
-
+  
+  
   useEffect(() => {
     fetchFinancialData();
   }, [user]);

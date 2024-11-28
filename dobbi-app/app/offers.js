@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { supabase } from '../config/supabaseClient';
 import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
+import { SearchBar } from '../assets/components/OffersScreen/SearchBar';
+import { CategoryFilter } from '../assets/components/OffersScreen/CategoryFilter';
+import { UserPointsDisplay } from '../assets/components/OffersScreen/UserPointsDisplay';
 import { styles } from '../assets/styles/marketplace';
 import Header from '../assets/components/Header/Header';
 import { useLanguage } from '@languagecontext';
@@ -10,11 +13,15 @@ import { useLanguage } from '@languagecontext';
 const OffersScreen = () => {
   const { locale } = useLanguage();
   const [offers, setOffers] = useState([]);
+  const [filteredOffers, setFilteredOffers] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
+  const [userName, setUserName] = useState('User');
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
+    fetchCategories();
     getUserData();
   }, []);
 
@@ -25,6 +32,20 @@ const OffersScreen = () => {
     }
   }, [userId]);
 
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('offer_categories')
+        .select('*')
+        .range(0, 1000); // Aumenta el rango para recuperar más categorías
+  
+      if (error) throw error;
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  
   const getUserData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -40,12 +61,15 @@ const OffersScreen = () => {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('points')
+        .select('points, username')
         .eq('id', userId)
         .single();
 
       if (error) throw error;
-      if (data) setUserPoints(data.points || 0);
+      if (data) {
+        setUserPoints(data.points || 0);
+        setUserName(data.username || 'User');
+      }
     } catch (error) {
       console.error('Error fetching user points:', error);
     }
@@ -72,6 +96,7 @@ const OffersScreen = () => {
       }));
   
       setOffers(processedOffers);
+      setFilteredOffers(processedOffers);
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
@@ -81,13 +106,11 @@ const OffersScreen = () => {
 
   const redeemOffer = async (offerId) => {
     try {
-      // Primero verificamos que el usuario tenga suficientes puntos
       const offer = offers.find(o => o.id === offerId);
       if (userPoints < offer.points_required) {
         throw new Error('Insufficient points');
       }
 
-      // Iniciamos una transacción para redimir la oferta y actualizar los puntos
       const { error } = await supabase.rpc('redeem_offer', {
         p_user_id: userId,
         p_offer_id: offerId,
@@ -96,7 +119,6 @@ const OffersScreen = () => {
 
       if (error) throw error;
 
-      // Actualizamos el estado local
       await Promise.all([
         fetchUserPoints(),
         fetchOffers()
@@ -104,7 +126,27 @@ const OffersScreen = () => {
 
     } catch (error) {
       console.error('Error redeeming offer:', error);
-      // Aquí deberías mostrar un mensaje de error al usuario
+    }
+  };
+
+  const handleSearch = (term) => {
+    const filtered = offers.filter(offer => 
+      offer.title.toLowerCase().includes(term.toLowerCase()) ||
+      offer.description.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredOffers(filtered);
+  };
+
+  const handleCategorySelect = (selectedCategories) => {
+    if (selectedCategories.length === 0) {
+      // Si no hay categorías seleccionadas, mostrar todas las ofertas
+      setFilteredOffers(offers);
+    } else {
+      // Filtrar ofertas que coincidan con alguna de las categorías seleccionadas
+      const filtered = offers.filter(offer => 
+        selectedCategories.some(category => offer.category_id === category.id)
+      );
+      setFilteredOffers(filtered);
     }
   };
 
@@ -118,20 +160,32 @@ const OffersScreen = () => {
 
   return (
     <>
-    <Header />
-    <View style={[styles.container, styles.flexContainer]}>
-      <ScrollView style={styles.contentContainer}>
-        {offers.map((offer) => (
-          <OfferCard 
-            key={offer.id} 
-            offer={offer}
-            userPoints={userPoints}
-            onRedeem={() => redeemOffer(offer.id)}
-          />
-        ))}
-      </ScrollView>
-      <BottomNavBar />
-    </View>
+      <Header />
+      <View style={[styles.container, styles.flexContainer]}>
+      <UserPointsDisplay 
+        userName={userName} 
+        points={userPoints} 
+      />
+        <SearchBar onSearch={handleSearch} />
+        <CategoryFilter 
+          categories={categories} 
+          onSelectCategories={handleCategorySelect} 
+        />
+        <FlatList
+          data={filteredOffers}
+          renderItem={({ item }) => (
+            <OfferCard 
+              key={item.id}
+              offer={item}
+              userPoints={userPoints}
+              onRedeem={() => redeemOffer(item.id)}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.contentContainer}
+        />
+        <BottomNavBar />
+      </View>
     </>
   );
 };
