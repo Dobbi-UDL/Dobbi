@@ -5,11 +5,11 @@
     "owner": "eeriiclopeezz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": null,
+    "icon": "./assets/images/dobbi-logo.png",  
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": null,
+      "image": "./assets/images/splash.png",  
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": null,
+        "foregroundImage": "./assets/images/dobbi-logo.png",  
         "backgroundColor": "#ffffff"
       },
       "package": "com.eeriiclopeezz.dobbiapp"
@@ -29,7 +29,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": null
+      "favicon": "./assets/images/dobbi-logo.png"
     },
     "plugins": [
       "expo-router",
@@ -46,6 +46,7 @@
       "eas": {
         "projectId": "8a8bf979-f26f-4cb7-80e9-040747f15b11"
       }
-    }
+    },
+    "sdkVersion": "52.0.0"
   }
 }
