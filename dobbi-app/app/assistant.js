@@ -46,7 +46,7 @@ const ChatbotScreen = () => {
         // Load messages for this conversation
         const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
         if (storedChats) {
-          setMessages(JSON.parse(storedChats));
+          setMessages(JSON.parse(storedChats).messages || []);
         }
       } catch (error) {
         console.error("Error loading chat history:", error);
@@ -59,12 +59,15 @@ const ChatbotScreen = () => {
   // Save messages to AsyncStorage whenever they change
   useEffect(() => {
     const saveConversation = async () => {
-      if (!conversationId) return;
+      if (!conversationId || messages.length === 0) return;
 
       try {
         await AsyncStorage.setItem(
           `chat_${conversationId}`,
-          JSON.stringify(messages)
+          JSON.stringify({
+            messages,
+            lastModified: new Date().toISOString(),
+          })
         );
       } catch (error) {
         console.error("Error saving chat history:", error);
@@ -86,13 +89,12 @@ const ChatbotScreen = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const createNewChat = async () => {
+  const createNewChat = () => {
     const newChatId = uuidv4();
     setConversationId(newChatId);
-    setMessages([]);
+    setMessages([]); // Clear messages
     toggleMenu();
-    // Save new chat to AsyncStorage
-    await AsyncStorage.setItem(`chat_${newChatId}`, JSON.stringify([]));
+    // Don't save to storage until first message is sent
   };
 
   const loadChatHistory = async () => {
@@ -102,22 +104,50 @@ const ChatbotScreen = () => {
 
       const chats = await Promise.all(
         chatKeys.map(async (key) => {
-          const messages = await AsyncStorage.getItem(key);
+          const chatData = await AsyncStorage.getItem(key);
           const chatId = key.replace("chat_", "");
-          const firstMessage =
-            JSON.parse(messages)[0]?.text?.slice(0, 30) || "New Chat";
+          const parsedData = JSON.parse(chatData);
+          const messages = parsedData.messages || [];
+          const lastModified =
+            parsedData.lastModified || new Date().toISOString();
+
           return {
             id: chatId,
-            preview: firstMessage,
-            timestamp: new Date().toISOString(), // You might want to store this with the chat
+            preview: messages[0]?.text?.slice(0, 30) || "New Chat",
+            lastModified,
+            messageCount: messages.length,
           };
         })
       );
 
-      // Sort by timestamp, newest first
-      setChatList(chats.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+      // Sort by lastModified, newest first
+      setChatList(
+        chats.sort(
+          (a, b) => new Date(b.lastModified) - new Date(a.lastModified)
+        )
+      );
     } catch (error) {
       console.error("Error loading chat history:", error);
+    }
+  };
+
+  const deleteChat = async (chatId) => {
+    try {
+      await AsyncStorage.removeItem(`chat_${chatId}`);
+      setChatList((prev) => prev.filter((chat) => chat.id !== chatId));
+
+      // If current chat was deleted, load the most recent chat
+      if (chatId === conversationId) {
+        const remainingChats = chatList.filter((chat) => chat.id !== chatId);
+        if (remainingChats.length > 0) {
+          await loadChat(remainingChats[0].id);
+        } else {
+          setMessages([]);
+          setConversationId("");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting chat:", error);
     }
   };
 
@@ -125,7 +155,7 @@ const ChatbotScreen = () => {
     try {
       const storedChat = await AsyncStorage.getItem(`chat_${chatId}`);
       if (storedChat) {
-        setMessages(JSON.parse(storedChat));
+        setMessages(JSON.parse(storedChat).messages || []);
         setConversationId(chatId);
       }
       setShowHistory(false);
@@ -158,6 +188,12 @@ const ChatbotScreen = () => {
     const question = inputText;
     setInputText("");
 
+    // Ensure we have a valid conversationId
+    const chatId = conversationId || uuidv4();
+    if (!conversationId) {
+      setConversationId(chatId);
+    }
+
     // Update messages with user input immediately
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
 
@@ -166,7 +202,23 @@ const ChatbotScreen = () => {
       const aiMessage = { text: response, isUser: false };
 
       // Update messages with AI response
-      setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+      setMessages((prevMessages) => {
+        const updatedMessages = [aiMessage, ...prevMessages];
+
+        // Save chat after first message
+        AsyncStorage.setItem(
+          `chat_${chatId}`,
+          JSON.stringify({
+            messages: updatedMessages,
+            lastModified: new Date().toISOString(),
+          })
+        );
+
+        // Update chat list
+        loadChatHistory();
+
+        return updatedMessages;
+      });
     } catch (error) {
       console.error("Error calling OpenAI API:", error);
       const errorMessage = {
@@ -175,7 +227,7 @@ const ChatbotScreen = () => {
       };
       setMessages((prevMessages) => [errorMessage, ...prevMessages]);
     }
-  }, [inputText]);
+  }, [inputText, conversationId]);
 
   const renderItem = useCallback(
     ({ item }) => <ChatBubble text={item.text} isUser={item.isUser} />,
@@ -209,13 +261,30 @@ const ChatbotScreen = () => {
                 {chatList.map((chat) => (
                   <TouchableOpacity
                     key={chat.id}
-                    style={styles.historyItem}
+                    style={[
+                      styles.historyItem,
+                      chat.id === conversationId && styles.selectedChat,
+                    ]}
                     onPress={() => loadChat(chat.id)}
                   >
-                    <Text style={styles.historyPreview}>{chat.preview}</Text>
-                    <Text style={styles.historyDate}>
-                      {new Date(chat.timestamp).toLocaleDateString()}
-                    </Text>
+                    <View style={styles.historyContent}>
+                      <Text style={styles.historyPreview}>{chat.preview}</Text>
+                      <Text style={styles.historyDate}>
+                        {new Date(chat.lastModified).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => deleteChat(chat.id)}
+                    >
+                      <MaterialIcons name="delete" size={20} color="#ff4444" />
+                    </TouchableOpacity>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -404,6 +473,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   historyPreview: {
     fontSize: 16,
@@ -411,6 +483,15 @@ const styles = StyleSheet.create({
   historyDate: {
     fontSize: 12,
     color: "#999",
+  },
+  deleteButton: {
+    padding: 5,
+  },
+  selectedChat: {
+    backgroundColor: "#E0E0E0",
+  },
+  historyContent: {
+    flex: 1,
   },
 });
 
