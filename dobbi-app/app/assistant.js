@@ -13,27 +13,35 @@ import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
 import { useLanguage } from "@languagecontext";
+import { getOpenAIResponse } from "../services/openaiService"; // Import the OpenAI service
 
 const ChatbotScreen = () => {
   const { locale } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     if (inputText.trim() !== "") {
       setMessages((prevMessages) => [
         { text: inputText, isUser: true },
         ...prevMessages,
       ]);
+      const userQuestion = inputText;
       setInputText("");
-      // Here you would call the chatbot logic to get the response
-      setTimeout(() => {
-        const response = "This is a sample response from the chatbot.";
+
+      try {
+        const response = await getOpenAIResponse(userQuestion);
         setMessages((prevMessages) => [
           { text: response, isUser: false },
           ...prevMessages,
         ]);
-      }, 1000); // Simulating a delay in the chatbot response
+      } catch (error) {
+        console.error("Error calling OpenAI API:", error);
+        setMessages((prevMessages) => [
+          { text: "Sorry, I couldn't process your request.", isUser: false },
+          ...prevMessages,
+        ]);
+      }
     }
   }, [inputText]);
 
