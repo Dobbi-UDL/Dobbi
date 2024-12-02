@@ -43,3 +43,33 @@ export const addEntry = async (entry) => {
     }
 }
 
+export const editEntry = async (entry) => {
+    try {
+        const { data, error } = await supabase
+            .from('financial_entries')
+            .update(entry)
+            .eq('id', entry.id);
+        
+        if (error) throw error;
+        return data;
+    }
+    catch (error) {
+        console.error("Error editing financial entry: ", error.message);
+        throw error;
+    }
+}
+
+export const deleteEntry = async (entryId) => {
+    try {
+        const { data, error } = await supabase
+            .from('financial_entries')
+            .delete()
+            .eq('id', entryId);
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error deleting financial entry: ", error.message);
+        throw error;
+    }
+}

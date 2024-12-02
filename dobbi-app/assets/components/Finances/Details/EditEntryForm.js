@@ -5,61 +5,34 @@ import { Picker } from '@react-native-picker/picker';
 import { CustomModal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { reset } from 'i18n-js';
 
-export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, preselectedCategory, onRefresh }) => {
-    const [entryType, setEntryType] = useState(preselectedCategory ? preselectedCategory.type : 'expense');
-    const [categoryId, setCategoryId] = useState(preselectedCategory ? preselectedCategory.id : '');
+export const EditEntryForm = ({ visible, entry, onUpdate, onDelete, onClose, onRefresh }) => {
+    const router = useRouter();
+    
     const [entryName, setEntryName] = useState('');
     const [amount, setAmount] = useState('');
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
-        if (preselectedCategory) {
-            setEntryType(preselectedCategory.type);
-            setCategoryId(preselectedCategory.id);
+        if (entry) {
+            setEntryName(entry.name);
+            setAmount(entry.amount.toString());
+            setDate(new Date(entry.date));
         } else {
-            setEntryType('expense');
-            setCategoryId('');
+            setEntryName('');
+            setAmount('');
+            setDate(new Date());
         }
-        console.log('preselectedCategory', preselectedCategory);
-    }, [preselectedCategory, visible]);
-
-    // Filter categories based on entry type
-    const filteredCategories = categories.filter(
-        (category) => category.type === entryType.toLowerCase()
-    );
+    }, [entry]);
 
     // Validation Form
     const isFormValid = () => {
         return (
-            categoryId &&
-            categoryId !== '0' &&
-            entryName.trim() !== '' &&
-            amount.trim() !== '' &&
-            parseFloat(amount) > 0
+            true
         );
-    };
-
-    const handleSubmit = () => {
-        if (!isFormValid()) {
-            Alert.alert('Incomplete Form', 'Please fill out all fields correctly.');
-            return;
-        }
-
-        const newEntry = {
-            user_id: userId,
-            category_id: categoryId,
-            name: entryName,
-            amount: parseFloat(amount),
-            date: date,
-        };
-
-        onSubmit(newEntry);
-        resetForm();
-        onClose();
-        onRefresh();
     };
 
     const handleClose = () => {
@@ -84,9 +57,84 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
         );
     }
 
+    const handleUpdate = () => {
+        if (!isFormValid()) {
+            Alert.alert('Incomplete Form', 'Please fill out all fields correctly.');
+            return;
+        }
+
+        try{
+            onUpdate({
+                id: entry.id,
+                name: entryName,
+                amount: parseFloat(amount),
+                date: date,
+            });
+
+            // If successful, show success message
+            Alert.alert('Entry Updated', 'The entry has been successfully updated.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            resetForm();
+                            onClose();
+                            onRefresh();
+                        },
+                    },
+                ]
+            );
+
+        } catch (error) {
+            console.error('Error updating entry: ', error);
+            Alert.alert('Error Updating Entry', 'An error occurred while updating the entry. Please try again.');
+            return;
+        }
+    };
+
+    const handleDeleteButton = () => {
+        Alert.alert(
+            "Delete Entry",
+            "Are you sure you want to delete this entry?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    onPress: () => {
+                        handleDelete();
+                    },
+                    style: "destructive"
+                }
+            ]
+        );
+    };
+    
+    const handleDelete = () => {
+        try {
+            onDelete(entry.id);
+
+            // If successful, show success message
+            Alert.alert('Entry Deleted', 'The entry has been successfully deleted.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            resetForm();
+                            onClose();
+                            onRefresh();
+                        },
+                    },
+                ]
+            );
+
+        } catch (error) {
+            console.error('Error deleting entry: ', error);
+            Alert.alert('Error Deleting Entry', 'An error occurred while deleting the entry. Please try again.');
+            return;
+        }
+    };
+
     const resetForm = () => {
-        setEntryType('expense');
-        setCategoryId('');
         setEntryName('');
         setAmount('');
         setDate(new Date());
@@ -94,78 +142,11 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
 
     return (
         <CustomModal
-            title="New Financial Entry"
+            title="Edit Financial Entry"
             visible={visible}
             onClose={handleClose}
-            onSubmit={handleSubmit}
         >
             <View style={styles.container}>
-                {/* Select Entry Type */}
-                <View style={styles.section}>
-                    <Text style={styles.label}>Entry Type</Text>
-                    <View style={styles.segmentedControl}>
-                        <TouchableOpacity
-                            style={[
-                                styles.segmentedButton,
-                                entryType === 'income' && styles.segmentedButtonActive
-                            ]}
-                            onPress={() => {
-                                setEntryType('income');
-                                setCategoryId('0');
-                                setSelectedCategory(null);
-                            }}
-                        >
-                            <Text style={[
-                                styles.segmentedButtonText,
-                                entryType === 'income' && styles.segmentedButtonTextActive
-                            ]}>Income</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.segmentedButton,
-                                entryType === 'expense' && styles.segmentedButtonActive
-                            ]}
-                            onPress={() => setEntryType('expense')}
-                        >
-                            <Text style={[
-                                styles.segmentedButtonText,
-                                entryType === 'expense' && styles.segmentedButtonTextActive
-                            ]}>Expense</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                {/* Select Category */}
-                <View style={styles.section}>
-                    <Text style={styles.label}>Category</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={categoryId}
-                            onValueChange={(value) => {
-                                setCategoryId(value)
-                                console.log(value)
-                            }}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select a category" value="0" />
-                            {filteredCategories.map((category) => (
-                                <Picker.Item
-                                    key={category.id}
-                                    label={category.name}
-                                    value={category.id}
-                                />
-                            ))}
-                        </Picker>
-                    </View>
-                    {selectedCategory && selectedCategory.description ? (
-                        <Text style={styles.helperText}>{selectedCategory.description || 'No description'}
-                        </Text>
-                    ) : (
-                        <Text style={styles.helperText}>Choose a category to see its description</Text>
-                    )}
-                    
-                </View>
-
                 {/* Entry Name */}
                 <View style={styles.section}>
                     <Text style={styles.label}>Entry Name</Text>
@@ -222,14 +203,14 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
                 {/* Submit Button */}
                 <View style={styles.submitButtonContainer}>
                     <Button 
-                        title="Cancel"
-                        onPress={handleClose}
+                        title="Delete"
+                        onPress={handleDeleteButton}
                         variant="outline"
                         style={styles.deleteButton}
                     />
                     <Button 
-                        title="Add Entry"
-                        onPress={handleSubmit}
+                        title="Save"
+                        onPress={handleUpdate}
                         disabled={!isFormValid()}
                         style={[styles.submitButton, !isFormValid() && styles.submitButtonDisabled]}
                     />

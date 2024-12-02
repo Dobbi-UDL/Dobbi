@@ -13,6 +13,7 @@ export const CategoryHeader = ({
     setExpandedCategory,
     handleNumberClick,
     handleEdit,
+    handleAddEntry
 }) => (
     <View>
         <TouchableOpacity
@@ -32,6 +33,8 @@ export const CategoryHeader = ({
         {expandedCategory === category.id && <ListViewEntries 
             entries={category.entries}
             handleNumberClick={handleNumberClick}
+            handleEdit={handleEdit}
+            handleAddEntry={() => handleAddEntry(category.id)}
         />}
     </View>
 );

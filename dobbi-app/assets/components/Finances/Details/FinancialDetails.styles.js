@@ -4,9 +4,13 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF5F5',
+    
   },
   scrollView: {
     padding: 16,
+  },
+  footer: {
+    height: 100,
   },
   header: {
     flexDirection: 'row',
@@ -153,5 +157,19 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+  },
+  editInput: {
+    fontSize: 18,          // Increased font size
+    height: 50,            // Increased height
+    borderColor: '#CCCCCC',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+  },
+  inlineActions: {
+    flexDirection: 'row',
+    padding: 10,           // Added padding for larger touchable area
+    // ...existing styles...
   },
 });

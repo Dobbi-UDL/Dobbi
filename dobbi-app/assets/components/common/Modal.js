@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 10,
         alignItems: 'center',
+        maxHeight: '90%',
     },
     modalTitle: {
         fontSize: 18,
