@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
@@ -15,11 +16,14 @@ import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
 import { getOpenAIResponse } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [conversationId, setConversationId] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuAnimation] = useState(new Animated.Value(0));
 
   // Load the chat history for a conversation when the screen loads
   useEffect(() => {
@@ -66,6 +70,32 @@ const ChatbotScreen = () => {
 
     saveConversation();
   }, [messages, conversationId]); // Run when messages or conversationId changes
+
+  const toggleMenu = () => {
+    const toValue = isMenuOpen ? 0 : 1;
+
+    Animated.spring(menuAnimation, {
+      toValue,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const createNewChat = async () => {
+    const newChatId = uuidv4();
+    setConversationId(newChatId);
+    setMessages([]);
+    toggleMenu();
+    // Save new chat to AsyncStorage
+    await AsyncStorage.setItem(`chat_${newChatId}`, JSON.stringify([]));
+  };
+
+  const viewChatHistory = async () => {
+    // Implementation for viewing chat history
+    toggleMenu();
+  };
 
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
@@ -116,14 +146,70 @@ const ChatbotScreen = () => {
           showsVerticalScrollIndicator={false}
         />
         <View style={styles.inputContainer}>
+          <View style={styles.menuContainer}>
+            <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
+              <MaterialIcons
+                name={isMenuOpen ? "close" : "more-vert"}
+                size={24}
+                color="#007AFF"
+              />
+            </TouchableOpacity>
+
+            {/* Animated Menu Items */}
+            <Animated.View
+              style={[
+                styles.menuItem,
+                {
+                  transform: [
+                    {
+                      translateY: menuAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -60],
+                      }),
+                    },
+                  ],
+                  opacity: menuAnimation,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.menuOption}
+                onPress={createNewChat}
+              >
+                <MaterialIcons name="add" size={20} color="#fff" />
+              </TouchableOpacity>
+            </Animated.View>
+
+            <Animated.View
+              style={[
+                styles.menuItem,
+                {
+                  transform: [
+                    {
+                      translateY: menuAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -120],
+                      }),
+                    },
+                  ],
+                  opacity: menuAnimation,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.menuOption}
+                onPress={viewChatHistory}
+              >
+                <MaterialIcons name="history" size={20} color="#fff" />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+
           <TextInput
             style={styles.input}
-            placeholder="Type your message..."
             value={inputText}
             onChangeText={setInputText}
-            onSubmitEditing={sendMessage}
-            returnKeyType="send"
-            blurOnSubmit={false}
+            placeholder="Type a message..."
           />
           <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
             <Text style={styles.sendButtonText}>Send</Text>
@@ -171,6 +257,25 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  menuContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  menuButton: {
+    marginRight: 10,
+  },
+  menuItem: {
+    position: "absolute",
+    right: 0,
+    backgroundColor: "#007AFF",
+    borderRadius: 20,
+    padding: 10,
+    marginTop: 10,
+  },
+  menuOption: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 
