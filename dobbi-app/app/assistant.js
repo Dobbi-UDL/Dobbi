@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
@@ -24,6 +25,8 @@ const ChatbotScreen = () => {
   const [conversationId, setConversationId] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuAnimation] = useState(new Animated.Value(0));
+  const [chatList, setChatList] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Load the chat history for a conversation when the screen loads
   useEffect(() => {
@@ -92,10 +95,61 @@ const ChatbotScreen = () => {
     await AsyncStorage.setItem(`chat_${newChatId}`, JSON.stringify([]));
   };
 
-  const viewChatHistory = async () => {
-    // Implementation for viewing chat history
-    toggleMenu();
+  const loadChatHistory = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const chatKeys = keys.filter((key) => key.startsWith("chat_"));
+
+      const chats = await Promise.all(
+        chatKeys.map(async (key) => {
+          const messages = await AsyncStorage.getItem(key);
+          const chatId = key.replace("chat_", "");
+          const firstMessage =
+            JSON.parse(messages)[0]?.text?.slice(0, 30) || "New Chat";
+          return {
+            id: chatId,
+            preview: firstMessage,
+            timestamp: new Date().toISOString(), // You might want to store this with the chat
+          };
+        })
+      );
+
+      // Sort by timestamp, newest first
+      setChatList(chats.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+    }
   };
+
+  const loadChat = async (chatId) => {
+    try {
+      const storedChat = await AsyncStorage.getItem(`chat_${chatId}`);
+      if (storedChat) {
+        setMessages(JSON.parse(storedChat));
+        setConversationId(chatId);
+      }
+      setShowHistory(false);
+      toggleMenu();
+    } catch (error) {
+      console.error("Error loading chat:", error);
+    }
+  };
+
+  const viewChatHistory = async () => {
+    await loadChatHistory();
+    setShowHistory(true);
+  };
+
+  useEffect(() => {
+    const loadLastChat = async () => {
+      await loadChatHistory();
+      if (chatList.length > 0) {
+        await loadChat(chatList[0].id);
+      }
+    };
+
+    loadLastChat();
+  }, []);
 
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
@@ -133,10 +187,42 @@ const ChatbotScreen = () => {
   return (
     <>
       <KeyboardAvoidingView
-        style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
       >
         <Header />
+
+        {/* Chat History Modal */}
+        {showHistory && (
+          <View style={styles.historyOverlay}>
+            <View style={styles.historyContainer}>
+              <View style={styles.historyHeader}>
+                <Text style={styles.historyTitle}>Chat History</Text>
+                <TouchableOpacity
+                  onPress={() => setShowHistory(false)}
+                  style={styles.closeButton}
+                >
+                  <MaterialIcons name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.historyList}>
+                {chatList.map((chat) => (
+                  <TouchableOpacity
+                    key={chat.id}
+                    style={styles.historyItem}
+                    onPress={() => loadChat(chat.id)}
+                  >
+                    <Text style={styles.historyPreview}>{chat.preview}</Text>
+                    <Text style={styles.historyDate}>
+                      {new Date(chat.timestamp).toLocaleDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        )}
+
         <FlatList
           style={styles.chatContainer}
           data={messages}
@@ -276,6 +362,55 @@ const styles = StyleSheet.create({
   menuOption: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  historyOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 9999, // Increased z-index
+    elevation: 5, // For Android
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  historyContainer: {
+    width: "90%",
+    maxHeight: "80%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    zIndex: 10000, // Higher than overlay
+    elevation: 6, // For Android
+  },
+  historyHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    padding: 5,
+  },
+  historyList: {
+    maxHeight: 300,
+  },
+  historyItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+  historyPreview: {
+    fontSize: 16,
+  },
+  historyDate: {
+    fontSize: 12,
+    color: "#999",
   },
 });
 
