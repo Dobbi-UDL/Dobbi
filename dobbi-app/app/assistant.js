@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -9,39 +9,87 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
 import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
-import { useLanguage } from "@languagecontext";
-import { getOpenAIResponse } from "../services/openaiService"; // Import the OpenAI service
+import { getOpenAIResponse } from "../services/openaiService";
+import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 
 const ChatbotScreen = () => {
-  const { locale } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [conversationId, setConversationId] = useState("");
 
-  const sendMessage = useCallback(async () => {
-    if (inputText.trim() !== "") {
-      setMessages((prevMessages) => [
-        { text: inputText, isUser: true },
-        ...prevMessages,
-      ]);
-      const userQuestion = inputText;
-      setInputText("");
+  // Load the chat history for a conversation when the screen loads
+  useEffect(() => {
+    const loadConversation = async () => {
+      try {
+        // Get stored conversation ID
+        const storedId = await AsyncStorage.getItem("currentConversationId");
+        const existingId = storedId || uuidv4();
+
+        // Save conversation ID if it's new
+        if (!storedId) {
+          await AsyncStorage.setItem("currentConversationId", existingId);
+        }
+
+        setConversationId(existingId);
+
+        // Load messages for this conversation
+        const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
+        if (storedChats) {
+          setMessages(JSON.parse(storedChats));
+        }
+      } catch (error) {
+        console.error("Error loading chat history:", error);
+      }
+    };
+
+    loadConversation();
+  }, []); // Run once at mount
+
+  // Save messages to AsyncStorage whenever they change
+  useEffect(() => {
+    const saveConversation = async () => {
+      if (!conversationId) return;
 
       try {
-        const response = await getOpenAIResponse(userQuestion);
-        setMessages((prevMessages) => [
-          { text: response, isUser: false },
-          ...prevMessages,
-        ]);
+        await AsyncStorage.setItem(
+          `chat_${conversationId}`,
+          JSON.stringify(messages)
+        );
       } catch (error) {
-        console.error("Error calling OpenAI API:", error);
-        setMessages((prevMessages) => [
-          { text: "Sorry, I couldn't process your request.", isUser: false },
-          ...prevMessages,
-        ]);
+        console.error("Error saving chat history:", error);
       }
+    };
+
+    saveConversation();
+  }, [messages, conversationId]); // Run when messages or conversationId changes
+
+  const sendMessage = useCallback(async () => {
+    if (inputText.trim() === "") return;
+
+    const userMessage = { text: inputText, isUser: true };
+    const question = inputText;
+    setInputText("");
+
+    // Update messages with user input immediately
+    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+
+    try {
+      const response = await getOpenAIResponse(question);
+      const aiMessage = { text: response, isUser: false };
+
+      // Update messages with AI response
+      setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+    } catch (error) {
+      console.error("Error calling OpenAI API:", error);
+      const errorMessage = {
+        text: "Sorry, I couldn't process your request.",
+        isUser: false,
+      };
+      setMessages((prevMessages) => [errorMessage, ...prevMessages]);
     }
   }, [inputText]);
 
