@@ -8,6 +8,7 @@ import i18n from '@i18n';
 import { useAuth } from '@authcontext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LanguageModal } from './LanguageModal';
+import { supabase } from '../../../config/supabaseClient.js';
 
 export const ProfileSection = ({ userData, onClose }) => {
     const insets = useSafeAreaInsets();
@@ -27,13 +28,14 @@ export const ProfileSection = ({ userData, onClose }) => {
 
     const handleLogout = async () => {
         try {
-            onClose(); // Close settings panel first
-            await signOut(); // Use signOut from AuthContext
-            router.replace('/login'); // Use replace instead of push to prevent going back
-        } catch (error) {
-            console.error('Error signing out:', error);
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error during signOut:', err);
+            throw err;
         }
     };
+
     const handleLanguagePress = () => {
         setIsLanguageModalVisible(true);
     };
