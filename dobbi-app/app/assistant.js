@@ -10,8 +10,10 @@ import {
   Platform,
   Animated,
   ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
 import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
@@ -32,46 +34,40 @@ const ChatbotScreen = () => {
   useEffect(() => {
     const loadConversation = async () => {
       try {
-        // Get stored conversation ID
         const storedId = await AsyncStorage.getItem("currentConversationId");
         const existingId = storedId || uuidv4();
 
-        // Save conversation ID if it's new
         if (!storedId) {
           await AsyncStorage.setItem("currentConversationId", existingId);
+          // Add welcome message for first-time users
+          setMessages([WELCOME_MESSAGE]);
+          await AsyncStorage.setItem(
+            `chat_${existingId}`,
+            JSON.stringify({
+              messages: [WELCOME_MESSAGE],
+              lastModified: new Date().toISOString(),
+            })
+          );
+        } else {
+          const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
+          if (storedChats) {
+            setMessages(JSON.parse(storedChats).messages || []);
+          }
         }
 
         setConversationId(existingId);
-
-        // Load messages for this conversation
-        const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
-        if (storedChats) {
-          setMessages(JSON.parse(storedChats).messages || []);
-        }
       } catch (error) {
         console.error("Error loading chat history:", error);
       }
     };
 
     loadConversation();
-  }, []); // Run once at mount
+  }, []);
 
   // Save messages to AsyncStorage whenever they change
   useEffect(() => {
     const saveConversation = async () => {
       if (!conversationId || messages.length === 0) return;
-
-      try {
-        await AsyncStorage.setItem(
-          `chat_${conversationId}`,
-          JSON.stringify({
-            messages,
-            lastModified: new Date().toISOString(),
-          })
-        );
-      } catch (error) {
-        console.error("Error saving chat history:", error);
-      }
     };
 
     saveConversation();
@@ -89,14 +85,22 @@ const ChatbotScreen = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const createNewChat = () => {
-    const newChatId = uuidv4();
-    setConversationId(newChatId);
-    setMessages([]); // Clear messages
-    toggleMenu();
-    // Don't save to storage until first message is sent
+  const WELCOME_MESSAGE = {
+    text: "Hi! I'm Dobbi, your personal AI assistant. I can help you with questions, coding, research, or just friendly chat. What would you like to talk about?",
+    isUser: false,
   };
 
+  // Modify createNewChat function
+  const createNewChat = async () => {
+    try {
+      const newChatId = uuidv4();
+      setConversationId(newChatId);
+      setMessages([WELCOME_MESSAGE]); // Add welcome message
+      toggleMenu();
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
+  };
   const loadChatHistory = async () => {
     try {
       const keys = await AsyncStorage.getAllKeys();
@@ -301,74 +305,101 @@ const ChatbotScreen = () => {
           showsVerticalScrollIndicator={false}
         />
         <View style={styles.inputContainer}>
-          <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-              <MaterialIcons
-                name={isMenuOpen ? "close" : "more-vert"}
-                size={24}
-                color="#007AFF"
-              />
-            </TouchableOpacity>
-
-            {/* Animated Menu Items */}
-            <Animated.View
-              style={[
-                styles.menuItem,
-                {
-                  transform: [
-                    {
-                      translateY: menuAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, -60],
-                      }),
-                    },
-                  ],
-                  opacity: menuAnimation,
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.menuOption}
-                onPress={createNewChat}
-              >
-                <MaterialIcons name="add" size={20} color="#fff" />
-              </TouchableOpacity>
-            </Animated.View>
-
-            <Animated.View
-              style={[
-                styles.menuItem,
-                {
-                  transform: [
-                    {
-                      translateY: menuAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, -120],
-                      }),
-                    },
-                  ],
-                  opacity: menuAnimation,
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.menuOption}
-                onPress={viewChatHistory}
-              >
-                <MaterialIcons name="history" size={20} color="#fff" />
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
-
           <TextInput
             style={styles.input}
             value={inputText}
-            onChangeText={setInputText}
+            onChangeText={(text) => {
+              setInputText(text);
+            }}
             placeholder="Type a message..."
           />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <Text style={styles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
+          {inputText.trim() !== "" ? (
+            <View style={styles.menuContainer}>
+              <TouchableOpacity style={styles.menuButton} onPress={sendMessage}>
+                <MaterialIcons name="send" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              {isMenuOpen && (
+                <TouchableWithoutFeedback onPress={toggleMenu}>
+                  <View
+                    style={[
+                      StyleSheet.absoluteFill,
+                      {
+                        position: "absolute",
+                        top: -1000,
+                        left: -1000,
+                        right: -1000,
+                        bottom: -1000,
+                        zIndex: 1,
+                      },
+                    ]}
+                  />
+                </TouchableWithoutFeedback>
+              )}
+              <View style={[styles.menuContainer, { zIndex: 2 }]}>
+                <TouchableOpacity
+                  style={styles.menuButton}
+                  onPress={toggleMenu}
+                >
+                  <MaterialIcons
+                    name={isMenuOpen ? "close" : "more-vert"}
+                    size={24}
+                    color="#FFF"
+                  />
+                </TouchableOpacity>
+                <Animated.View
+                  style={[
+                    styles.menuItem,
+                    {
+                      transform: [
+                        {
+                          translateY: menuAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -70],
+                          }),
+                        },
+                      ],
+                      opacity: menuAnimation,
+                      zIndex: 2,
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={styles.menuOption}
+                    onPress={createNewChat}
+                  >
+                    <MaterialIcons name="add" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </Animated.View>
+
+                <Animated.View
+                  style={[
+                    styles.menuItem,
+                    {
+                      transform: [
+                        {
+                          translateY: menuAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -140], // Increased spacing
+                          }),
+                        },
+                      ],
+                      opacity: menuAnimation,
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={styles.menuOption}
+                    onPress={viewChatHistory}
+                  >
+                    <MaterialIcons name="history" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </Animated.View>
+              </View>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
       <BottomNavBar />
@@ -408,22 +439,26 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 12,
   },
-  sendButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   menuContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  menuButton: {
+    position: "relative",
+    width: 40,
+    height: 40,
     marginRight: 10,
+    marginLeft: 12,
+  },
+
+  menuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FF6B6B",
+    justifyContent: "center",
+    alignItems: "center",
   },
   menuItem: {
     position: "absolute",
     right: 0,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF6B6B",
     borderRadius: 20,
     padding: 10,
     marginTop: 10,
