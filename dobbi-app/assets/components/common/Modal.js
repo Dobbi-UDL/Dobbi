@@ -1,4 +1,4 @@
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export const CustomModal = ({ visible, onClose, title, children }) => {
@@ -15,9 +15,13 @@ export const CustomModal = ({ visible, onClose, title, children }) => {
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={24} color="#666666" />
                     </TouchableOpacity>
-                    <View style={styles.modalContent}>
+                    <ScrollView
+                        style={styles.modalContent}
+                        contentContainerStyle={styles.modalContentContainer}
+                        bounces={false}
+                    >
                         {children}
-                    </View>
+                    </ScrollView>
                 </View>
             </View>
         </Modal>
@@ -35,7 +39,6 @@ const styles = StyleSheet.create({
         width: '90%',
         backgroundColor: 'white',
         borderRadius: 8,
-        paddingHorizontal: 20,
         paddingTop: 10,
         alignItems: 'center',
         maxHeight: '90%',
@@ -44,13 +47,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginVertical: 10,
+        marginRight: 28,
+        textAlign: 'center',
     },
     closeButton: {
         position: 'absolute',
-        top: 22,
+        top: 20,
         right: 20,
     },
     modalContent: {
-        marginBottom: 20,
+        paddingHorizontal: 20,
+    },
+    modalContentContainer: {
+        paddingBottom: 20,
     },
 });

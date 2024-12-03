@@ -84,7 +84,7 @@ export default function FinancialDetails() {
     };
 
     const handleStats = () => {
-        alert("Not implemented yet");
+        router.push('/stats');
     };
     
     const handleNumberClick = (number) => {

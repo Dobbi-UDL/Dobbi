@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#333',
+        color: '#333333',
     },
     segmentedControl: {
         flexDirection: 'row',
@@ -273,10 +273,12 @@ const styles = StyleSheet.create({
     },
     segmentedButtonText: {
         fontSize: 16,
-        color: '#333',
+        color: '#333333',
+        fontWeight: '500',
     },
     segmentedButtonTextActive: {
-        color: 'white',
+        color: '#FFFFFF',
+        fontWeight: '500',
     },
     pickerContainer: {
         borderWidth: 1,
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
+        color: '#333333',
     },
     amountInputContainer: {
         flexDirection: 'row',
@@ -321,6 +324,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 12,
         fontSize: 16,
+        color: '#333333',
     },
     dateButton: {
         flexDirection: 'row',
@@ -333,14 +337,14 @@ const styles = StyleSheet.create({
     dateButtonText: {
         marginLeft: 10,
         fontSize: 16,
-        color: '#333',
+        color: '#333333',
     },
     datePicker: {
         backgroundColor: 'white',
     },
     helperText: {
         fontSize: 14,
-        color: '#666',
+        color: '#555555',
         marginTop: 4,
         minHeight: 56,
     },
