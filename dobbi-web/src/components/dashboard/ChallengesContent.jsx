@@ -314,11 +314,12 @@ export default function ChallengeContent() {
                 />
               </div>
               <div>
-                <Label htmlFor="sponsor_reward">Sponsor Reward</Label>
+                <Label htmlFor="points_rewards">Points Reward</Label>
                 <Input
-                  id="sponsor_reward"
-                  name="sponsor_reward"
-                  value={formData.sponsor_reward}
+                  id="points_rewards"
+                  name="points_rewards"
+                  type="number"
+                  value={formData.points_rewards}
                   onChange={handleInputChange}
                   className="mt-1"
                 />
@@ -347,5 +348,5 @@ const initialFormData = () => ({
   description: "",
   target_amount: 0,
   target_date: "",
-  sponsor_reward: "",
+  points_rewards: "",
 });
