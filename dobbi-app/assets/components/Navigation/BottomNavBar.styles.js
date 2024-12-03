@@ -6,6 +6,8 @@ export const styles = StyleSheet.create({
     justifyContent: "space-around",
     backgroundColor: "#FFFFFF",
     padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#FFE5E5",
   },
   navItem: {
     alignItems: "center",
