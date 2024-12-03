@@ -1,96 +1,145 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { supabase } from '../config/supabaseClient';
-import SponsoredGoalsCard from '../assets/components/ChallengesScreen/SponsoredGoalsCard';
-import MyGoalsCard from '../assets/components/ChallengesScreen/MyGoalsCard';
-import TabSlider from '../assets/components/ChallengesScreen/TabSlider';
-import CreateGoalModal from '../assets/components/ChallengesScreen/CreateGoalModal';
-import  Header  from '../assets/components/Header/Header';
-import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
-import { useLanguage } from '@languagecontext';
 import { styles } from '../assets/styles/marketplace';
+import Header from '../assets/components/Header/Header';
+import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
+import { SponsoredGoalsTab } from '../assets/components/ChallengesScreen/SponsoredGoalsTab';
+import { MyGoalsTab } from '../assets/components/ChallengesScreen/MyGoalsTab';
 
 const SavingGoalsScreen = () => {
-  const { locale } = useLanguage();
-  const [challenges, setChallenges] = useState([]);
+  const [activeTab, setActiveTab] = useState('sponsored');
+  const [sponsoredGoals, setSponsoredGoals] = useState([]);
   const [userGoals, setUserGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateGoalModal, setShowCreateGoalModal] = useState(false);
 
   useEffect(() => {
-    fetchChallenges();
-    fetchUserGoals();
+    fetchGoals();
   }, []);
 
-  const fetchChallenges = async () => {
+  const fetchGoals = async () => {
+    setLoading(true);
     try {
+      // Recuperar objetivos patrocinados sin asignar
+      const { data: sponsoredData, error: sponsoredError } = await supabase
+        .from('saving_goals')
+        .select('*')
+        .gt('target_date', new Date());
+    
+      // Recuperar objetivos del usuario
+      const { data: userGoalsData, error: userGoalsError } = await supabase
+        .from('saving_goals')
+        .select('*, companies:company_id (name)')
+        .not('user_id', 'is', null);
+
+      if (sponsoredError || userGoalsError) {
+        throw sponsoredError || userGoalsError;
+      }
+
+      setSponsoredGoals(sponsoredData || []);
+      setUserGoals(userGoalsData || []);
+    } catch (error) {
+      console.error('Error fetching goals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAssignGoal = async (goalId) => {
+    try {
+      // Lógica para asignar un objetivo patrocinado al usuario
+      // Necesitarás añadir la lógica de autenticación para obtener el user_id
       const { data, error } = await supabase
         .from('saving_goals')
-        .select(`
-          *,
-          companies:company_id (
-            name
-          )
-        `);
-      
+        .update({ user_id: 'current_user_id' }) // Reemplazar con ID del usuario autenticado
+        .eq('id', goalId);
+
       if (error) throw error;
-      setChallenges(data);
+
+      // Actualizar los estados después de asignar
+      fetchGoals();
     } catch (error) {
-      console.error('Error fetching challenges:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error assigning goal:', error);
     }
   };
 
-  const fetchUserGoals = async () => {
+  const handleCreateGoal = async (goalData) => {
     try {
+      // Lógica para crear un nuevo objetivo para el usuario
       const { data, error } = await supabase
-        .from('goal_tracking')
-        .select(`
-          *
-        `);
-      
+        .from('saving_goals')
+        .insert({
+          ...goalData,
+          user_id: 'current_user_id', // Reemplazar con ID del usuario autenticado
+        });
+
       if (error) throw error;
-      setUserGoals(data);
+
+      // Actualizar los estados después de crear
+      fetchGoals();
     } catch (error) {
-      console.error('Error fetching user goals:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error creating goal:', error);
     }
   };
 
-  const handleCreateGoal = (newGoal) => {
-    // Lógica para crear un nuevo objetivo
-    console.log('New Goal:', newGoal);
-  };
+  const renderTabs = () => (
+    <View style={styles.tabContainer}>
+      <TouchableOpacity 
+        style={[
+          styles.tab, 
+          activeTab === 'sponsored' && styles.activeTab
+        ]}
+        onPress={() => setActiveTab('sponsored')}
+      >
+        <Text style={[
+          styles.tabText, 
+          activeTab === 'sponsored' && styles.activeTabText
+        ]}>
+          Objetivos Patrocinados
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={[
+          styles.tab, 
+          activeTab === 'myGoals' && styles.activeTab
+        ]}
+        onPress={() => setActiveTab('myGoals')}
+      >
+        <Text style={[
+          styles.tabText, 
+          activeTab === 'myGoals' && styles.activeTabText
+        ]}>
+          Mis Objetivos
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text>Cargando...</Text>
       </View>
     );
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <Header />
-      <View style={[styles.container, styles.flexContainer]}>
-        <ScrollView style={styles.contentContainer}>
-          <TabSlider
-            sponsoredChallenges={challenges}
-            userGoals={userGoals}
-            onCreateGoal={() => setShowCreateGoalModal(true)}
-          />
-        </ScrollView>
-        <BottomNavBar />
-      </View>
-      <CreateGoalModal
-        visible={showCreateGoalModal}
-        onClose={() => setShowCreateGoalModal(false)}
-        onSubmit={handleCreateGoal}
+      {renderTabs()}
+      {activeTab !== 'sponsored' ? (
+        <MyGoalsTab 
+        goals={userGoals} 
+        onCreateGoal={handleCreateGoal} 
       />
-    </>
+      ) : (
+        <SponsoredGoalsTab 
+          goals={sponsoredGoals} 
+          onAssignGoal={handleAssignGoal} 
+        />
+      )}
+      <BottomNavBar/>
+    </View>
   );
 };
 

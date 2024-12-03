@@ -118,7 +118,7 @@ export default function ChallengeContent() {
       description: challenge.description,
       target_amount: challenge.target_amount.toFixed(2),
       target_date: formatDateForInput(challenge.target_date),
-      sponsor_reward: challenge.sponsor_reward,
+      points_rewards: challenge.points_rewards,
     });
     setEditingChallengeId(challenge.id);
     setIsEditing(true);
@@ -166,8 +166,8 @@ export default function ChallengeContent() {
       sortable: true,
     },
     {
-      name: "Sponsor Reward",
-      selector: (row) => row.sponsor_reward,
+      name: "Points Reward",
+      selector: (row) => row.points_rewards,
       sortable: true,
     },
     {
