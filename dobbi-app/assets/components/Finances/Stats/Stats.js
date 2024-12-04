@@ -113,13 +113,13 @@ export default function Stats() {
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }>
-                    <SummaryCard data={summary} />
-                    <PeriodComparisonCard data={periodComparison} />
+                    {/*<SummaryCard data={summary} />
+                    <PeriodComparisonCard data={periodComparison} />*/}
                     <CategoryDistributionCard
                         data={expenseCategories}
                         title="Expense Categories"
                         height={300}
-                        padding={{ top: 0, bottom: -20, left: 40, right: 50 }}
+                        padding={{ top: 0, bottom: 0, left: 55, right: 50 }}
                     />
                     <CategoryDistributionCard
                         data={incomeCategories}
@@ -127,7 +127,7 @@ export default function Stats() {
                         startAngle={270}
                         endAngle={450}
                         height={150}
-                        padding={{ top: 0, bottom: -140, left: 45, right: 50 }}
+                        padding={{ top: 0, bottom: -160, left: 55, right: 50 }}
                     />
                     <View style={styles.footer}/>
                 </ScrollView>
