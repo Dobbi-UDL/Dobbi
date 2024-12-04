@@ -3,11 +3,12 @@ import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react
 import { styles } from './Stats.styles';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { fetchEntries, fetchCategories } from '../../../../services/financesService';
-import { fetchFinancialSummary, fetchPeriodComparison, fetchCategoryDistribution } from '../../../../services/statsService';
+import { fetchFinancialSummary, fetchPeriodComparison, fetchCategoryDistribution, fetchMonthlyIncomeExpensesTrend } from '../../../../services/statsService';
 import { SummaryCard } from './SummaryCard';
 import { PeriodComparisonCard } from './PeriodComparisonCard';
 import { CategoryDistributionCard } from './CategoryDistributionCard';
 import { TopCategoriesCard } from './TopCategoriesCard';
+import { MonthlyTrendCard } from './MonthlyTrendCard';
 
 export default function Stats() {
     const { user } = useAuth();
@@ -29,6 +30,9 @@ export default function Stats() {
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [incomeCategories, setIncomeCategories] = useState([]);
 
+    // Data for monthly income vs expenses trend card
+    const [monthlyTrend, setMonthlyTrend] = useState([]);
+
     useEffect(() => {
         if (!user) {
             router.push('/login');
@@ -43,6 +47,7 @@ export default function Stats() {
             await loadSummary();
             await loadPeriodComparison();
             await loadCategoryDistribution();
+            await loadMonthlyTrend();
             setLoading(false);
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -90,6 +95,19 @@ export default function Stats() {
         }
     }
 
+    const loadMonthlyTrend = async () => {
+        const startDate = '2024-06-01';
+        const endDate = '2024-12-31';
+
+        try {
+            const data = await fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate);
+            console.log('monthlyTrend:', data);
+            setMonthlyTrend(data);
+        } catch (error) {
+            console.error('Error getting monthly trend:', error);
+        }
+    }
+
     const onRefresh = async () => {
         setRefreshing(true);
         await loadStatsData();
@@ -106,6 +124,7 @@ export default function Stats() {
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }>
+                    <MonthlyTrendCard data={monthlyTrend} />
                     <SummaryCard data={summary} />
                     <PeriodComparisonCard data={periodComparison} />
                     <TopCategoriesCard 

@@ -77,3 +77,19 @@ export async function fetchCategoryDistribution(userId, startDate, endDate){
 
     return { expenseData, incomeData };
 }
+
+export async function fetchMonthlyIncomeExpensesTrend(userId, startDate, endDate){
+    const { data, error } = await supabase
+        .rpc('get_income_expenses_trend', {
+            p_user_id: userId,
+            p_start_date: startDate,
+            p_end_date: endDate
+        });
+
+    if (error) {
+        console.error('Error fetching monthly income vs expenses trend:', error);
+        throw error;
+    }
+
+    return data;
+}
