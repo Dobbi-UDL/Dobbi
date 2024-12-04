@@ -40,7 +40,6 @@ export default function Stats() {
 
     const loadStatsData = async () => {
         try {
-            console.log('Loading stats data...');
             await loadSummary();
             await loadPeriodComparison();
             await loadCategoryDistribution();
@@ -52,13 +51,11 @@ export default function Stats() {
     };
 
     const loadSummary = async () => {
-        console.log('Loading summary...');  
         const startDate = '2024-12-01';
         const endDate = '2024-12-31';
 
         try {
             const data = await fetchFinancialSummary(user.id, startDate, endDate);
-            console.log('Summary:', data);
             setSummary(data);
         } catch (error) {
             console.error('Error getting summary:', error);
@@ -66,7 +63,6 @@ export default function Stats() {
     };
 
     const loadPeriodComparison = async () => {
-        console.log('Loading period comparison...');
         const currentStartDate = '2024-12-01';
         const currentEndDate = '2024-12-30';
         const previousStartDate = '2024-11-01';
@@ -74,7 +70,6 @@ export default function Stats() {
 
         try {
             const data = await fetchPeriodComparison(user.id, currentStartDate, currentEndDate, previousStartDate, previousEndDate);
-            console.log('Period comparison:', data);
             setPeriodComparison(data);
         } catch (error) {
             console.error('Error getting period comparison:', error);
@@ -82,14 +77,11 @@ export default function Stats() {
     }
 
     const loadCategoryDistribution = async () => {
-        console.log('Loading category distribution...');
         const startDate = '2024-12-01';
         const endDate = '2024-12-31';
 
         try {
             const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
-            console.log('Expense categories:', expenseData);
-            console.log('Income categories:', incomeData);
             setExpenseCategories(expenseData);
             setIncomeCategories(incomeData);
         }

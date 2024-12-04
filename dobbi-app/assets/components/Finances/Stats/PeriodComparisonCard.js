@@ -15,7 +15,6 @@ export const PeriodComparisonCard = ({ data }) => {
 
     const currentPeriodData = sortedData.map(item => ({ x: item.category_name, y: item.current_period_expense, icon: item.category_icon }));
     const previousPeriodData = sortedData.map(item => ({ x: item.category_name, y: item.previous_period_expense, icon: item.category_icon }));
-    console.log('currentPeriodData:', currentPeriodData);
 
     const totalCurrentExpense = currentPeriodData.reduce((sum, item) => sum + item.y, 0);
     const totalPreviousExpense = previousPeriodData.reduce((sum, item) => sum + item.y, 0);

@@ -1,7 +1,6 @@
 import { supabase } from '../config/supabaseClient';
 
 export async function fetchFinancialSummary(userId, startDate, endDate) {
-    console.log('Fetching financial summary...');
     const { data, error } = await supabase
         .rpc('get_financial_summary', {
             user_id: userId,
@@ -24,7 +23,6 @@ export async function fetchFinancialSummary(userId, startDate, endDate) {
 }
 
 export async function fetchPeriodComparison(userId, currentStartDate, currentEndDate, previousStartDate, previousEndDate){
-    console.log('Fetching period comparison...');
     const { data, error } = await supabase
         .rpc('get_period_comparison', {
             p_user_id: userId,
