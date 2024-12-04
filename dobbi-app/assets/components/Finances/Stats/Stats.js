@@ -7,6 +7,7 @@ import { fetchFinancialSummary, fetchPeriodComparison, fetchCategoryDistribution
 import { SummaryCard } from './SummaryCard';
 import { PeriodComparisonCard } from './PeriodComparisonCard';
 import { CategoryDistributionCard } from './CategoryDistributionCard';
+import { TopCategoriesCard } from './TopCategoriesCard';
 
 export default function Stats() {
     const { user } = useAuth();
@@ -113,8 +114,18 @@ export default function Stats() {
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }>
-                    {/*<SummaryCard data={summary} />
-                    <PeriodComparisonCard data={periodComparison} />*/}
+                    <SummaryCard data={summary} />
+                    <PeriodComparisonCard data={periodComparison} />
+                    <TopCategoriesCard 
+                        title="Top Expense Categories"
+                        data={expenseCategories}
+                        type="expense"
+                    />
+                    <TopCategoriesCard 
+                        title="Top Income Categories"
+                        data={incomeCategories}
+                        type="income"
+                    />
                     <CategoryDistributionCard
                         data={expenseCategories}
                         title="Expense Categories"
