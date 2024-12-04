@@ -126,6 +126,15 @@ export const MonthlyTrendCard = ({ data }) => {
                 </VictoryChart>
             </View>
             
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    onPress={() => setModalVisible(true)}
+                    style={styles.statsButton}
+                >
+                    <MaterialCommunityIcons name="chart-box" size={20} color="#333" />
+                    <Text style={styles.statsButtonText}>View Metrics</Text>
+                </TouchableOpacity>
+            </View>
             
             <TouchableOpacity
                 onPress={toggleModal}
@@ -185,6 +194,23 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         fontSize: 12,
         color: '#666666',
+    },
+    buttonContainer: {
+        alignItems: 'center',
+        paddingTop: 16,
+    },
+    statsButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        padding: 10,
+        borderRadius: 8,
+    },
+    statsButtonText: {
+        marginLeft: 8,
+        fontSize: 14,
+        color: '#333',
+        fontWeight: '500',
     },
 });
 
