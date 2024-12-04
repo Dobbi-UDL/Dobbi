@@ -130,7 +130,7 @@ export const PeriodComparisonCard = ({ data }) => {
                                     <VictoryLabel 
                                         dx={8} 
                                         textAnchor="start"
-                                        style={{ fontSize: 16, fontWeight: 'bold' }}
+                                        style={{ fontSize: 16, fontWeight: 'bold', fill: '#333' }}
                                     />
                                 }
                                 style={{
@@ -146,7 +146,7 @@ export const PeriodComparisonCard = ({ data }) => {
                                     <VictoryLabel 
                                         dx={8} 
                                         textAnchor="start"
-                                        style={{ fontSize: 16, fontWeight: 'bold' }}
+                                        style={{ fontSize: 16, fontWeight: 'bold', fill: '#333' }}
                                     />
                                 }
                                 style={{

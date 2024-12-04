@@ -41,3 +41,41 @@ export async function fetchPeriodComparison(userId, currentStartDate, currentEnd
 
     return data;
 }
+
+export async function fetchCategoryDistribution(userId, startDate, endDate){
+    console.log('Fetching category distribution...');
+
+    // Fetch category distribution data
+    const { data, error } = await supabase
+        .rpc('get_category_distribution', {
+            p_user_id: userId,
+            p_start_date: startDate,
+            p_end_date: endDate
+        });
+
+    if (error) {
+        console.error('Error fetching category distribution:', error);
+        throw error;
+    }
+
+    // Fetch category count for each type
+    const { data: countData, error: countError } = await supabase
+        .rpc('get_income_expense_counts', {
+            p_user_id: userId,
+            p_start_date: startDate,
+            p_end_date: endDate
+        });
+
+    if (countError) {
+        console.error('Error fetching category counts:', countError);
+        throw error;
+    }
+
+    // Split data into income and expense categories, based on count of each type
+    const expenseCount = countData[0].expense_count;
+
+    const expenseData = data.slice(0, expenseCount);
+    const incomeData = data.slice(expenseCount);
+
+    return { expenseData, incomeData };
+}

@@ -3,15 +3,17 @@ import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react
 import { styles } from './Stats.styles';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { fetchEntries, fetchCategories } from '../../../../services/financesService';
-import { fetchFinancialSummary, fetchPeriodComparison } from '../../../../services/statsService';
+import { fetchFinancialSummary, fetchPeriodComparison, fetchCategoryDistribution } from '../../../../services/statsService';
 import { SummaryCard } from './SummaryCard';
 import { PeriodComparisonCard } from './PeriodComparisonCard';
+import { CategoryDistributionCard } from './CategoryDistributionCard';
 
 export default function Stats() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
+    // Data for summary card
     const [summary, setSummary] = useState({
         totalIncome: 0,
         totalExpenses: 0,
@@ -19,7 +21,12 @@ export default function Stats() {
         savingsRate: 0,
     });
 
+    // Data for period comparison card
     const [periodComparison, setPeriodComparison] = useState([]);
+
+    // Data for category distribution card
+    const [expenseCategories, setExpenseCategories] = useState([]);
+    const [incomeCategories, setIncomeCategories] = useState([]);
 
     useEffect(() => {
         if (!user) {
@@ -35,6 +42,7 @@ export default function Stats() {
             console.log('Loading stats data...');
             await loadSummary();
             await loadPeriodComparison();
+            await loadCategoryDistribution();
             setLoading(false);
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -72,6 +80,23 @@ export default function Stats() {
         }
     }
 
+    const loadCategoryDistribution = async () => {
+        console.log('Loading category distribution...');
+        const startDate = '2024-12-01';
+        const endDate = '2024-12-31';
+
+        try {
+            const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
+            console.log('Expense categories:', expenseData);
+            console.log('Income categories:', incomeData);
+            setExpenseCategories(expenseData);
+            setIncomeCategories(incomeData);
+        }
+        catch (error) {
+            console.error('Error getting category distribution:', error);
+        }
+    }
+
     const onRefresh = async () => {
         setRefreshing(true);
         await loadStatsData();
@@ -90,6 +115,20 @@ export default function Stats() {
                     }>
                     <SummaryCard data={summary} />
                     <PeriodComparisonCard data={periodComparison} />
+                    <CategoryDistributionCard
+                        data={expenseCategories}
+                        title="Expense Categories"
+                        height={300}
+                        padding={{ top: 0, bottom: -20, left: 40, right: 50 }}
+                    />
+                    <CategoryDistributionCard
+                        data={incomeCategories}
+                        title="Income Categories"
+                        startAngle={270}
+                        endAngle={450}
+                        height={150}
+                        padding={{ top: 0, bottom: -140, left: 45, right: 50 }}
+                    />
                     <View style={styles.footer}/>
                 </ScrollView>
             )}
