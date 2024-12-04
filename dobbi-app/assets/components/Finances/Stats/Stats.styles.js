@@ -53,5 +53,8 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
         color: '#EE6567',
+    },
+    footer: {
+        height: 160,
     }
 });

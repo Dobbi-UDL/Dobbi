@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CustomModal } from '../../common/Modal';
 
-export const SavingsRateModal = ({ visible, onClose, savingsRate }) => {
+export const SavingsRateModal = ({ visible, onClose }) => {
 
     const renderContent = () => {
         return (

@@ -4,13 +4,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from '../../common/Card';
 import { SavingsRateModal } from './SavingsRateModal'; 
 
-export const SummaryCard = ({ summary }) => {
+export const SummaryCard = ({ data }) => {
     const [explanationModalVisible, setExplanationModalVisible] = useState(false);
     const [financialHealthMessage, setFinancialHealthMessage] = useState('');
 
     useEffect(() => {
         setFinancialHealthMessage(getFinancialHealthMessage());
-    }, [summary]);
+    }, [data]);
 
     const renderSummaryItem = (label, amount, iconName, color) => (
         <View style={styles.summaryItem}>
@@ -54,11 +54,11 @@ export const SummaryCard = ({ summary }) => {
         const goodThreshold = 10;
         const moderateThreshold = 0;
 
-        if (summary.savingsRate > excellentThreshold) {
+        if (data.savingsRate > excellentThreshold) {
             return messages.excellent[Math.floor(Math.random() * messages.excellent.length)];
-        } else if (summary.savingsRate > goodThreshold) {
+        } else if (data.savingsRate > goodThreshold) {
             return messages.good[Math.floor(Math.random() * messages.good.length)];
-        } else if (summary.savingsRate > moderateThreshold) {
+        } else if (data.savingsRate > moderateThreshold) {
             return messages.moderate[Math.floor(Math.random() * messages.moderate.length)];
         } else {
             return messages.poor[Math.floor(Math.random() * messages.poor.length)];
@@ -72,10 +72,10 @@ export const SummaryCard = ({ summary }) => {
     return (
         <Card title="Financial Summary" style={styles.card}>
             <View style={styles.summaryContainer}>
-                {renderSummaryItem('Total Income', (`$${summary.totalIncome}`), 'cash-plus', '#4CAF50')}
-                {renderSummaryItem('Total Expenses', (`$${summary.totalExpenses}`), 'cash-minus', '#F44336')}
-                {renderSummaryItem('Savings', (`$${summary.savings}`), 'piggy-bank', '#2196F3')}
-                {renderSummaryItem('Savings Rate', (`${summary.savingsRate} %`), 'chart-arc', '#FF9800')}
+                {renderSummaryItem('Total Income', (`$${data.totalIncome}`), 'cash-plus', '#4CAF50')}
+                {renderSummaryItem('Total Expenses', (`$${data.totalExpenses}`), 'cash-minus', '#F44336')}
+                {renderSummaryItem('Savings', (`$${data.savings}`), 'piggy-bank', '#2196F3')}
+                {renderSummaryItem('Savings Rate', (`${data.savingsRate} %`), 'chart-arc', '#FF9800')}
             </View>
             <TouchableOpacity
                 onPress={toggleExplanationModal}
@@ -89,7 +89,7 @@ export const SummaryCard = ({ summary }) => {
             <SavingsRateModal
                 visible={explanationModalVisible}
                 onClose={toggleExplanationModal}
-                savingsRate={summary.savingsRate}
+                savingsRate={data.savingsRate}
             />
         </Card>
     );
