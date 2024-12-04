@@ -56,5 +56,9 @@ export const styles = StyleSheet.create({
     },
     footer: {
         height: 160,
+    },
+    segmentedControl: {
+        margin: 10,
+        marginTop: 20,
     }
 });

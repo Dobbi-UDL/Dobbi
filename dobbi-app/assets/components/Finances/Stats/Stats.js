@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { styles } from './Stats.styles';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { fetchEntries, fetchCategories } from '../../../../services/financesService';
@@ -14,6 +15,7 @@ export default function Stats() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [selectedTab, setSelectedTab] = useState(0);
 
     // Data for summary card
     const [summary, setSummary] = useState({
@@ -114,45 +116,80 @@ export default function Stats() {
         setRefreshing(false);
     };    
 
+    const renderTabContent = () => {
+        switch (selectedTab) {
+            case 0: // Overview
+                return (
+                    <>
+                        <SummaryCard data={summary} />
+                        <MonthlyTrendCard data={monthlyTrend} />
+                    </>
+                );
+            case 1: // Comparisons
+                return (
+                    <>
+                        <TopCategoriesCard 
+                            title="Top Expense Categories"
+                            data={expenseCategories}
+                            type="expense"
+                        />
+                        <TopCategoriesCard 
+                            title="Top Income Categories"
+                            data={incomeCategories}
+                            type="income"
+                        />
+                        <PeriodComparisonCard data={periodComparison} />
+                    </>
+                );
+            case 2: // Categories
+                return (
+                    <>
+                        <CategoryDistributionCard
+                            data={expenseCategories}
+                            title="Expense Categories"
+                            height={300}
+                            padding={{ top: 0, bottom: 0, left: 55, right: 50 }}
+                        />
+                        <CategoryDistributionCard
+                            data={incomeCategories}
+                            title="Income Categories"
+                            startAngle={270}
+                            endAngle={450}
+                            height={150}
+                            padding={{ top: 0, bottom: -160, left: 55, right: 50 }}
+                        />
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <View style={styles.container}>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
-                <ScrollView
-                    style={styles.scrollView}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }>
-                    <MonthlyTrendCard data={monthlyTrend} />
-                    <SummaryCard data={summary} />
-                    <PeriodComparisonCard data={periodComparison} />
-                    <TopCategoriesCard 
-                        title="Top Expense Categories"
-                        data={expenseCategories}
-                        type="expense"
+                <>
+                    <SegmentedControl
+                        values={['Overview', 'Comparisons', 'Categories']}
+                        selectedIndex={selectedTab}
+                        onChange={(event) => {
+                            setSelectedTab(event.nativeEvent.selectedSegmentIndex);
+                        }}
+                        style={styles.segmentedControl}
+                        tintColor="#EE6567"
+                        fontStyle={{color: '#333333'}}
                     />
-                    <TopCategoriesCard 
-                        title="Top Income Categories"
-                        data={incomeCategories}
-                        type="income"
-                    />
-                    <CategoryDistributionCard
-                        data={expenseCategories}
-                        title="Expense Categories"
-                        height={300}
-                        padding={{ top: 0, bottom: 0, left: 55, right: 50 }}
-                    />
-                    <CategoryDistributionCard
-                        data={incomeCategories}
-                        title="Income Categories"
-                        startAngle={270}
-                        endAngle={450}
-                        height={150}
-                        padding={{ top: 0, bottom: -160, left: 55, right: 50 }}
-                    />
-                    <View style={styles.footer}/>
-                </ScrollView>
+                    <ScrollView
+                        style={styles.scrollView}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }>
+                        {renderTabContent()}
+                        <View style={styles.footer}/>
+                    </ScrollView>
+                </>
             )}
         </View>
     );
