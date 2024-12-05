@@ -105,8 +105,15 @@ export const ExportButton = () => {
     const openFile = async () => {
         try {
             if (Platform.OS === 'android' && savedFileUri) {
-                // On Android, directly open the saved content URI
-                await Linking.openURL(savedFileUri);
+                const fileExtension = filename?.split('.').pop()?.toLowerCase();
+                const mimeType = fileExtension === 'pdf' ? 'application/pdf' : 'text/csv';
+                
+                // Use IntentLauncher for both PDF and CSV files
+                await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                    data: savedFileUri,
+                    flags: 1,
+                    type: mimeType
+                });
             } else if (Platform.OS === 'ios' && filename) {
                 // iOS implementation remains the same
                 const fileUri = `${FileSystem.documentDirectory}${filename}`;
@@ -119,7 +126,10 @@ export const ExportButton = () => {
             }
         } catch (error) {
             console.error('Error opening file:', error);
-            Alert.alert('Error', 'Unable to open the file. Make sure you have an app that can open this type of file.');
+            Alert.alert(
+                'Error', 
+                'Unable to open the file. Please try opening it from your device\'s file manager.'
+            );
         }
     };
 
