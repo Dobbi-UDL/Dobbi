@@ -17,14 +17,16 @@
       "supportsTablet": true,
       "infoPlist": {
         "UIViewControllerBasedStatusBarAppearance": true
-      }
+      },
+      "newArchEnabled": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/dobbi-logo.png",  
         "backgroundColor": "#ffffff"
       },
-      "package": "com.eeriiclopeezz.dobbiapp"
+      "package": "com.eeriiclopeezz.dobbiapp",
+      "newArchEnabled": true
     },
     "web": {
       "bundler": "metro",
