@@ -81,7 +81,7 @@ export default function ChallengeContent() {
       ...formData,
       company_id: user.id,
       is_sponsored: true,
-      target_date: new Date(formData.target_date).toISOString(),
+      expiring_date: new Date(formData.expiring_date).toISOString(),
     };
 
     if (isEditing) {
@@ -117,8 +117,9 @@ export default function ChallengeContent() {
       title: challenge.title,
       description: challenge.description,
       target_amount: challenge.target_amount.toFixed(2),
-      target_date: formatDateForInput(challenge.target_date),
+      expiring_date: formatDateForInput(challenge.expiring_date),
       points_rewards: challenge.points_rewards,
+      monthly_saving: challenge.monthly_saving,
     });
     setEditingChallengeId(challenge.id);
     setIsEditing(true);
@@ -161,8 +162,13 @@ export default function ChallengeContent() {
       sortable: true,
     },
     {
-      name: "Target Date",
-      selector: (row) => new Date(row.target_date).toLocaleString(),
+      name: "Monthly Saving",
+      selector: (row) => `$${row.monthly_saving.toFixed(2)}`,
+      sortable: true,
+    },
+    {
+      name: "Expiring Date",
+      selector: (row) => new Date(row.expiring_date).toLocaleString(),
       sortable: true,
     },
     {
@@ -303,12 +309,24 @@ export default function ChallengeContent() {
                 />
               </div>
               <div>
-                <Label htmlFor="target_date">Target Date</Label>
+                <Label htmlFor="monthly_saving">Monthly Saving</Label>
                 <Input
-                  id="target_date"
-                  name="target_date"
+                  id="monthly_saving"
+                  name="monthly_saving"
+                  type="number"
+                  step="0.01"
+                  value={formData.monthly_saving}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="expiring_date">Expiring Date</Label>
+                <Input
+                  id="expiring_date"
+                  name="expiring_date"
                   type="datetime-local"
-                  value={formData.target_date}
+                  value={formData.expiring_date}
                   onChange={handleInputChange}
                   className="mt-1"
                 />
@@ -347,6 +365,7 @@ const initialFormData = () => ({
   title: "",
   description: "",
   target_amount: 0,
-  target_date: "",
+  expiring_date: "",
   points_rewards: "",
+  monthly_saving: 0,
 });
