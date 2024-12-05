@@ -11,7 +11,7 @@ import * as Application from 'expo-application';
 import { generatePDF } from './generators/generatePDF';
 import { generateCSV } from './generators/generateCSV';
 
-export const ExportButton = () => {
+export const ExportButton = ({ data }) => {
     const [showExportMenu, setShowExportMenu] = useState(false);
     const [downloadStatus, setDownloadStatus] = useState(''); // 'downloading', 'completed', null
     const [filename, setFilename] = useState(null);
@@ -20,15 +20,20 @@ export const ExportButton = () => {
 
     const generateFile = async (fileType) => {
         try {
-            switch (fileType) {
-                case 'csv':
-                    return await generateCSV();
-                case 'pdf':
-                    return await generatePDF();
-                default:
-                    return null;
+            let fileUri;
+            if (fileType === 'csv') {
+                fileUri = await generateCSV(data);
+            } else if (fileType === 'pdf') {
+                fileUri = await generatePDF(data);
             }
+
+            if (!fileUri) {
+                throw new Error('File generation failed');
+            }
+
+            return fileUri;
         } catch (error) {
+            console.error('File generation error:', error);
             Alert.alert(
                 `${fileType.toUpperCase()} Generation Failed`,
                 `Unable to generate ${fileType.toUpperCase()} file. Please try again.`
@@ -201,22 +206,32 @@ export const ExportButton = () => {
             setShowExportMenu(false);
             setDownloadStatus('downloading');
 
+            // Generate the file
             const fileUri = await generateFile(fileType);
             if (!fileUri) {
                 throw new Error('File generation failed');
             }
 
-            const savedUri = await saveFile(fileUri, fileType);
-            if (savedUri) {
+            // Save the file
+            const savedSuccessfully = await saveFile(fileUri, fileType);
+            if (savedSuccessfully) {
                 setDownloadStatus('completed');
+                
+                // Clean up the temporary file
+                try {
+                    await FileSystem.deleteAsync(fileUri);
+                } catch (cleanupError) {
+                    console.warn('Error cleaning up temporary file:', cleanupError);
+                }
+
                 setTimeout(() => setDownloadStatus(null), 5000);
             } else {
                 setDownloadStatus(null);
             }
 
         } catch (error) {
-            Alert.alert('Export Failed', 'Unable to export file. Please try again.');
             console.error('Export error:', error);
+            Alert.alert('Export Failed', 'Unable to export file. Please try again.');
             setDownloadStatus(null);
         }
     };

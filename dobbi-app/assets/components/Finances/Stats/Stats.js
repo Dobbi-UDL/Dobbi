@@ -20,6 +20,7 @@ export default function Stats() {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedTab, setSelectedTab] = useState(0);
     const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
+    const [currentPeriodDates, setCurrentPeriodDates] = useState(null);
 
     // Data for summary card
     const [summary, setSummary] = useState({
@@ -153,6 +154,8 @@ export default function Stats() {
 
     useEffect(() => {
         if (user) {
+            const dates = getPeriodDates(selectedPeriod);
+            setCurrentPeriodDates(dates);
             loadStatsData();
         }
     }, [user, selectedPeriod]);
@@ -164,6 +167,16 @@ export default function Stats() {
             await loadPeriodComparison(startDate, endDate);
             await loadCategoryDistribution(startDate, endDate);
             await loadMonthlyTrend(startDate, endDate);
+            
+            // when all data is loaded, log it to the console
+            
+            console.log('-----STATS DATA-----');
+            console.log('summary:', summary);
+            console.log('periodComparison:', periodComparison);
+            console.log('expenseCategories:', expenseCategories);
+            console.log('incomeCategories:', incomeCategories);
+            console.log('monthlyTrend:', monthlyTrend);
+
             setLoading(false);
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -292,7 +305,16 @@ export default function Stats() {
             ) : (
                 <>  
                     <View style={styles.chipsContainer}>
-                        <ExportButton />
+                        <ExportButton 
+                            data={{
+                                summary,
+                                periodComparison,
+                                expenseCategories,
+                                incomeCategories,
+                                monthlyTrend,
+                                dateRange: currentPeriodDates
+                            }}
+                        />
                         <PeriodSelector
                             selectedPeriod={selectedPeriod}
                             onSelectPeriod={(period) => setSelectedPeriod(period)}
