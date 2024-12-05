@@ -4,23 +4,34 @@ import Card from '../../common/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomModal } from '../../common/Modal';
 
-export const TopCategoriesCard = ({ title, data, type }) => {
+export const TopCategoriesCard = ({ title, data = [], type }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const barAnimations = useRef(data.map(() => new Animated.Value(0))).current;
+    const [animations, setAnimations] = useState([]);
 
+    // Initialize animations when data changes
     useEffect(() => {
+        if (!data || !data.length) return;
+
+        const newAnimations = data.map(() => new Animated.Value(0));
+        setAnimations(newAnimations);
+
         // Animate bars sequentially
-        const animations = barAnimations.map((anim, index) => {
+        const animationSequence = newAnimations.map((anim, index) => {
             return Animated.timing(anim, {
                 toValue: 1,
                 duration: 600,
-                delay: index * 100, // Stagger effect
+                delay: index * 100,
                 useNativeDriver: false,
             });
         });
 
-        Animated.stagger(100, animations).start();
+        Animated.stagger(100, animationSequence).start();
+
+        // Cleanup animations on unmount or data change
+        return () => {
+            newAnimations.forEach(anim => anim.resetAnimation());
+        };
     }, [data]);
 
     const getBarColor = () => {
@@ -33,27 +44,29 @@ export const TopCategoriesCard = ({ title, data, type }) => {
     };
 
     const renderCategoryItem = (item, index) => {
-        const barWidth = barAnimations[index].interpolate({
+        if (!animations[index]) return null;
+
+        const barWidth = animations[index].interpolate({
             inputRange: [0, 1],
             outputRange: ['0%', `${item.percentage}%`],
         });
-        
+
         return (
-            <TouchableOpacity 
-                key={index} 
+            <TouchableOpacity
+                key={index}
                 style={styles.categoryItem}
                 onPress={() => handleCategoryPress(item)}
                 activeOpacity={0.7}
             >
                 <View style={styles.categoryHeader}>
                     <View style={styles.iconContainer}>
-                        <Animated.View 
+                        <Animated.View
                             style={[
-                                styles.iconBackground, 
-                                { 
+                                styles.iconBackground,
+                                {
                                     backgroundColor: `${getBarColor()}20`,
                                     transform: [{
-                                        scale: barAnimations[index].interpolate({
+                                        scale: animations[index].interpolate({
                                             inputRange: [0, 0.5, 1],
                                             outputRange: [0.5, 1.2, 1]
                                         })
@@ -68,12 +81,12 @@ export const TopCategoriesCard = ({ title, data, type }) => {
                         <Text style={styles.categoryName}>{item.category_name}</Text>
                         <Text style={styles.categoryAmount}>${item.total_amount}</Text>
                     </View>
-                    <Animated.Text 
+                    <Animated.Text
                         style={[
-                            styles.percentage, 
-                            { 
+                            styles.percentage,
+                            {
                                 color: getBarColor(),
-                                opacity: barAnimations[index]
+                                opacity: animations[index]
                             }
                         ]}
                     >
@@ -81,14 +94,14 @@ export const TopCategoriesCard = ({ title, data, type }) => {
                     </Animated.Text>
                 </View>
                 <View style={styles.progressBarContainer}>
-                    <Animated.View 
+                    <Animated.View
                         style={[
-                            styles.progressBar, 
-                            { 
+                            styles.progressBar,
+                            {
                                 backgroundColor: getBarColor(),
-                                width: barWidth 
+                                width: barWidth
                             }
-                        ]} 
+                        ]}
                     />
                 </View>
             </TouchableOpacity>
@@ -114,7 +127,7 @@ export const TopCategoriesCard = ({ title, data, type }) => {
                             {selectedCategory.percentage.toFixed(1)}%
                         </Text>
                     </View>
-                    
+
                     {/* Placeholder for additional category details */}
                     <Text style={styles.modalSection}>Transaction History</Text>
                     <Text style={styles.modalSection}>Monthly Trend</Text>
@@ -127,7 +140,11 @@ export const TopCategoriesCard = ({ title, data, type }) => {
     return (
         <Card title={title} style={styles.card}>
             <View style={styles.container}>
-                {data.map((item, index) => renderCategoryItem(item, index))}
+                {data && data.length > 0 ? (
+                    data.map((item, index) => renderCategoryItem(item, index))
+                ) : (
+                    <Text style={styles.noDataText}>No data available</Text>
+                )}
             </View>
             {renderCategoryModal()}
         </Card>
@@ -209,5 +226,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
         marginBottom: 16,
+    },
+    noDataText: {
+        textAlign: 'center',
+        color: '#666',
+        padding: 16,
     },
 });
