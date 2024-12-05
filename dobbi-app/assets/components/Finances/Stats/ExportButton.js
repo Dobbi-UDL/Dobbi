@@ -1,89 +1,113 @@
-
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Modal, Pressable, Alert, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import * as MediaLibrary from 'expo-media-library';
+import { Asset } from 'expo-asset';
+import * as Print from 'expo-print';
 
 export const ExportButton = () => {
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [downloadStatus, setDownloadStatus] = useState(''); // 'downloading', 'completed', null
 
     const generateSampleData = (fileType) => {
-        if (fileType === 'csv') {
-            return 'Date,Amount,Category\n2023-01-01,100,Food\n2023-01-02,200,Transport';
-        } else {
-            return `
-                <html>
-                    <body>
-                        <h1>Financial Report</h1>
-                        <p>Sample financial data for demonstration:</p>
-                        <table>
-                            <tr><th>Date</th><th>Amount</th><th>Category</th></tr>
-                            <tr><td>2023-01-01</td><td>$100</td><td>Food</td></tr>
-                            <tr><td>2023-01-02</td><td>$200</td><td>Transport</td></tr>
-                        </table>
-                    </body>
-                </html>
-            `;
-        }
+        return "This is a sample";
     };
 
     const saveFile = async (content, filename) => {
         try {
-            const fileUri = FileSystem.documentDirectory + filename;
+            const fileUri = `${FileSystem.documentDirectory}${filename}`;
             await FileSystem.writeAsStringAsync(fileUri, content);
-            
+
             if (Platform.OS === 'android') {
-                const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-                
+                const permissions = await MediaLibrary.requestPermissionsAsync();
                 if (permissions.granted) {
-                    const base64Content = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
-                    await FileSystem.StorageAccessFramework.createFileAsync(
-                        permissions.directoryUri,
-                        filename,
-                        'text/csv'
-                    ).then(async (uri) => {
-                        await FileSystem.writeAsStringAsync(uri, base64Content, { encoding: FileSystem.EncodingType.Base64 });
-                        Alert.alert('Success', 'File saved successfully!');
-                    });
-                } else {
-                    await Sharing.shareAsync(fileUri);
+                    const asset = await MediaLibrary.createAssetAsync(fileUri);
+                    return { fileUri, asset };
                 }
-            } else {
-                await Sharing.shareAsync(fileUri);
             }
-            
-            return true;
+
+            return { fileUri };
         } catch (error) {
             console.error('Error saving file:', error);
             Alert.alert('Error', 'Failed to save file');
-            return false;
+            return null;
         }
     };
 
     const handleExport = async (fileType) => {
         try {
+            setShowExportMenu(false); // Close menu immediately
+            setDownloadStatus('downloading');
             const timestamp = new Date().getTime();
             const content = generateSampleData(fileType);
-            const filename = `financial-report-${timestamp}.${fileType}`;
-            
-            const success = await saveFile(content, filename);
-            if (success) {
-                setShowExportMenu(false);
+            const filename = `sample-${timestamp}.${fileType}`;
+
+            let result;
+            if (fileType === 'pdf') {
+                const html = `
+                    <html>
+                        <body>
+                            <p>${content}</p>
+                        </body>
+                    </html>
+                `;
+                const { uri } = await Print.printToFileAsync({ html });
+                result = { fileUri: uri };
+            } else {
+                result = await saveFile(content, filename);
+            }
+
+            if (result) {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate download time
+                setDownloadStatus('completed');
+
+                // Auto-hide the completion message after 5 seconds
+                setTimeout(() => setDownloadStatus(null), 5000);
             }
         } catch (error) {
             Alert.alert('Export Failed', 'Unable to export file. Please try again.');
             console.error('Export error:', error);
+            setDownloadStatus(null);
         }
     };
 
     return (
-        <View>
-            <TouchableOpacity 
+        <>
+            {downloadStatus && (
+                <View style={styles.toastContainer}>
+                    <MaterialIcon name={downloadStatus === 'downloading' ? 'file-download' : 'file-download-done'}
+                        size={24}
+                        color={downloadStatus === 'downloading' ? "#F7B2B3" : "#FB6C72"}
+                        style={styles.toastIcon} />
+                    <View style={styles.toastContent}>
+                        <Text style={styles.toastText}>
+                            {downloadStatus === 'downloading' ? 'Downloading file...' : 'Download complete'}
+                        </Text>
+                        <Text style={styles.toastSubtext}>
+                            {downloadStatus === 'downloading'
+                                ? 'See notifications for download status'
+                                : 'sample-file.pdf'} {/* Replace with actual filename */}
+                        </Text>
+                    </View>
+                    {downloadStatus === 'completed' && (
+                        <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => setDownloadStatus(null)}
+                        >
+                            <Text style={styles.actionButtonText}>OPEN</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            )}
+
+            <TouchableOpacity
                 style={styles.downloadChip}
                 onPress={() => setShowExportMenu(true)}
             >
-                <Icon name="download" size={16} color="#EE6567" />
+                <MaterialCommunityIcon name="download" size={16} color="#EE6567" />
                 <Text style={styles.downloadChipText}>Export</Text>
             </TouchableOpacity>
 
@@ -93,29 +117,29 @@ export const ExportButton = () => {
                 onRequestClose={() => setShowExportMenu(false)}
                 animationType="fade"
             >
-                <Pressable 
+                <Pressable
                     style={styles.modalOverlay}
                     onPress={() => setShowExportMenu(false)}
                 >
                     <View style={styles.exportMenu}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.exportOption}
                             onPress={() => handleExport('csv')}
                         >
-                            <Icon name="file-delimited" size={20} color="#666666" />
+                            <MaterialCommunityIcon name="file-delimited" size={20} color="#666666" />
                             <Text style={styles.exportOptionText}>Export as CSV</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.exportOption}
                             onPress={() => handleExport('pdf')}
                         >
-                            <Icon name="file-pdf-box" size={20} color="#666666" />
+                            <MaterialCommunityIcon name="file-pdf-box" size={20} color="#666666" />
                             <Text style={styles.exportOptionText}>Export as PDF</Text>
                         </TouchableOpacity>
                     </View>
                 </Pressable>
             </Modal>
-        </View>
+        </>
     );
 };
 
@@ -164,5 +188,53 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         fontSize: 16,
         color: '#666666',
+    },
+    toastContainer: {
+        position: 'absolute',
+        bottom: -20,
+        left: 16,
+        right: 16,
+        backgroundColor: '#fff',
+        borderRadius: 4,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+        zIndex: 1000,
+    },
+    toastIcon: {
+        marginRight: 12,
+    },
+    toastContent: {
+        flex: 1,
+    },
+    toastText: {
+        color: '#333',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    toastSubtext: {
+        color: '#666',
+        fontSize: 14,
+    },
+    progressBar: {
+        height: 4,
+        backgroundColor: '#EE6567',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+    },
+    actionButton: {
+        marginRight: 10,
+    },
+    actionButtonText: {
+        color: '#FB6C72',
+        fontSize: 16,
+        fontWeight: '700',
     },
 });
