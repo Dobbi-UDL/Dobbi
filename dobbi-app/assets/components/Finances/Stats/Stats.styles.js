@@ -110,4 +110,9 @@ export const styles = StyleSheet.create({
         fontWeight: '500',
         marginLeft: 6,
     },
+    chipsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 16,
+    }
 });

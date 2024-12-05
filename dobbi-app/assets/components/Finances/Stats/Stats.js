@@ -11,7 +11,8 @@ import { CategoryDistributionCard } from './CategoryDistributionCard';
 import { TopCategoriesCard } from './TopCategoriesCard';
 import { MonthlyTrendCard } from './MonthlyTrendCard';
 import { PeriodSelector } from './PeriodSelector';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { ExportButton } from './ExportButton';
+
 
 export default function Stats() {
     const { user } = useAuth();
@@ -289,11 +290,14 @@ export default function Stats() {
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
-                <>
-                    <PeriodSelector
-                        selectedPeriod={selectedPeriod}
-                        onSelectPeriod={(period) => setSelectedPeriod(period)}
-                    />
+                <>  
+                    <View style={styles.chipsContainer}>
+                        <ExportButton />
+                        <PeriodSelector
+                            selectedPeriod={selectedPeriod}
+                            onSelectPeriod={(period) => setSelectedPeriod(period)}
+                        />
+                    </View>
                     <TabBar
                         tabs={tabs}
                         activeTab={selectedTab}
