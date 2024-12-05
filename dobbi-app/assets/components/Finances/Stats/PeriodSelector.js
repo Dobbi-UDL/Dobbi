@@ -1,8 +1,15 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, TouchableOpacity, Text, StyleSheet, Modal, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
+    const [showExportMenu, setShowExportMenu] = useState(false);
+
+    const handleExport = (fileType) => {
+        // Handle export logic here
+        setShowExportMenu(false);
+    };
+
     const periods = [
         { id: 'thisMonth', label: 'This Month' },
         { id: 'lastMonth', label: 'Last Month' },
@@ -15,10 +22,45 @@ export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
 
     return (
         <View style={styles.mainContainer}>
-            <TouchableOpacity style={styles.downloadChip}>
-                <Icon name="download" size={16} color="#EE6567" />
-                <Text style={styles.downloadChipText}>Export</Text>
-            </TouchableOpacity>
+            <View>
+                <TouchableOpacity 
+                    style={styles.downloadChip}
+                    onPress={() => setShowExportMenu(true)}
+                >
+                    <Icon name="download" size={16} color="#EE6567" />
+                    <Text style={styles.downloadChipText}>Export</Text>
+                </TouchableOpacity>
+
+                <Modal
+                    transparent
+                    visible={showExportMenu}
+                    onRequestClose={() => setShowExportMenu(false)}
+                    animationType="fade"
+                >
+                    <Pressable 
+                        style={styles.modalOverlay}
+                        onPress={() => setShowExportMenu(false)}
+                    >
+                        <View style={styles.exportMenu}>
+                            <TouchableOpacity 
+                                style={styles.exportOption}
+                                onPress={() => handleExport('csv')}
+                            >
+                                <Icon name="file-delimited" size={20} color="#666666" />
+                                <Text style={styles.exportOptionText}>Export as CSV</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={styles.exportOption}
+                                onPress={() => handleExport('pdf')}
+                            >
+                                <Icon name="file-pdf-box" size={20} color="#666666" />
+                                <Text style={styles.exportOptionText}>Export as PDF</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Pressable>
+                </Modal>
+            </View>
+
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -47,56 +89,7 @@ export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
     );
 };
 
-// Styles for grey chips and pink selected chip
-const unselectedChipBackground = '#f5f5f5';
-const unselectedChipBorder = '#e5e5e5';
-
-const styles1 = StyleSheet.create({
-    container: {
-        maxWidth: '100%',
-        width: '100%',
-    },
-    scrollContent: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flexDirection: 'row',
-        alignItems: 'center', // Center chips vertically
-        height: '100%', // Take full height of container
-    },
-    chip: {
-        backgroundColor: unselectedChipBackground,
-        borderColor: unselectedChipBorder,
-        paddingHorizontal: 15,
-        borderRadius: 20,
-        marginRight: 10,
-        marginHorizontal: 5,
-        marginVertical: 5,
-        borderWidth: 1,
-        
-        height: 36, // Fixed height instead of minHeight
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    selectedChip: {
-        backgroundColor: '#FFE9E9',
-        borderColor: '#EE6567',
-    },
-    chipText: {
-        fontSize: 14,
-        lineHeight: 20, // Add explicit line height
-        fontWeight: '500',
-        color: '#666666',
-        textAlign: 'center', // Center text
-        textAlignVertical: 'center',
-    },
-    selectedChipText: {
-        color: '#EE6567',
-    }
-});
-
-
-    // Styles for white chips and red selected chip
-const styles2 = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         maxWidth: '100%',
         width: '100%',
@@ -165,6 +158,34 @@ const styles2 = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-start',
+    },
+    exportMenu: {
+        backgroundColor: 'white',
+        marginTop: 140,
+        marginHorizontal: 16,
+        borderRadius: 8,
+        padding: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    exportOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 4,
+    },
+    exportOptionText: {
+        marginLeft: 12,
+        fontSize: 16,
+        color: '#666666',
+    },
     scrollContent: {
         paddingRight: 16,
         paddingVertical: 8,
@@ -173,5 +194,3 @@ const styles2 = StyleSheet.create({
         height: '100%',
     },
 });
-
-const styles = styles2;
