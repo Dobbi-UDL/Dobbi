@@ -204,6 +204,8 @@ export default function Stats() {
             const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
             setExpenseCategories(expenseData);
             setIncomeCategories(incomeData);
+            console.log('expenseCategories:', expenseData);
+            console.log('incomeCategories:', incomeData);
         }
         catch (error) {
             console.error('Error getting category distribution:', error);
