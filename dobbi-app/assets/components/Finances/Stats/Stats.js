@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Add this import
+import { View, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import TabBar from '../../common/TabBar';
 import { styles } from './Stats.styles';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { fetchEntries, fetchCategories } from '../../../../services/financesService';
@@ -138,7 +138,7 @@ export default function Stats() {
         setRefreshing(true);
         await loadStatsData();
         setRefreshing(false);
-    };    
+    };
 
     const renderTabContent = () => {
         switch (selectedTab) {
@@ -152,12 +152,12 @@ export default function Stats() {
             case 1: // Comparisons
                 return (
                     <>
-                        <TopCategoriesCard 
+                        <TopCategoriesCard
                             title="Top Expense Categories"
                             data={expenseCategories}
                             type="expense"
                         />
-                        <TopCategoriesCard 
+                        <TopCategoriesCard
                             title="Top Income Categories"
                             data={incomeCategories}
                             type="income"
@@ -197,36 +197,22 @@ export default function Stats() {
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <>
-                    <PeriodSelector 
+                    <PeriodSelector
                         selectedPeriod={selectedPeriod}
                         onSelectPeriod={(period) => setSelectedPeriod(period)}
                     />
-                    <View style={styles.segmentedControl}>
-                        {tabs.map((tab, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.segmentedButton,
-                                    selectedTab === index && styles.segmentedButtonActive
-                                ]}
-                                onPress={() => setSelectedTab(index)}
-                            >
-                                <Text style={[
-                                    styles.segmentedButtonText,
-                                    selectedTab === index && styles.segmentedButtonTextActive
-                                ]}>
-                                    {tab}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    <TabBar
+                        tabs={tabs}
+                        activeTab={selectedTab}
+                        onTabPress={setSelectedTab}
+                    />
                     <ScrollView
                         style={styles.scrollView}
                         refreshControl={
                             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                         }>
                         {renderTabContent()}
-                        <View style={styles.footer}/>
+                        <View style={styles.footer} />
                     </ScrollView>
                 </>
             )}
