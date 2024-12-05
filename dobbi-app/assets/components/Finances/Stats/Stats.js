@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import TabBar from '../../common/TabBar';
 import { styles } from './Stats.styles';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { fetchEntries, fetchCategories } from '../../../../services/financesService';
@@ -10,12 +10,14 @@ import { PeriodComparisonCard } from './PeriodComparisonCard';
 import { CategoryDistributionCard } from './CategoryDistributionCard';
 import { TopCategoriesCard } from './TopCategoriesCard';
 import { MonthlyTrendCard } from './MonthlyTrendCard';
+import { PeriodSelector } from './PeriodSelector';
 
 export default function Stats() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedTab, setSelectedTab] = useState(0);
+    const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
 
     // Data for summary card
     const [summary, setSummary] = useState({
@@ -35,14 +37,39 @@ export default function Stats() {
     // Data for monthly income vs expenses trend card
     const [monthlyTrend, setMonthlyTrend] = useState([]);
 
-    useEffect(() => {
-        if (!user) {
-            router.push('/login');
+    const getPeriodDates = (periodId) => {
+        const now = new Date();
+        let startDate, endDate;
+
+        switch (periodId) {
+            case 'thisMonth':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'lastMonth':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                break;
+            case 'last6Months':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            default:
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         }
 
-        loadStatsData();
+        return {
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0]
+        };
+    };
 
-    }, [user]);
+    useEffect(() => {
+        if (user) {
+            loadStatsData();
+        }
+    }, [user, selectedPeriod]);
 
     const loadStatsData = async () => {
         try {
@@ -58,8 +85,7 @@ export default function Stats() {
     };
 
     const loadSummary = async () => {
-        const startDate = '2024-12-01';
-        const endDate = '2024-12-31';
+        const { startDate, endDate } = getPeriodDates(selectedPeriod);
 
         try {
             const data = await fetchFinancialSummary(user.id, startDate, endDate);
@@ -84,8 +110,7 @@ export default function Stats() {
     }
 
     const loadCategoryDistribution = async () => {
-        const startDate = '2024-12-01';
-        const endDate = '2024-12-31';
+        const { startDate, endDate } = getPeriodDates(selectedPeriod);
 
         try {
             const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
@@ -98,8 +123,7 @@ export default function Stats() {
     }
 
     const loadMonthlyTrend = async () => {
-        const startDate = '2024-06-01';
-        const endDate = '2024-12-31';
+        const { startDate, endDate } = getPeriodDates(selectedPeriod);
 
         try {
             const data = await fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate);
@@ -114,7 +138,7 @@ export default function Stats() {
         setRefreshing(true);
         await loadStatsData();
         setRefreshing(false);
-    };    
+    };
 
     const renderTabContent = () => {
         switch (selectedTab) {
@@ -128,12 +152,12 @@ export default function Stats() {
             case 1: // Comparisons
                 return (
                     <>
-                        <TopCategoriesCard 
+                        <TopCategoriesCard
                             title="Top Expense Categories"
                             data={expenseCategories}
                             type="expense"
                         />
-                        <TopCategoriesCard 
+                        <TopCategoriesCard
                             title="Top Income Categories"
                             data={incomeCategories}
                             type="income"
@@ -165,21 +189,22 @@ export default function Stats() {
         }
     };
 
+    const tabs = ['Overview', 'Comparisons', 'Categories'];
+
     return (
         <View style={styles.container}>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <>
-                    <SegmentedControl
-                        values={['Overview', 'Comparisons', 'Categories']}
-                        selectedIndex={selectedTab}
-                        onChange={(event) => {
-                            setSelectedTab(event.nativeEvent.selectedSegmentIndex);
-                        }}
-                        style={styles.segmentedControl}
-                        tintColor="#EE6567"
-                        fontStyle={{color: '#333333'}}
+                    <PeriodSelector
+                        selectedPeriod={selectedPeriod}
+                        onSelectPeriod={(period) => setSelectedPeriod(period)}
+                    />
+                    <TabBar
+                        tabs={tabs}
+                        activeTab={selectedTab}
+                        onTabPress={setSelectedTab}
                     />
                     <ScrollView
                         style={styles.scrollView}
@@ -187,7 +212,7 @@ export default function Stats() {
                             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                         }>
                         {renderTabContent()}
-                        <View style={styles.footer}/>
+                        <View style={styles.footer} />
                     </ScrollView>
                 </>
             )}

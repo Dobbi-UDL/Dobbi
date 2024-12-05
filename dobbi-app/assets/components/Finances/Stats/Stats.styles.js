@@ -60,5 +60,29 @@ export const styles = StyleSheet.create({
     segmentedControl: {
         margin: 10,
         marginTop: 20,
-    }
+    },
+    segmentedControl: {
+        flexDirection: 'row',
+        backgroundColor: '#ECECEC',
+        borderRadius: 8,
+        padding: 3,
+        marginHorizontal: 16,
+        marginTop: 8,
+    },
+    segmentedButton: {
+        flex: 1,
+        paddingVertical: 8,
+        alignItems: 'center',
+        borderRadius: 6,
+    },
+    segmentedButtonActive: {
+        backgroundColor: '#fff',
+    },
+    segmentedButtonText: {
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '500',
+    },
+    segmentedButtonTextActive: {
+    },
 });
