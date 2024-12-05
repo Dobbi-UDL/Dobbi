@@ -11,62 +11,89 @@ import * as Print from 'expo-print';
 export const ExportButton = () => {
     const [showExportMenu, setShowExportMenu] = useState(false);
     const [downloadStatus, setDownloadStatus] = useState(''); // 'downloading', 'completed', null
+    const [filename, setFilename] = useState(null);
 
-    const generateSampleData = (fileType) => {
-        return "This is a sample";
+    const generateFile = async (fileType) => {
+        let fileUri = null;
+
+        switch (fileType) {
+            case 'csv':
+                fileUri = await generateCSV();
+                break;
+            case 'pdf':
+                fileUri = await generatePDF();
+                break;
+            default:
+                break;
+        }
+
+        return fileUri;
     };
 
-    const saveFile = async (content, filename) => {
+    const generatePDF = async () => {
         try {
-            const fileUri = `${FileSystem.documentDirectory}${filename}`;
-            await FileSystem.writeAsStringAsync(fileUri, content);
+            const htmlContent = `
+                <h1>Sample PDF</h1>
+                <p>This is a sample PDF file generated using Expo Print module.</p>
+            `;
 
-            if (Platform.OS === 'android') {
-                const permissions = await MediaLibrary.requestPermissionsAsync();
-                if (permissions.granted) {
-                    const asset = await MediaLibrary.createAssetAsync(fileUri);
-                    return { fileUri, asset };
-                }
+            const { uri } = await Print.printToFileAsync({ html: htmlContent });
+            
+            return uri;
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            Alert.alert('PDF Generation Failed', 'Unable to generate PDF file. Please try again.');
+        }
+    };
+
+    const generateCSV = async () => {
+        // To implement later
+        return null;
+    };
+
+    const saveFile = async (fileUri, fileType) => {
+        try {
+            const isAvailable = await Sharing.isAvailableAsync();
+            if (!isAvailable) {
+                Alert.alert('Error', 'Sharing is not available on this device');
+                return false;
             }
 
-            return { fileUri };
+            await Sharing.shareAsync(fileUri, {
+                mimeType: fileType === 'csv' ? 'text/csv' : 'application/pdf',
+                dialogTitle: 'Export File',
+            });
+
+            return true;
         } catch (error) {
-            console.error('Error saving file:', error);
-            Alert.alert('Error', 'Failed to save file');
-            return null;
+            console.error('Error sharing file:', error);
+            Alert.alert('Error', 'Failed to share file');
+            return false;
         }
     };
 
     const handleExport = async (fileType) => {
         try {
-            setShowExportMenu(false); // Close menu immediately
+            setShowExportMenu(false);
             setDownloadStatus('downloading');
+
             const timestamp = new Date().getTime();
-            const content = generateSampleData(fileType);
-            const filename = `sample-${timestamp}.${fileType}`;
-
-            let result;
-            if (fileType === 'pdf') {
-                const html = `
-                    <html>
-                        <body>
-                            <p>${content}</p>
-                        </body>
-                    </html>
-                `;
-                const { uri } = await Print.printToFileAsync({ html });
-                result = { fileUri: uri };
-            } else {
-                result = await saveFile(content, filename);
+            const newFilename = `sample-${timestamp}.${fileType}`;
+            setFilename(newFilename);
+            
+            const fileUri = await generateFile(fileType);
+            if (!fileUri) {
+                throw new Error('File generation failed');
             }
 
-            if (result) {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate download time
+            const success = await saveFile(fileUri, fileType);
+            if (success) {
                 setDownloadStatus('completed');
-
-                // Auto-hide the completion message after 5 seconds
                 setTimeout(() => setDownloadStatus(null), 5000);
+            } else {
+                setDownloadStatus(null);
             }
+
         } catch (error) {
             Alert.alert('Export Failed', 'Unable to export file. Please try again.');
             console.error('Export error:', error);
@@ -89,7 +116,7 @@ export const ExportButton = () => {
                         <Text style={styles.toastSubtext}>
                             {downloadStatus === 'downloading'
                                 ? 'See notifications for download status'
-                                : 'sample-file.pdf'} {/* Replace with actual filename */}
+                                : filename}
                         </Text>
                     </View>
                     {downloadStatus === 'completed' && (

@@ -11,7 +11,7 @@ import { CategoryDistributionCard } from './CategoryDistributionCard';
 import { TopCategoriesCard } from './TopCategoriesCard';
 import { MonthlyTrendCard } from './MonthlyTrendCard';
 import { PeriodSelector } from './PeriodSelector';
-import { ExportButton } from './ExportButton';
+import { ExportButton } from '../Export/ExportButton';
 
 
 export default function Stats() {
