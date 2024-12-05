@@ -230,28 +230,17 @@ export default function Stats() {
 
     const renderTabContent = () => {
         switch (selectedTab) {
-            case 0: // Overview
+            case 0: // Summary
                 return (
                     <>
                         <SummaryCard data={summary} />
                         <MonthlyTrendCard data={monthlyTrend} />
                     </>
                 );
-            case 1: // Comparisons
+            case 1: // Compare
                 return (
                     <>
                         <PeriodComparisonCard data={periodComparison} />
-
-                        <TopCategoriesCard
-                            title="Top Expense Categories"
-                            data={expenseCategories}
-                            type="expense"
-                        />
-                        <TopCategoriesCard
-                            title="Top Income Categories"
-                            data={incomeCategories}
-                            type="income"
-                        />
                     </>
                 );
             case 2: // Categories
@@ -273,12 +262,27 @@ export default function Stats() {
                         />
                     </>
                 );
+            case 3: // Top
+                return (
+                    <>
+                        <TopCategoriesCard
+                            title="Top Expense Categories"
+                            data={expenseCategories}
+                            type="expense"
+                        />
+                        <TopCategoriesCard
+                            title="Top Income Categories"
+                            data={incomeCategories}
+                            type="income"
+                        />
+                    </>
+                );
             default:
                 return null;
         }
     };
 
-    const tabs = ['Overview', 'Comparisons', 'Categories'];
+    const tabs = ['Summary', 'Compare', 'Pie Chart', 'Ranking'];
 
     return (
         <View style={styles.container}>
