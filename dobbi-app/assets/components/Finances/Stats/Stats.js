@@ -43,22 +43,50 @@ export default function Stats() {
 
         switch (periodId) {
             case 'thisMonth':
+                // Shows data for the current month up to the current date
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                endDate = now;
                 break;
             case 'lastMonth':
+                // Shows data for the previous month
                 startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of previous month
+                break;
+            case 'last3Months':
+                // Shows data for the last 3 months. Not including the current month
+                startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0); 
                 break;
             case 'last6Months':
+                // Shows data for the last 6 months. Not including the current month
                 startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                break;
+            case 'yearToDate':
+                // Shows data from January 1st to the current date
+                startDate = new Date(now.getFullYear(), 0, 1); // January 1st
+                endDate = now;
+                break;
+            case 'lastYear':
+                // Shows data for the previous year
+                startDate = new Date(now.getFullYear() - 1, 0, 1); // January 1st of previous year
+                endDate = new Date(now.getFullYear() - 1, 11, 31); // December 31st of previous year
+                break;
+            case 'customRange':
+                // This would need additional UI and logic to handle custom date selection
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
                 break;
             default:
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                console.error('Invalid periodId:', periodId);
+                return null;
         }
-
+        
+        startDate.setHours(12, 0, 0, 0); // Set time to noon to avoid timezone issues
+        endDate.setHours(12, 0, 0, 0); // Set time to noon to avoid timezone issues
+        console.log('---------------------');
+        console.log('startDate:', startDate);
+        console.log('endDate:', endDate);
         return {
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0]

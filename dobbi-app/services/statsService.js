@@ -41,8 +41,6 @@ export async function fetchPeriodComparison(userId, currentStartDate, currentEnd
 }
 
 export async function fetchCategoryDistribution(userId, startDate, endDate){
-    console.log('Fetching category distribution...');
-
     // Fetch category distribution data
     const { data, error } = await supabase
         .rpc('get_category_distribution', {

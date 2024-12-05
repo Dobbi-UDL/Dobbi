@@ -6,8 +6,11 @@ export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
     const periods = [
         { id: 'thisMonth', label: 'This Month' },
         { id: 'lastMonth', label: 'Last Month' },
+        { id: 'last3Months', label: 'Last 3 Months' },
         { id: 'last6Months', label: 'Last 6 Months' },
+        { id: 'yearToDate', label: 'Year to Date' },
         { id: 'lastYear', label: 'Last Year' },
+        { id: 'customRange', label: 'Custom Range' },
     ];
 
     return (
