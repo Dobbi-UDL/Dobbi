@@ -3,71 +3,185 @@ import { View, TouchableOpacity, Text, StyleSheet, Modal, Pressable, Alert, Plat
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
-import { Asset } from 'expo-asset';
 import * as Print from 'expo-print';
+import * as Linking from 'expo-linking';
+import * as IntentLauncher from 'expo-intent-launcher';
+import * as Application from 'expo-application';
+import { generatePDF } from './generators/generatePDF';
+import { generateCSV } from './generators/generateCSV';
 
 export const ExportButton = () => {
     const [showExportMenu, setShowExportMenu] = useState(false);
     const [downloadStatus, setDownloadStatus] = useState(''); // 'downloading', 'completed', null
     const [filename, setFilename] = useState(null);
+    const [directoryUri, setDirectoryUri] = useState(null); // Store the directory URI for later use
+    const [savedFileUri, setSavedFileUri] = useState(null); // Add this new state
 
     const generateFile = async (fileType) => {
-        let fileUri = null;
-
-        switch (fileType) {
-            case 'csv':
-                fileUri = await generateCSV();
-                break;
-            case 'pdf':
-                fileUri = await generatePDF();
-                break;
-            default:
-                break;
-        }
-
-        return fileUri;
-    };
-
-    const generatePDF = async () => {
         try {
-            const htmlContent = `
-                <h1>Sample PDF</h1>
-                <p>This is a sample PDF file generated using Expo Print module.</p>
-            `;
-
-            const { uri } = await Print.printToFileAsync({ html: htmlContent });
-            
-            return uri;
+            switch (fileType) {
+                case 'csv':
+                    return await generateCSV();
+                case 'pdf':
+                    return await generatePDF();
+                default:
+                    return null;
+            }
         } catch (error) {
-            console.error('PDF generation error:', error);
-            Alert.alert('PDF Generation Failed', 'Unable to generate PDF file. Please try again.');
+            Alert.alert(
+                `${fileType.toUpperCase()} Generation Failed`,
+                `Unable to generate ${fileType.toUpperCase()} file. Please try again.`
+            );
+            return null;
         }
-    };
-
-    const generateCSV = async () => {
-        // To implement later
-        return null;
     };
 
     const saveFile = async (fileUri, fileType) => {
         try {
-            const isAvailable = await Sharing.isAvailableAsync();
-            if (!isAvailable) {
-                Alert.alert('Error', 'Sharing is not available on this device');
-                return false;
+            const newFilename = `sample-${Date.now()}.${fileType}`;
+            setFilename(newFilename);
+
+            if (Platform.OS === 'android') {
+                // Request permission to access the user's Downloads directory
+                let dirUri = directoryUri;
+                if (!dirUri) {
+                    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+                    console.log('Permissions:', permissions);
+
+                    if (!permissions.granted) {
+                        Alert.alert('Permissions Required', 'Please allow access to your storage to save files.');
+                        return false;
+                    }
+                    if (!permissions.directoryUri) {
+                        Alert.alert('Error', 'No directory selected. Please select a directory to save the file.');
+                        return false;
+                    }
+                    dirUri = permissions.directoryUri;
+                    setDirectoryUri(dirUri);
+                }
+
+                console.log('Directory URI:', dirUri);
+
+                // Read the file content
+                const fileString = await FileSystem.readAsStringAsync(fileUri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+
+                // Determine MIME type
+                const mimeType = fileType === 'pdf' ? 'application/pdf' : 'text/csv';
+
+                // Create and write the file in the selected directory
+                const uri = await FileSystem.StorageAccessFramework.createFileAsync(
+                    dirUri,
+                    newFilename,
+                    mimeType
+                );
+                console.log('File URI:', uri);
+
+                await FileSystem.writeAsStringAsync(uri, fileString, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+
+                // Store the complete URI for later use
+                setSavedFileUri(uri);
+                return true;
+            } else {
+                // iOS - save to document directory
+                const destPath = `${FileSystem.documentDirectory}${newFilename}`;
+                await FileSystem.copyAsync({
+                    from: fileUri,
+                    to: destPath,
+                });
+                return true;
+            }
+        } catch (error) {
+            console.error('Error saving file:', error);
+            Alert.alert('Error', 'Failed to save file: ' + error.message);
+            return false;
+        }
+    };
+
+    const openFile = async () => {
+        try {
+            if (Platform.OS === 'android' && savedFileUri) {
+                // On Android, directly open the saved content URI
+                await Linking.openURL(savedFileUri);
+            } else if (Platform.OS === 'ios' && filename) {
+                // iOS implementation remains the same
+                const fileUri = `${FileSystem.documentDirectory}${filename}`;
+                const fileInfo = await FileSystem.getInfoAsync(fileUri);
+                if (fileInfo.exists) {
+                    await Linking.openURL(fileUri);
+                } else {
+                    Alert.alert('Error', 'File not found');
+                }
+            }
+        } catch (error) {
+            console.error('Error opening file:', error);
+            Alert.alert('Error', 'Unable to open the file. Make sure you have an app that can open this type of file.');
+        }
+    };
+
+    const findAssetByFilename = async (filename) => {
+        try {
+            const assets = await MediaLibrary.getAssetsAsync({
+                createdAfter: 0,
+                mediaType: ['document', 'unknown'],
+                first: 1000, // Adjust if necessary
+            });
+            return assets.assets.find(asset => asset.filename === filename);
+        } catch (error) {
+            console.error('Error fetching assets:', error);
+            return null;
+        }
+    };
+
+    const requestPermissions = async () => {
+        try {
+            let permissionResult;
+            if (Platform.OS === 'ios') {
+                permissionResult = await MediaLibrary.requestPermissionsAsync();
+            } else {
+                permissionResult = await MediaLibrary.getPermissionsAsync();
+                if (permissionResult.status !== 'granted' && permissionResult.canAskAgain) {
+                    permissionResult = await MediaLibrary.requestPermissionsAsync();
+                }
             }
 
-            await Sharing.shareAsync(fileUri, {
-                mimeType: fileType === 'csv' ? 'text/csv' : 'application/pdf',
-                dialogTitle: 'Export File',
-            });
-
-            return true;
+            if (permissionResult.status === 'granted') {
+                return true;
+            } else if (permissionResult.status === 'denied' && !permissionResult.canAskAgain) {
+                // Permissions are denied and cannot be requested again
+                Alert.alert(
+                    'Permission Required',
+                    'Please enable storage permissions in your device settings to save files.',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                            text: 'Open Settings',
+                            onPress: () => {
+                                if (Platform.OS === 'ios') {
+                                    Linking.openURL('app-settings:');
+                                } else {
+                                    IntentLauncher.startActivityAsync(
+                                        IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+                                        {
+                                            data: 'package:' + Application.applicationId,
+                                        }
+                                    );
+                                }
+                            },
+                        },
+                    ]
+                );
+                return false;
+            } else {
+                // Permission denied but can ask again
+                return false;
+            }
         } catch (error) {
-            console.error('Error sharing file:', error);
-            Alert.alert('Error', 'Failed to share file');
+            console.error('Permission error:', error);
             return false;
         }
     };
@@ -77,17 +191,13 @@ export const ExportButton = () => {
             setShowExportMenu(false);
             setDownloadStatus('downloading');
 
-            const timestamp = new Date().getTime();
-            const newFilename = `sample-${timestamp}.${fileType}`;
-            setFilename(newFilename);
-            
             const fileUri = await generateFile(fileType);
             if (!fileUri) {
                 throw new Error('File generation failed');
             }
 
-            const success = await saveFile(fileUri, fileType);
-            if (success) {
+            const savedUri = await saveFile(fileUri, fileType);
+            if (savedUri) {
                 setDownloadStatus('completed');
                 setTimeout(() => setDownloadStatus(null), 5000);
             } else {
@@ -122,7 +232,7 @@ export const ExportButton = () => {
                     {downloadStatus === 'completed' && (
                         <TouchableOpacity
                             style={styles.actionButton}
-                            onPress={() => setDownloadStatus(null)}
+                            onPress={openFile}
                         >
                             <Text style={styles.actionButtonText}>OPEN</Text>
                         </TouchableOpacity>
