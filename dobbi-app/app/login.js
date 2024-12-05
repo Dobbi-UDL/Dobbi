@@ -50,7 +50,7 @@ const LoginScreen = () => {
   }
 
   const handleBack = () => {
-    router.back();
+    router.push('/welcome');
   };
 
   // Only show loading when both local loading and auth loading are false
