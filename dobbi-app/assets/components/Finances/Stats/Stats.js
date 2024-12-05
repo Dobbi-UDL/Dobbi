@@ -11,6 +11,7 @@ import { CategoryDistributionCard } from './CategoryDistributionCard';
 import { TopCategoriesCard } from './TopCategoriesCard';
 import { MonthlyTrendCard } from './MonthlyTrendCard';
 import { PeriodSelector } from './PeriodSelector';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 export default function Stats() {
     const { user } = useAuth();
@@ -74,19 +75,75 @@ export default function Stats() {
                 break;
             case 'customRange':
                 // This would need additional UI and logic to handle custom date selection
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                // Choose random dates for now 24/09/15 - 24/11/08
+                startDate = new Date(2024, 11, 2);
+                endDate = new Date(2024, 11, 8);
                 break;
             default:
                 console.error('Invalid periodId:', periodId);
                 return null;
         }
-        
-        startDate.setHours(12, 0, 0, 0); // Set time to noon to avoid timezone issues
-        endDate.setHours(12, 0, 0, 0); // Set time to noon to avoid timezone issues
-        console.log('---------------------');
-        console.log('startDate:', startDate);
-        console.log('endDate:', endDate);
+
+        // Set time to noon to avoid timezone issues
+        startDate.setHours(12, 0, 0, 0); 
+        endDate.setHours(12, 0, 0, 0); 
+
+        return {
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0]
+        };
+    };
+
+    const getPreviousPeriodDates = (periodId, currentStartDate = null, currentEndDate = null) => {
+        const now = new Date();
+        let startDate, endDate;
+
+        switch (periodId) {
+            case 'thisMonth':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                break;
+            case 'lastMonth':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+                break;
+            case 'last3Months':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() - 3, 0);
+                break;
+            case 'last6Months':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() - 6, 0);
+                break;
+            case 'yearToDate':
+                startDate = new Date(now.getFullYear() - 1, 0, 1);
+                endDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                break;
+            case 'lastYear':
+                startDate = new Date(now.getFullYear() - 2, 0, 1);
+                endDate = new Date(now.getFullYear() - 2, 11, 31);
+                break;
+            case 'customRange':
+                if (currentStartDate && currentEndDate) {
+                    const currentStart = new Date(currentStartDate);
+                    const currentEnd = new Date(currentEndDate);
+
+                    const duration = (currentEnd - currentStart) + (24 * 60 * 60 * 1000); // Include end day
+                    
+                    startDate = new Date(currentStart.getTime() - duration);
+                    endDate = new Date(currentStart.getTime() - (24 * 60 * 60 * 1000)); // One day before current start
+                } else {
+                    console.error('Custom range requires currentStartDate and currentEndDate');
+                    return null;
+                }
+                break;
+            default:
+                console.error('Invalid periodId:', periodId);
+                return null;
+        }
+
+        startDate.setHours(12, 0, 0, 0);
+        endDate.setHours(12, 0, 0, 0);
         return {
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0]
@@ -100,11 +157,12 @@ export default function Stats() {
     }, [user, selectedPeriod]);
 
     const loadStatsData = async () => {
+        const { startDate, endDate } = getPeriodDates(selectedPeriod);
         try {
-            await loadSummary();
-            await loadPeriodComparison();
-            await loadCategoryDistribution();
-            await loadMonthlyTrend();
+            await loadSummary(startDate, endDate);
+            await loadPeriodComparison(startDate, endDate);
+            await loadCategoryDistribution(startDate, endDate);
+            await loadMonthlyTrend(startDate, endDate);
             setLoading(false);
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -112,9 +170,7 @@ export default function Stats() {
         }
     };
 
-    const loadSummary = async () => {
-        const { startDate, endDate } = getPeriodDates(selectedPeriod);
-
+    const loadSummary = async (startDate, endDate) => {
         try {
             const data = await fetchFinancialSummary(user.id, startDate, endDate);
             setSummary(data);
@@ -123,11 +179,17 @@ export default function Stats() {
         }
     };
 
-    const loadPeriodComparison = async () => {
-        const currentStartDate = '2024-12-01';
-        const currentEndDate = '2024-12-30';
-        const previousStartDate = '2024-11-01';
-        const previousEndDate = '2024-11-30';
+    const loadPeriodComparison = async (currentStartDate, currentEndDate) => {
+        
+        const { startDate: previousStartDate, endDate: previousEndDate } = getPreviousPeriodDates(selectedPeriod, currentStartDate, currentEndDate);
+
+        console.log('-----CURRENT DATES-----');
+        console.log('currentStartDate:', currentStartDate);
+        console.log('currentEndDate:', currentEndDate);
+
+        console.log('-----PREVIOUS DATES-----');
+        console.log('previousStartDate:', previousStartDate);
+        console.log('previousEndDate:', previousEndDate);
 
         try {
             const data = await fetchPeriodComparison(user.id, currentStartDate, currentEndDate, previousStartDate, previousEndDate);
@@ -137,9 +199,7 @@ export default function Stats() {
         }
     }
 
-    const loadCategoryDistribution = async () => {
-        const { startDate, endDate } = getPeriodDates(selectedPeriod);
-
+    const loadCategoryDistribution = async (startDate, endDate) => {
         try {
             const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
             setExpenseCategories(expenseData);
@@ -150,9 +210,7 @@ export default function Stats() {
         }
     }
 
-    const loadMonthlyTrend = async () => {
-        const { startDate, endDate } = getPeriodDates(selectedPeriod);
-
+    const loadMonthlyTrend = async (startDate, endDate) => {
         try {
             const data = await fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate);
             console.log('monthlyTrend:', data);
@@ -180,6 +238,8 @@ export default function Stats() {
             case 1: // Comparisons
                 return (
                     <>
+                        <PeriodComparisonCard data={periodComparison} />
+
                         <TopCategoriesCard
                             title="Top Expense Categories"
                             data={expenseCategories}
@@ -190,7 +250,6 @@ export default function Stats() {
                             data={incomeCategories}
                             type="income"
                         />
-                        <PeriodComparisonCard data={periodComparison} />
                     </>
                 );
             case 2: // Categories
