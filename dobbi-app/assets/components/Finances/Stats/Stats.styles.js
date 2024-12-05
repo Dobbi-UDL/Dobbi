@@ -85,4 +85,29 @@ export const styles = StyleSheet.create({
     },
     segmentedButtonTextActive: {
     },
+    downloadContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    downloadButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    downloadButtonText: {
+        color: '#EE6567',
+        fontSize: 14,
+        fontWeight: '500',
+        marginLeft: 6,
+    },
 });

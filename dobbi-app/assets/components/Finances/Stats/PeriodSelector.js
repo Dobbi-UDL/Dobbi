@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
     const periods = [
@@ -10,30 +11,36 @@ export const PeriodSelector = ({ selectedPeriod, onSelectPeriod }) => {
     ];
 
     return (
-        <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.container}
-            contentContainerStyle={styles.scrollContent}
-        >
-            {periods.map((period) => (
-                <TouchableOpacity
-                    key={period.id}
-                    style={[
-                        styles.chip,
-                        selectedPeriod === period.id && styles.selectedChip
-                    ]}
-                    onPress={() => onSelectPeriod(period.id)}
-                >
-                    <Text style={[
-                        styles.chipText,
-                        selectedPeriod === period.id && styles.selectedChipText
-                    ]}>
-                        {period.label}
-                    </Text>
-                </TouchableOpacity>
-            ))}
-        </ScrollView>
+        <View style={styles.mainContainer}>
+            <TouchableOpacity style={styles.downloadChip}>
+                <Icon name="download" size={16} color="#EE6567" />
+                <Text style={styles.downloadChipText}>Export</Text>
+            </TouchableOpacity>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {periods.map((period) => (
+                    <TouchableOpacity
+                        key={period.id}
+                        style={[
+                            styles.chip,
+                            selectedPeriod === period.id && styles.selectedChip
+                        ]}
+                        onPress={() => onSelectPeriod(period.id)}
+                    >
+                        <Text style={[
+                            styles.chipText,
+                            selectedPeriod === period.id && styles.selectedChipText
+                        ]}>
+                            {period.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+        </View>
     );
 };
 
@@ -126,7 +133,42 @@ const styles2 = StyleSheet.create({
     selectedChipText: {
         color: 'white',
         fontWeight: 'bold',
-    }
+    },
+    downloadChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFE9E9',
+        paddingHorizontal: 15,
+        borderRadius: 20,
+        marginRight: 8, // Adjust spacing between export button and scrolling chips
+        marginHorizontal: 5,
+        marginVertical: 5,
+        height: 36,
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#EE6567',
+    },
+    downloadChipText: {
+        fontSize: 14,
+        color: '#EE6567',
+        fontWeight: '500',
+        marginLeft: 4,
+    },
+    mainContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 16,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingRight: 16,
+        paddingVertical: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: '100%',
+    },
 });
 
 const styles = styles2;
