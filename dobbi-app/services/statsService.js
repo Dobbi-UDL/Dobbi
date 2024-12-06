@@ -72,7 +72,6 @@ export async function fetchCategoryDistribution(userId, startDate, endDate){
 
     const expenseData = data.slice(0, expenseCount);
     const incomeData = data.slice(expenseCount);
-
     return { expenseData, incomeData };
 }
 

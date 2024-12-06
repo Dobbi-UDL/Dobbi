@@ -158,84 +158,58 @@ export default function Stats() {
         if (user) {
             const dates = getPeriodDates(selectedPeriod);
             const previousDates = getPreviousPeriodDates(selectedPeriod, dates.startDate, dates.endDate);
+            
+            // Set dates immediately
             setCurrentPeriodDates(dates);
             setPreviousPeriodDates(previousDates);
+            
+            // Don't show loading for quick refreshes
+            const loadingTimeout = setTimeout(() => setLoading(true), 1000);
+            // Start loading immediately
+            loadStatsData(dates, previousDates).finally(() => {
+                clearTimeout(loadingTimeout);
+                setLoading(false);
+            });
 
-            loadStatsData();
+            return () => clearTimeout(loadingTimeout);
         }
     }, [user, selectedPeriod]);
 
-    const loadStatsData = async () => {
-        const { startDate, endDate } = currentPeriodDates;
-        const { startDate: previousStartDate, endDate: previousEndDate } = previousPeriodDates;
+    const loadStatsData = async (dates, prevDates) => {
+        if (!dates || !prevDates) return;
+
+        const { startDate, endDate } = dates;
+        const { startDate: previousStartDate, endDate: previousEndDate } = prevDates;
 
         try {
-            setLoading(true); // Ensure loading is true when starting
-            
-            // Fetch all data for the selected period
-            await Promise.all([
-                loadSummary(startDate, endDate),
-                loadPeriodComparison(startDate, endDate, previousStartDate, previousEndDate),
-                loadCategoryDistribution(startDate, endDate),
-                loadMonthlyTrend(startDate, endDate)
+            // Load data in parallel for better performance
+            const [summaryData, periodCompData, categoryData, trendData] = await Promise.all([
+                fetchFinancialSummary(user.id, startDate, endDate),
+                fetchPeriodComparison(user.id, startDate, endDate, previousStartDate, previousEndDate),
+                fetchCategoryDistribution(user.id, startDate, endDate),
+                fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate)
             ]);
-            
-            // Calculate metrics only after monthly trend data is loaded
-            if (monthlyTrend.length > 1) {
-                const calculatedMetrics = calculateMetrics(monthlyTrend);
-                setMetrics(calculatedMetrics);
-            }
 
-            setLoading(false);
+            // Batch state updates
+            const updates = () => {
+                setSummary(summaryData);
+                setPeriodComparison(periodCompData);
+                setExpenseCategories(categoryData.expenseData);
+                setIncomeCategories(categoryData.incomeData);
+                setMonthlyTrend(trendData);
+                
+                if (trendData?.length > 0) {
+                    setMetrics(calculateMetrics(trendData));
+                }
+            };
+
+            // Execute all state updates in one batch
+            updates();
+
         } catch (error) {
             console.error('Error loading stats:', error);
-            setLoading(false);
         }
     };
-
-    const loadSummary = async (startDate, endDate) => {
-        try {
-            const data = await fetchFinancialSummary(user.id, startDate, endDate);
-            setSummary(data);
-        } catch (error) {
-            console.error('Error getting summary:', error);
-        }
-    };
-
-    const loadPeriodComparison = async (currentStartDate, currentEndDate, previousStartDate, previousEndDate) => {
-        try {
-            const data = await fetchPeriodComparison(user.id, currentStartDate, currentEndDate, previousStartDate, previousEndDate);
-            setPeriodComparison(data);
-        } catch (error) {
-            console.error('Error getting period comparison:', error);
-        }
-    }
-
-    const loadCategoryDistribution = async (startDate, endDate) => {
-        try {
-            const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
-            setExpenseCategories(expenseData);
-            setIncomeCategories(incomeData);
-        }
-        catch (error) {
-            console.error('Error getting category distribution:', error);
-        }
-    }
-
-    const loadMonthlyTrend = async (startDate, endDate) => {
-        try {
-            const data = await fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate);
-            setMonthlyTrend(data);
-            
-            // Calculate metrics here after setting monthlyTrend
-            if (data.length > 0) {
-                const calculatedMetrics = calculateMetrics(data);
-                setMetrics(calculatedMetrics);
-            }
-        } catch (error) {
-            console.error('Error getting monthly trend:', error);
-        }
-    }
 
     const calculateMonthlyAverages = (monthlyTrendData) => {
         if (!monthlyTrendData?.length) return null;
@@ -255,7 +229,7 @@ export default function Stats() {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        await loadStatsData();
+        await loadStatsData(currentPeriodDates, previousPeriodDates);
         setRefreshing(false);
     };
 
