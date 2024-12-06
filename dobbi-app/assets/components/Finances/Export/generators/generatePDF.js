@@ -30,30 +30,46 @@ export const generatePDF = async (data) => {
         const dobbiBrand = DOBBI_BRAND_BASE64;
 
         const formatCurrency = (amount) => {
-            // Add safety check for undefined or null values
             if (amount === undefined || amount === null) return '$0.00';
             return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         };
 
-        // Add safety checks for data access
-        const topExpense = expenseCategories && expenseCategories[0] ? {
-            name: expenseCategories[0].category_name || 'No category',
-            total: expenseCategories[0].total || 0
-        } : { name: 'No data', total: 0 };
-
-        const topIncome = incomeCategories && incomeCategories[0] ? {
-            name: incomeCategories[0].category_name || 'No category',
-            total: incomeCategories[0].total || 0
-        } : { name: 'No data', total: 0 };
-
-        // Calculate spending change percentage
-        const calculateSpendingChange = () => {
-            if (!periodComparison || !periodComparison.length) return 0;
+        // Calculate spending change percentage with better explanation
+        const getSpendingChangeInfo = () => {
+            if (!periodComparison || !periodComparison.length) return { text: 'No change' };
             const currentTotal = periodComparison.reduce((sum, item) => sum + item.current_period_expense, 0);
             const previousTotal = periodComparison.reduce((sum, item) => sum + item.previous_period_expense, 0);
-            if (previousTotal === 0) return 0;
-            return ((currentTotal - previousTotal) / previousTotal * 100).toFixed(1);
+            
+            if (previousTotal === 0) return { text: 'No previous data for comparison' };
+            
+            const change = ((currentTotal - previousTotal) / previousTotal * 100).toFixed(2);
+            return { 
+                text: change > 0 
+                    ? `Spending <strong>increased by ${change}%</strong> compared to previous period`
+                    : `Spending <strong>decreased by ${Math.abs(change)}%</strong> compared to previous period`
+            };
         };
+
+        // Get monthly trend info or message
+        const getMonthlyTrendInfo = () => {
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+            const monthsDiff = (endDate.getFullYear() - startDate.getFullYear()) * 12 
+                           + endDate.getMonth() - startDate.getMonth();
+
+            return {
+                isSingleMonth: monthsDiff < 1,
+                message: "Monthly analysis not available for periods less than one month.",
+                averages: {
+                    income: metrics?.income?.average || 0,
+                    expenses: metrics?.expenses?.average || 0,
+                    savings: metrics?.savings?.average || 0
+                }
+            };
+        };
+
+        const spendingChange = getSpendingChangeInfo();
+        const monthlyTrendInfo = getMonthlyTrendInfo();
 
         const htmlContent = `
             <!DOCTYPE html>
@@ -238,8 +254,8 @@ export const generatePDF = async (data) => {
                                         <div class="insight-title">Period Comparison</div>
                                         <div class="insight-value">
                                             <ul>
-                                                <li>Previous Period: <strong>${previousDateRange?.startDate} to ${previousDateRange?.endDate}</strong></li>
-                                                <li>Spending Change: <strong>${calculateSpendingChange()}%</strong></li>
+                                                <li>Previous Period: ${previousDateRange?.startDate} to ${previousDateRange?.endDate}</li>
+                                                <li>${spendingChange.text}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -248,8 +264,26 @@ export const generatePDF = async (data) => {
                                         <div class="insight-title">Categories</div>
                                         <div class="insight-value">
                                             <ul>
-                                                <li>Top Spending: <strong>${topExpense.name} (${formatCurrency(topExpense.total)})</strong></li>
-                                                <li>Top Income: <strong>${topIncome.name} (${formatCurrency(topIncome.total)})</strong></li>
+                                                <li>Top Expenses:
+                                                    ${expenseCategories.length >= 2 
+                                                        ? `<br>
+                                                           1. <strong>${expenseCategories[0].category_name} (${expenseCategories[0].percentage.toFixed(2)}%)</strong><br>
+                                                           2. <strong>${expenseCategories[1].category_name} (${expenseCategories[1].percentage.toFixed(2)}%)</strong>`
+                                                        : expenseCategories.length === 1
+                                                            ? `<br>1. <strong>${expenseCategories[0].category_name} (${expenseCategories[0].percentage.toFixed(2)}%)</strong>`
+                                                            : 'This period has no expense data'
+                                                    }
+                                                </li>
+                                                <li>Top Income:
+                                                    ${incomeCategories.length >= 2 
+                                                        ? `<br>
+                                                           1. <strong>${incomeCategories[0].category_name} (${incomeCategories[0].percentage.toFixed(2)}%)</strong><br>
+                                                           2. <strong>${incomeCategories[1].category_name} (${incomeCategories[1].percentage.toFixed(2)}%)</strong>`
+                                                        : incomeCategories.length === 1
+                                                            ? `<br>1. <strong>${incomeCategories[0].category_name} (${incomeCategories[0].percentage.toFixed(2)}%)</strong>`
+                                                            : 'This period has no income data'
+                                                    }
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -257,11 +291,14 @@ export const generatePDF = async (data) => {
                                     <div class="insight-card">
                                         <div class="insight-title">Monthly Trend</div>
                                         <div class="insight-value">
-                                            <ul>
-                                                <li>Average Income: <strong>${formatCurrency(metrics?.income?.average || 0)}</strong></li>
-                                                <li>Average Expenses: <strong>${formatCurrency(metrics?.expenses?.average || 0)}</strong></li>
-                                                <li>Average Savings: <strong>${formatCurrency(metrics?.savings?.average || 0)}</strong></li>
-                                            </ul>
+                                            ${monthlyTrendInfo.isSingleMonth 
+                                                ? `<p>${monthlyTrendInfo.message}</p>`
+                                                : `<ul>
+                                                    <li>Average Monthly Income: <strong>${formatCurrency(monthlyTrendInfo.averages.income)}</strong></li>
+                                                    <li>Average Monthly Expenses: <strong>${formatCurrency(monthlyTrendInfo.averages.expenses)}</strong></li>
+                                                    <li>Average Monthly Savings: <strong>${formatCurrency(monthlyTrendInfo.averages.savings)}</strong></li>
+                                                </ul>`
+                                            }
                                         </div>
                                     </div>
                                 </div>

@@ -195,6 +195,7 @@ export default function Stats() {
                 setSummary(summaryData);
                 setPeriodComparison(periodCompData);
                 setExpenseCategories(categoryData.expenseData);
+                console.log(categoryData.incomeData);
                 setIncomeCategories(categoryData.incomeData);
                 setMonthlyTrend(trendData);
                 
