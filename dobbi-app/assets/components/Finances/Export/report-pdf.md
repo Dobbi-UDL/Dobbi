@@ -127,6 +127,15 @@ To create a detailed, professional, multi-page financial statistics report in PD
 
 3. **Executive Summary**
     - Highlight key financial insights, at-a-glance, a takeaway/highlight from each section, for faster analysis instead of reading the full report.
+    What quick summary can be provided as a snapshot of each section?
+
+    - Financial Summary: quick savings rate review
+    - Period Comparison: overall spending increase/decrease
+    - Category Analysis: top expense category and top income category
+    - Monthly Trends: monthly average income, expenses, and savings
+    
+
+
 
 4. **Financial Summary**
     - **Overview table:**

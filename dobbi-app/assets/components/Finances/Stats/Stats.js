@@ -12,7 +12,7 @@ import { TopCategoriesCard } from './TopCategoriesCard';
 import { MonthlyTrendCard } from './MonthlyTrendCard';
 import { PeriodSelector } from './PeriodSelector';
 import { ExportButton } from '../Export/ExportButton';
-
+import { calculateMetrics } from './MetricsUtility';
 
 export default function Stats() {
     const { user } = useAuth();
@@ -21,6 +21,8 @@ export default function Stats() {
     const [selectedTab, setSelectedTab] = useState(0);
     const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
     const [currentPeriodDates, setCurrentPeriodDates] = useState(null);
+    const [previousPeriodDates, setPreviousPeriodDates] = useState(null);
+    const [metrics, setMetrics] = useState(null);
 
     // Data for summary card
     const [summary, setSummary] = useState({
@@ -155,27 +157,34 @@ export default function Stats() {
     useEffect(() => {
         if (user) {
             const dates = getPeriodDates(selectedPeriod);
+            const previousDates = getPreviousPeriodDates(selectedPeriod, dates.startDate, dates.endDate);
             setCurrentPeriodDates(dates);
+            setPreviousPeriodDates(previousDates);
+
             loadStatsData();
         }
     }, [user, selectedPeriod]);
 
     const loadStatsData = async () => {
-        const { startDate, endDate } = getPeriodDates(selectedPeriod);
+        const { startDate, endDate } = currentPeriodDates;
+        const { startDate: previousStartDate, endDate: previousEndDate } = previousPeriodDates;
+
         try {
-            await loadSummary(startDate, endDate);
-            await loadPeriodComparison(startDate, endDate);
-            await loadCategoryDistribution(startDate, endDate);
-            await loadMonthlyTrend(startDate, endDate);
+            setLoading(true); // Ensure loading is true when starting
             
-            // when all data is loaded, log it to the console
+            // Fetch all data for the selected period
+            await Promise.all([
+                loadSummary(startDate, endDate),
+                loadPeriodComparison(startDate, endDate, previousStartDate, previousEndDate),
+                loadCategoryDistribution(startDate, endDate),
+                loadMonthlyTrend(startDate, endDate)
+            ]);
             
-            console.log('-----STATS DATA-----');
-            console.log('summary:', summary);
-            console.log('periodComparison:', periodComparison);
-            console.log('expenseCategories:', expenseCategories);
-            console.log('incomeCategories:', incomeCategories);
-            console.log('monthlyTrend:', monthlyTrend);
+            // Calculate metrics only after monthly trend data is loaded
+            if (monthlyTrend.length > 1) {
+                const calculatedMetrics = calculateMetrics(monthlyTrend);
+                setMetrics(calculatedMetrics);
+            }
 
             setLoading(false);
         } catch (error) {
@@ -193,18 +202,7 @@ export default function Stats() {
         }
     };
 
-    const loadPeriodComparison = async (currentStartDate, currentEndDate) => {
-        
-        const { startDate: previousStartDate, endDate: previousEndDate } = getPreviousPeriodDates(selectedPeriod, currentStartDate, currentEndDate);
-
-        console.log('-----CURRENT DATES-----');
-        console.log('currentStartDate:', currentStartDate);
-        console.log('currentEndDate:', currentEndDate);
-
-        console.log('-----PREVIOUS DATES-----');
-        console.log('previousStartDate:', previousStartDate);
-        console.log('previousEndDate:', previousEndDate);
-
+    const loadPeriodComparison = async (currentStartDate, currentEndDate, previousStartDate, previousEndDate) => {
         try {
             const data = await fetchPeriodComparison(user.id, currentStartDate, currentEndDate, previousStartDate, previousEndDate);
             setPeriodComparison(data);
@@ -218,8 +216,6 @@ export default function Stats() {
             const { expenseData, incomeData } = await fetchCategoryDistribution(user.id, startDate, endDate);
             setExpenseCategories(expenseData);
             setIncomeCategories(incomeData);
-            console.log('expenseCategories:', expenseData);
-            console.log('incomeCategories:', incomeData);
         }
         catch (error) {
             console.error('Error getting category distribution:', error);
@@ -229,12 +225,33 @@ export default function Stats() {
     const loadMonthlyTrend = async (startDate, endDate) => {
         try {
             const data = await fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate);
-            console.log('monthlyTrend:', data);
             setMonthlyTrend(data);
+            
+            // Calculate metrics here after setting monthlyTrend
+            if (data.length > 0) {
+                const calculatedMetrics = calculateMetrics(data);
+                setMetrics(calculatedMetrics);
+            }
         } catch (error) {
             console.error('Error getting monthly trend:', error);
         }
     }
+
+    const calculateMonthlyAverages = (monthlyTrendData) => {
+        if (!monthlyTrendData?.length) return null;
+        
+        const sum = monthlyTrendData.reduce((acc, month) => ({
+            income: acc.income + month.total_income,
+            expenses: acc.expenses + month.total_expenses
+        }), { income: 0, expenses: 0 });
+
+        const months = monthlyTrendData.length;
+        return {
+            avgIncome: sum.income / months,
+            avgExpenses: sum.expenses / months,
+            avgSavings: (sum.income - sum.expenses) / months
+        };
+    };
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -243,11 +260,18 @@ export default function Stats() {
     };
 
     const renderTabContent = () => {
+        const monthlyAverages = calculateMonthlyAverages(monthlyTrend);
+        
         switch (selectedTab) {
             case 0: // Summary
                 return (
                     <>
-                        <SummaryCard data={summary} />
+                        <SummaryCard 
+                            data={{
+                                ...summary,
+                                monthlyAverages
+                            }} 
+                        />
                         <MonthlyTrendCard data={monthlyTrend} />
                     </>
                 );
@@ -312,7 +336,9 @@ export default function Stats() {
                                 expenseCategories,
                                 incomeCategories,
                                 monthlyTrend,
-                                dateRange: currentPeriodDates
+                                dateRange: currentPeriodDates,
+                                previousDateRange: previousPeriodDates,
+                                metrics
                             }}
                         />
                         <PeriodSelector

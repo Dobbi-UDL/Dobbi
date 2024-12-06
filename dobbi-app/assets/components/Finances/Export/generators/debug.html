@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            margin: 0;
+            size: A4;
+        }
+        body {
+            font-family: 'Helvetica', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+        .page {
+            width: 210mm;
+            height: 297mm;
+            page-break-after: always;
+        }
+        .header {
+            background: #fafafa;
+            padding: 40px 50px;
+            border-bottom: 3px solid #eee;
+        }
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 140px;
+            height: auto;
+            margin-right: 40px;
+        }
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .brand-name {
+            width: 160px;
+            height: auto;
+        }
+        .report-title {
+            font-size: 32px;
+            color: #333;
+            margin: 10px 0 0 0;
+        }
+        .report-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+        }
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .period {
+            font-size: 14px;
+            color: #666;
+        }
+        .generation-date {
+            font-size: 14px;
+            color: #888;
+        }
+        .content {
+            padding: 40px 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 24px;
+            color: #EE6567;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .executive-summary {
+            background: #fff;
+            margin: 20px 0 40px;
+        }
+        .summary-intro {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .key-insights {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .insight-card {
+            background: #f9f9f9;
+            border-left: 5px solid #EE6567;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .insight-card:hover {
+            transform: translateY(-5px);
+        }
+        .insight-title {
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .insight-value {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .insight-value b {
+            color: #333;
+        }
+        .insight-value ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .highlight {
+            color: #EE6567;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="data:image/png;base64,INSERT_DOBBI_LOGO_BASE64_HERE" alt="Dobbi Logo" class="logo">
+                    <div class="header-right">
+                        <img src="data:image/png;base64,INSERT_DOBBI_BRAND_BASE64_HERE" alt="Dobbi Brand" class="brand-name">
+                        <h1 class="report-title">Financial Statistics Report</h1>
+                        <div class="report-subtitle">Comprehensive Financial Analysis</div>
+                    </div>
+                </div>
+                <div class="meta-info">
+                    <div class="period">Report Period: 2024-01-01 to 2024-12-31</div>
+                    <div class="generation-date">Generated on January 1, 2025</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content">
+            <!-- Executive Summary Section -->
+            <div class="section">
+                <h2 class="section-title">Executive Summary</h2>
+                <div class="executive-summary">
+                    <p class="summary-intro">
+                        Here's a quick overview of your financial performance for the period 
+                        <span class="highlight">2024-01-01</span> to 
+                        <span class="highlight">2024-12-31</span>. 
+                        This summary highlights key insights from your financial activities.
+                    </p>
+
+                    <div class="key-insights">
+                        <div class="insight-card">
+                            <div class="insight-title">Overview</div>
+                            <div class="insight-value">
+                                <ul>
+                                    <li>Total Income: <strong>$100,000</strong></li>
+                                    <li>Total Expenses: <strong>$60,000</strong></li>
+                                    <li>Net Savings: <strong>$40,000 (66.67%)</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="insight-card">
+                            <div class="insight-title">Period Comparison</div>
+                            <div class="insight-value">
+                                <ul>
+                                    <li>Previous Period: <strong>2023-01-01 to 2023-12-31</strong></li>
+                                    <li>Spending Increase: <strong>10%</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="insight-card">
+                            <div class="insight-title">Categories</div>
+                            <div class="insight-value">
+                                <ul>
+                                    <li>Top Spending: <strong>Healthcare ($20,000)</strong></li>
+                                    <li>Top Income: <strong>Salary ($80,000)</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="insight-card">
+                            <div class="insight-title">Monthly Trend</div>
+                            <div class="insight-value">
+                                <ul>
+                                    <li>Average Income: <strong>$8,333</strong></li>
+                                    <li>Average Expenses: <strong>$5,000</strong></li>
+                                    <li>Average Savings: <strong>$3,333</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rest of the sections will follow -->
+            <div class="section">
+                <h2 class="section-title">Additional Insights</h2>
+                <p>More detailed information will be available once integrated with the app.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
