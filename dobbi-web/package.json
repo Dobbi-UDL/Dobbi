@@ -31,6 +31,8 @@
     "tailwind-merge": "^2.5.3"
   },
   "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/parse-json": "^4.0.2",
     "@types/react": "^18.3.11",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",

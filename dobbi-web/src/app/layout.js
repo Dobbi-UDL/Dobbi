@@ -1,11 +1,10 @@
 "use client";
 
-import './globals.css';
-import { ScrollProvider } from '../contexts/ScrollContext';
-import { AuthProvider } from '../contexts/AuthContext';
-
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
+import "./globals.css";
+import { ScrollProvider } from "../contexts/ScrollContext";
+import { AuthProvider } from "../contexts/AuthContext";
+import Header from "../components/common/Header";
+import Footer from "../components/common/Footer";
 
 export default function RootLayout({ children }) {
   return (
@@ -14,9 +13,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ScrollProvider>
             <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
+            <main className="flex-grow">{children}</main>
             <Footer />
           </ScrollProvider>
         </AuthProvider>

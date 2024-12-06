@@ -1,27 +1,25 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '../contexts/AuthContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Layout() {
-
   return (
     <LanguageProvider>
       <AuthProvider>
+        <StatusBar style="dark" backgroundColor="#ffffff" />
         <Stack 
           screenOptions={{
             headerShown: false,
             animation: 'slide_from_right',
-            statusBarColor: '#ffffff',
-            statusBarStyle: '#000000',
           }}
-        > 
-          
+        >
           <Stack.Screen
             name="home"
             options={{
               animation: 'none'
             }}
-          />
+            />
           <Stack.Screen
             name="finances"
             options={{
