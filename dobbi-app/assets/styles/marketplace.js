@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
-    backgroundColor: '#fff0f0',
+    backgroundColor: '#FFF5F5',
   },
   title: {
     fontSize: 30,

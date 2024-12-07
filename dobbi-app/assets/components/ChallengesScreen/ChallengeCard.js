@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/marketplace';
 import Card from '../common/Card';
 import { assignGoal } from '../../../services/goalService';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -10,7 +9,7 @@ export const ChallengeCard = ({ challenge }) => {
     const { user } = useAuth();
 
     const formatCurrency = (amount) => {
-        if (amount === null || amount === undefined) return 'No disponible';
+        if (amount === null || amount === undefined) return 'N/A';
         return amount.toLocaleString('de-DE', { 
             style: 'currency', 
             currency: 'EUR',
@@ -20,10 +19,10 @@ export const ChallengeCard = ({ challenge }) => {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'Fecha no disponible';
+        if (!dateString) return 'N/A';
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'Fecha no disponible';
+            if (isNaN(date.getTime())) return 'N/A';
             return date.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
@@ -31,7 +30,7 @@ export const ChallengeCard = ({ challenge }) => {
             });
         } catch (error) {
             console.error('Error formateando fecha:', error);
-            return 'Fecha no disponible';
+            return 'N/A';
         }
     };
 
@@ -40,107 +39,161 @@ export const ChallengeCard = ({ challenge }) => {
             const result = await assignGoal(challenge.id, user.id);
             if (result) {
                 console.log("Objetivo asignado exitosamente:", result);
+                // Consider adding a success notification here
             }
         } else {
-            Alert.alert("Error", "No se pudo asignar el objetivo porque no hay un usuario válido.");
+            Alert.alert("Error", "No se pudo asignar el objetivo. Por favor, inicia sesión.");
         }
     };
 
     return (
-        <TouchableOpacity style={localStyles.cardContainer}>
-            <Card>
-                {/* Header con información de la compañía y puntos */}
-                <View style={styles.cardHeader}>
-                    <Text style={styles.companyName}>
-                        {challenge.company_name || 'Compañía no disponible'}
-                    </Text>
-                    <View style={styles.rewardContainer}>
-                        <Icon name="gift" size={16} color="#ff6b6b" />
-                        <Text style={styles.rewardText}>
-                            {challenge.points_rewards || 0} puntos
+        <TouchableOpacity style={localStyles.container}>
+            <Card style={localStyles.card}>
+                {/* Header Section */}
+                <View style={localStyles.headerContainer}>
+                    <View style={localStyles.companySection}>
+                        <Text style={localStyles.companyName} numberOfLines={1}>
+                            {challenge.company_name || 'Compañía no disponible'}
+                        </Text>
+                    </View>
+                    <View style={localStyles.rewardBadge}>
+                        <Icon name="gift" size={16} color="#fff" />
+                        <Text style={localStyles.rewardText}>
+                            {challenge.points_rewards || 0} pts
                         </Text>
                     </View>
                 </View>
 
-                {/* Título y descripción */}
-                <Text style={styles.cardTitle}>{challenge.title || 'Título no disponible'}</Text>
-                <Text style={styles.cardDescription}>
-                    {challenge.description || 'Descripción no disponible'}
-                </Text>
+                {/* Challenge Details */}
+                <View style={localStyles.contentContainer}>
+                    <Text style={localStyles.titleText} numberOfLines={2}>
+                        {challenge.title || 'Título no disponible'}
+                    </Text>
+                    <Text style={localStyles.descriptionText} numberOfLines={3}>
+                        {challenge.description || 'Descripción no disponible'}
+                    </Text>
 
-                {/* Información detallada del desafío */}
-                <View style={localStyles.detailsContainer}>
-                    <View style={localStyles.detailRow}>
-                        <View style={localStyles.detailItem}>
-                            <Icon name="cash" size={16} color="#666" />
-                            <Text style={localStyles.detailText}>
+                    {/* Challenge Metrics */}
+                    <View style={localStyles.metricsContainer}>
+                        <View style={localStyles.metricItem}>
+                            <Icon name="cash" size={20} color="#4a4a4a" />
+                            <Text style={localStyles.metricText}>
                                 Ahorro mensual: {formatCurrency(challenge.monthly_saving)}
                             </Text>
                         </View>
-                        <View style={localStyles.detailItem}>
-                            <Icon name="calendar" size={16} color="#666" />
-                            <Text style={localStyles.detailText}>
+                        <View style={localStyles.metricItem}>
+                            <Icon name="target" size={20} color="#4a4a4a" />
+                            <Text style={localStyles.metricText}>
+                                Objetivo: {formatCurrency(challenge.target_amount)}
+                            </Text>
+                        </View>
+                        <View style={localStyles.metricItem}>
+                            <Icon name="calendar" size={20} color="#4a4a4a" />
+                            <Text style={localStyles.metricText}>
                                 Vence: {formatDate(challenge.expiring_date)}
                             </Text>
                         </View>
                     </View>
 
-                    {/* Nuevo: Monto objetivo */}
-                    <View style={localStyles.targetAmountContainer}>
-                        <Icon name="target" size={16} color="#666" />
-                        <Text style={localStyles.targetAmountText}>
-                            Monto objetivo: {formatCurrency(challenge.target_amount)}
-                        </Text>
-                    </View>
+                    {/* Action Button */}
+                    <TouchableOpacity 
+                        style={localStyles.actionButton} 
+                        onPress={handleAssignChallenge}
+                    >
+                        <Text style={localStyles.actionButtonText}>Aceptar Desafío</Text>
+                    </TouchableOpacity>
                 </View>
-
-                {/* Botón para asignar el desafío */}
-                <TouchableOpacity 
-                    style={styles.assignButton} 
-                    onPress={handleAssignChallenge}
-                >
-                    <Text style={styles.assignButtonText}>Asignar objetivo</Text>
-                </TouchableOpacity>
             </Card>
         </TouchableOpacity>
     );
 };
 
 const localStyles = StyleSheet.create({
-    cardContainer: {
-        marginBottom: 15,
+    container: {
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        margin: 10,
     },
-    detailsContainer: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
+    card: {
+        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
         padding: 10,
-        marginVertical: 10,
+        overflow: 'hidden',
     },
-    detailRow: {
+    headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 2,
+    },
+    companySection: {
+        flex: 1,
+        marginRight: 10,
+    },
+    companyName: {
+        fontSize: 25,
+        fontWeight: '600',
+        color: '#333333',
+    },
+    rewardBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ff6b6b',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+    },
+    rewardText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 5,
+    },
+    contentContainer: {
+        padding: 16,
+    },
+    titleText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2c3e50',
         marginBottom: 8,
     },
-    detailItem: {
+    descriptionText: {
+        fontSize: 14,
+        color: '#7f8c8d',
+        marginBottom: 16,
+    },
+    metricsContainer: {
+        backgroundColor: '#f9f9f9',
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 16,
+    },
+    metricItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        flex: 1,
+        marginBottom: 8,
     },
-    detailText: {
-        marginLeft: 5,
-        color: '#666666',
-        fontSize: 13,
+    metricText: {
+        marginLeft: 10,
+        fontSize: 14,
+        textAlignVertical: 'center',
+        color: '#4a4a4a',
     },
-    targetAmountContainer: {
-        flexDirection: 'row',
+    actionButton: {
+        backgroundColor: '#ff6b6b',
+        borderRadius: 8,
+        paddingVertical: 12,
         alignItems: 'center',
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-        paddingTop: 8,
     },
-    targetAmountText: {
-        marginLeft: 5,
-        color: '#333333',
+    actionButtonText: {
+        color: '#ffffff',
+        fontSize: 16,
         fontWeight: '600',
-    }
+    },
 });

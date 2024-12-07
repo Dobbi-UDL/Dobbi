@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/marketplace';
 import Card from '../common/Card';
 import * as Progress from 'react-native-progress';
 
 export const MyGoalsCard = ({ goal }) => {
     const formatCurrency = (amount) => {
-        if (amount === null || amount === undefined) return 'No disponible';
+        if (amount === null || amount === undefined) return 'N/A';
         return amount.toLocaleString('de-DE', { 
             style: 'currency', 
             currency: 'EUR',
@@ -17,10 +16,10 @@ export const MyGoalsCard = ({ goal }) => {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'Fecha no disponible';
+        if (!dateString) return 'N/A';
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'Fecha no disponible';
+            if (isNaN(date.getTime())) return 'N/A';
             return date.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
@@ -28,46 +27,53 @@ export const MyGoalsCard = ({ goal }) => {
             });
         } catch (error) {
             console.error('Error formateando fecha:', error);
-            return 'Fecha no disponible';
+            return 'N/A';
         }
     };
 
-    // Calcula el porcentaje de progreso
     const calculateProgressPercentage = () => {
         if (!goal.target_amount || !goal.current_amount) return 0;
         return Math.min(goal.current_amount / goal.target_amount, 1);
     };
 
+    const progressPercentage = calculateProgressPercentage();
+
     return (
-        <TouchableOpacity style={localStyles.cardContainer}>
-            <Card>
-                {/* Header con nombre del objetivo y puntos de recompensa */}
-                <View style={styles.cardHeader}>
-                    <Text style={styles.cardTitle} numberOfLines={1}>
+        <TouchableOpacity style={localStyles.container}>
+            <Card style={localStyles.card}>
+                {/* Header Section */}
+                <View style={localStyles.headerContainer}>
+                    <Text style={localStyles.titleText} numberOfLines={2}>
                         {goal.title || 'Objetivo sin título'}
                     </Text>
-                    <View style={styles.rewardContainer}>
-                        <Icon name="gift" size={16} color="#ff6b6b" />
-                        <Text style={styles.rewardText}>
-                            {goal.points_rewards || 0} puntos
+                    <View style={localStyles.rewardBadge}>
+                        <Icon name="gift" size={16} color="#fff" />
+                        <Text style={localStyles.rewardText}>
+                            {goal.points_rewards || 0} pts
                         </Text>
                     </View>
                 </View>
 
-                {/* Información de progreso */}
+                {/* Goal Progress Details */}
                 <View style={localStyles.progressContainer}>
-                    <View style={localStyles.amountContainer}>
-                        <Text style={localStyles.amountText}>
-                            {formatCurrency(goal.current_amount || 0)}
-                        </Text>
-                        <Text style={localStyles.targetText}>
-                            de {formatCurrency(goal.target_amount || 0)}
+                    {/* Amount Information */}
+                    <View style={localStyles.amountSection}>
+                        <View>
+                            <Text style={localStyles.currentAmountText}>
+                                {formatCurrency(goal.current_amount || 0)}
+                            </Text>
+                            <Text style={localStyles.targetAmountText}>
+                                de {formatCurrency(goal.target_amount || 0)}
+                            </Text>
+                        </View>
+                        <Text style={localStyles.progressPercentageText}>
+                            {(progressPercentage * 100).toFixed(0)}%
                         </Text>
                     </View>
 
-                    {/* Barra de progreso */}
+                    {/* Progress Bar */}
                     <Progress.Bar 
-                        progress={calculateProgressPercentage()}
+                        progress={progressPercentage}
                         width={null}
                         color="#ff6b6b"
                         unfilledColor="#e0e0e0"
@@ -75,13 +81,10 @@ export const MyGoalsCard = ({ goal }) => {
                         style={localStyles.progressBar}
                     />
 
-                    {/* Porcentaje de progreso */}
-                    <View style={localStyles.progressTextContainer}>
-                        <Text style={localStyles.progressText}>
-                            {(calculateProgressPercentage() * 100).toFixed(0)}% completado
-                        </Text>
+                    {/* Additional Goal Information */}
+                    <View style={localStyles.goalInfoContainer}>
                         <View style={localStyles.dateContainer}>
-                            <Icon name="calendar" size={16} color="#666" />
+                            <Icon name="calendar" size={16} color="#7f8c8d" />
                             <Text style={localStyles.dateText}>
                                 Finaliza: {formatDate(goal.end_date)}
                             </Text>
@@ -94,51 +97,90 @@ export const MyGoalsCard = ({ goal }) => {
 };
 
 const localStyles = StyleSheet.create({
-    cardContainer: {
-        marginBottom: 15,
+    container: {
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        margin: 10,
     },
-    progressContainer: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
-        padding: 15,
-        marginTop: 10,
+    card: {
+        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
+        padding: 0,
+        overflow: 'hidden',
     },
-    amountContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
-    amountText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333333',
-    },
-    targetText: {
-        fontSize: 14,
-        color: '#666666',
-    },
-    progressBar: {
-        height: 10,
-        borderRadius: 5,
-        marginBottom: 10,
-    },
-    progressTextContainer: {
+    headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
     },
-    progressText: {
-        fontSize: 14,
-        color: '#ff6b6b',
+    titleText: {
+        fontSize: 16,
         fontWeight: '600',
+        color: '#2c3e50',
+        flex: 1,
+        marginRight: 10,
+    },
+    rewardBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ff6b6b',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+    },
+    rewardText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 5,
+    },
+    progressContainer: {
+        padding: 16,
+        backgroundColor: '#FFFFFF',
+    },
+    amountSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    currentAmountText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2c3e50',
+    },
+    targetAmountText: {
+        fontSize: 14,
+        color: '#7f8c8d',
+    },
+    progressPercentageText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#ff6b6b',
+    },
+    progressBar: {
+        height: 8,
+        borderRadius: 4,
+        marginBottom: 12,
+    },
+    goalInfoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     dateText: {
-        marginLeft: 5,
-        fontSize: 12,
-        color: '#666666',
+        marginLeft: 8,
+        fontSize: 14,
+        color: '#7f8c8d',
     },
 });
