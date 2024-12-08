@@ -489,6 +489,110 @@ export const generatePDF = async (data) => {
                         color: #333;
                         font-weight: 500;
                     }
+
+                    .category-section {
+                        background: #fff;
+                        border: 1px solid #eee;
+                        border-radius: 8px;
+                        padding: 25px;
+                        margin: 20px 0;
+                    }
+                    
+                    .category-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                        padding-bottom: 15px;
+                        border-bottom: 2px solid #f0f0f0;
+                    }
+                    
+                    .category-title {
+                        font-size: 18px;
+                        color: #444;
+                        font-weight: 600;
+                        margin: 0;
+                    }
+                    
+                    .category-total {
+                        text-align: right;
+                    }
+                    
+                    .category-total .amount {
+                        font-size: 24px;
+                        font-weight: 600;
+                        color: #333;
+                        display: block;
+                    }
+                    
+                    .category-total .label {
+                        font-size: 12px;
+                        color: #666;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    
+                    .category-list {
+                        display: grid;
+                        gap: 15px;
+                    }
+                    
+                    .category-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 15px;
+                        background: #f9f9f9;
+                        border-radius: 6px;
+                        border-left: 3px solid #EE6567;
+                    }
+                    
+                    .category-item.income {
+                        border-left-color: #2da77a;
+                    }
+                    
+                    .category-item.expense {
+                        border-left-color: #EE6567;
+                    }
+                    
+                    .category-info {
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                    }
+                    
+                    .category-name {
+                        font-weight: 500;
+                        color: #333;
+                    }
+                    
+                    .category-metrics {
+                        text-align: right;
+                    }
+                    
+                    .category-amount {
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: #333;
+                        margin-bottom: 4px;
+                    }
+                    
+                    .category-percentage {
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    .monthly-table th:nth-child(1) {
+                        width: 50%;
+                        text-align: left;
+                    }
+                    .monthly-table th:nth-child(2) {
+                        width: 25%;
+                        text-align: right;
+                    }
+                    .monthly-table th:nth-child(3) {
+                        width: 25%;
+                        text-align: right;
+                    }
                 </style>
             </head>
             <body>
@@ -662,14 +766,6 @@ export const generatePDF = async (data) => {
                             </p>
 
                             <div class="subsection">
-                                <h3 class="subsection-title">Income & Expenses Timeline</h3>
-                                <div class="trend-graph">
-                                    <!-- Placeholder for future graph implementation -->
-                                    <img src="data:image/png;base64,INSERT_GRAPH_BASE64_HERE" alt="Monthly Trends Graph">
-                                </div>
-                            </div>
-
-                            <div class="subsection">
                                 <h3 class="subsection-title">Monthly Breakdown</h3>
                                 <table class="monthly-table">
                                     <thead>
@@ -805,6 +901,105 @@ export const generatePDF = async (data) => {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="page-break"></div>
+
+                        <!-- Category Analysis section -->
+                        <div class="section">
+                            <h2 class="section-title">Category Analysis</h2>
+                            <p class="summary-intro">
+                                Discover where your money flows and how it aligns with your financial goals. 
+                                This breakdown helps identify areas where you're spending efficiently and where 
+                                there might be opportunities to reallocate resources for better financial outcomes.
+                            </p>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Income Sources</h3>
+                                <table class="monthly-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${incomeCategories.map(category => `
+                                            <tr>
+                                                <td style="text-align: left;">${category.category_name}</td>
+                                                <td>${formatCurrency(category.total_amount)}</td>
+                                                <td>${category.percentage.toFixed(1)}%</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                                
+                                <div class="analysis-box" style="margin-top: 20px;">
+                                    <h4 style="color: #2da77a; margin: 0 0 15px 0;">Analysis of Income Sources</h4>
+                                    <p style="margin: 0 0 15px 0;">
+                                        ${incomeCategories.length > 0 
+                                            ? `Your primary source of income is <strong>${incomeCategories[0].category_name}</strong> 
+                                               representing <strong>${incomeCategories[0].percentage.toFixed(1)}%</strong> of total income.
+                                               ${incomeCategories.length > 1 
+                                                ? `This is followed by <strong>${incomeCategories[1].category_name}</strong> at 
+                                                   <strong>${incomeCategories[1].percentage.toFixed(1)}%</strong>.` 
+                                                : ''}`
+                                            : 'No income data available for this period.'}
+                                    </p>
+                                    <p style="margin: 0;">
+                                        ${incomeCategories.length > 1 
+                                            ? `Having multiple income sources provides financial stability and reduces dependency on a single source. 
+                                               Consider exploring opportunities to diversify income streams further for increased financial security.`
+                                            : incomeCategories.length === 1
+                                                ? 'Consider exploring additional income sources to diversify your financial portfolio and reduce dependency on a single income stream.'
+                                                : ''}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Expense Categories</h3>
+                                <table class="monthly-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${expenseCategories.map(category => `
+                                            <tr>
+                                                <td style="text-align: left;">${category.category_name}</td>
+                                                <td>${formatCurrency(category.total_amount)}</td>
+                                                <td>${category.percentage.toFixed(1)}%</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+
+                                <div class="analysis-box" style="margin-top: 20px;">
+                                    <h4 style="color: #EE6567; margin: 0 0 15px 0;">Analysis of Expense Categories</h4>
+                                    <p style="margin: 0 0 15px 0;">
+                                        ${expenseCategories.length > 0 
+                                            ? `Your highest expense category is <strong>${expenseCategories[0].category_name}</strong> 
+                                               at <strong>${expenseCategories[0].percentage.toFixed(1)}%</strong> of total expenses.
+                                               ${expenseCategories.length > 1 
+                                                ? `The second highest is <strong>${expenseCategories[1].category_name}</strong> at 
+                                                   <strong>${expenseCategories[1].percentage.toFixed(1)}%</strong>.` 
+                                                : ''}`
+                                            : 'No expense data available for this period.'}
+                                    </p>
+                                    <p style="margin: 0;">
+                                        ${expenseCategories.length > 0 
+                                            ? `These top categories represent significant portions of your spending. 
+                                               Consider reviewing these areas for potential optimization and savings opportunities, 
+                                               while ensuring they align with your financial goals and priorities.`
+                                            : ''}
+                                    </p>
                                 </div>
                             </div>
                         </div>
