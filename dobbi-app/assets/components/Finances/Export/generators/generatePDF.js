@@ -122,36 +122,53 @@ export const generatePDF = async (data) => {
                 <meta charset="utf-8">
                 <style>
                     @page {
-                        margin: 0;
+                        margin-top: 20mm;
+                        margin-bottom: 15mm;
+                        margin-left: 20mm;
+                        margin-right: 20mm;
                         size: A4;
+                        @bottom-center {
+                            content: "© ${new Date().getFullYear()} Dobbi Financial Analytics. All rights reserved.";
+                            font-size: 10pt;
+                            color: #666;
+                            padding-top: 10px;
+                        }
+                    }
+                    @page :first {
+                        margin-top: 0mm;
+                        margin-bottom: 25mm;
+                        margin-left: 0mm;
+                        margin-right: 0mm;
                     }
                     body {
                         font-family: 'Helvetica', sans-serif;
                         margin: 0;
                         padding: 0;
                         background: #fff;
-                        position: relative;
-                        z-index: 0;
                     }
-                    .page {
-                        width: 210mm;
-                        height: 297mm;
-                        padding-top: 40px;
-                        background: #fff;
-                        position: relative;
-                        z-index: 0;
+                    .report-page {
+                        break-before: page;
+                        margin-bottom: -40mm;
+                    }
+                    @media print {
+                        .avoid-break {
+                            break-inside: avoid;
+                        }
                     }
                     .header {
-                        position: relative; /* Add this */
-                        top: -40px; /* Add this */
                         background: #fafafa;
-                        padding: 40px 50px;
+                        padding: 40px 20px;
                         border-bottom: 3px solid #eee;
-                        margin-bottom: -40px; /* Add this */
+                        padding-bottom: 20px;
                     }
+                    
                     .header-content {
                         max-width: 1000px;
                         margin: 0 auto;
+                        padding: 0 50px; /* Move horizontal padding to header-content */
+                    }
+                    .first-page-content {
+                        padding-top: 0;      /* Remove extra padding for first page */
                     }
                     .logo-section {
                         display: flex;
@@ -198,25 +215,32 @@ export const generatePDF = async (data) => {
                         color: #888;
                     }
                     .content {
-                        padding: 40px 50px;
+                        padding: 20px 50px; /* Reduced from 40px top padding */
                         max-width: 1000px;
                         margin: 0 auto;
                         background: #fff;
                         position: relative;
                         z-index: 2;
                     }
+                    .section-first-page {
+                        margin-right: 20mm;
+                        margin-left: 20mm;
+                        padding-top: 40px; /* Add extra padding between header and content */
+                    }
                     .section {
-                        margin-bottom: 40px;
                         width: 100%;
                         background: #fff;
                         position: relative;
                         z-index: 2;
+                        padding-bottom: 0;
+                        min-height: 100%;
                     }
                     .section > * {
                         max-width: 100%;
                     }
                     .executive-summary,
                     .analysis-box,
+                    .analysis-box-1,
                     .metric-grid {
                         width: 100%;
                         box-sizing: border-box;
@@ -231,7 +255,7 @@ export const generatePDF = async (data) => {
                         margin-bottom: 25px;
                     }
                     .subsection {
-                        margin-top: 30px;
+                        margin-top: 20px; /* Reduced from 30px */
                         width: 100%;
                         padding: 0;
                     }
@@ -241,6 +265,7 @@ export const generatePDF = async (data) => {
                         margin-bottom: 20px;
                         padding-bottom: 10px;
                         border-bottom: 2px solid #f0f0f0;
+                        margin-top: -4px;
                     }
                     .executive-summary {
                         background: #fff;
@@ -326,7 +351,18 @@ export const generatePDF = async (data) => {
                         margin: 15px 0;
                         position: relative;
                         z-index: 200;
+                    }
+                    .analysis-box-1 {
                         background: #fff;
+                        border: 1px solid #eee;
+                        border-radius: 8px;
+                        padding-top: 20px;
+                        padding-right: 20px;
+                        padding-bottom: 5px;
+                        padding-left: 20px;
+                        margin: 15px 0;
+                        position: relative;
+                        z-index: 200;
                     }
                     .analysis-summary {
                         display: flex;
@@ -385,6 +421,11 @@ export const generatePDF = async (data) => {
                         text-align: justify;
                         margin-bottom: 15px;
                         line-height: 1.6;
+                    }
+                    .analysis-box-1 p {
+                        text-align: justify;
+                        margin-bottom: 12px;
+                        line-height: 1.4;
                     }
                     .page-break {
                         page-break-before: always;
@@ -638,8 +679,8 @@ export const generatePDF = async (data) => {
                 </style>
             </head>
             <body>
-                <div class="page">
-                    <!-- Header Section -->
+                <!-- First Page: Header + Quick Overview -->
+                <div class="report-page">
                     <div class="header">
                         <div class="header-content">
                             <div class="logo-section">
@@ -657,20 +698,17 @@ export const generatePDF = async (data) => {
                         </div>
                     </div>
 
-                    <!-- Content Section -->
-                    <div class="content">
-                        <!-- Quick Overview Section (formerly Executive Summary) -->
-                        <div class="section">
-                            <h2 class="section-title">Quick Overview</h2>
-                            <div class="executive-summary">
-                                <p class="summary-intro">
-                                    Here's a quick overview of your financial performance for the period 
-                                    <span class="highlight">${dateRange?.startDate}</span> to 
-                                    <span class="highlight">${dateRange?.endDate}</span>. 
-                                    This summary highlights key insights from your financial activities.
-                                </p>
+                    <!-- Quick Overview as a normal section -->
+                    <section class="section-first-page">
+                        <h2 class="section-title">Quick Overview</h2>
+                        <p class="summary-intro">
+                            Here's a quick overview of your financial performance for the period 
+                            <span class="highlight">${dateRange?.startDate}</span> to 
+                            <span class="highlight">${dateRange?.endDate}</span>. 
+                            This summary highlights key insights from your financial activities.
+                        </p>
 
-                                <div class="key-insights">
+                        <div class="key-insights">
                                     <div class="insight-card">
                                         <div class="insight-title">Overview</div>
                                         <div class="insight-value">
@@ -734,93 +772,92 @@ export const generatePDF = async (data) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div class="page-break"></div>
+                    </section>
+                </div>
 
-                        <!-- Financial Overview section -->
-                        <div class="section">
-                            <h2 class="section-title">Financial Overview</h2>
-                            <p class="summary-intro">
-                                Examine your core financial metrics and savings performance. This analysis reveals your income utilization, spending efficiency, and how effectively you're building long-term wealth through savings.
-                            </p>
+                <!-- Financial Overview Page -->
+                <div class="report-page">
+                    <section class="section">
+                        <h2 class="section-title">Financial Overview</h2>
+                        <p class="summary-intro">
+                            Analyze your key financial metrics and understand how effectively you're managing income, expenses, and building savings.
+                        </p>
 
-                            <div class="subsection">
-                                <h3 class="subsection-title">Key Numbers</h3>
-                                <div class="metric-grid">
-                                    <div class="metric-card">
-                                        <div class="metric-label">Total Income</div>
-                                        <div class="metric-value">${formatCurrency(summary.totalIncome)}</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-label">Total Expenses</div>
-                                        <div class="metric-value">${formatCurrency(summary.totalExpenses)}</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-label">Net Savings</div>
-                                        <div class="metric-value">${formatCurrency(summary.savings)}</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-label">Savings Rate</div>
-                                        <div class="metric-value">${summary.savingsRate}%</div>
-                                    </div>
+                        <div class="subsection">
+                            <h3 class="subsection-title">Key Numbers</h3>
+                            <div class="metric-grid">
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Income</div>
+                                    <div class="metric-value">${formatCurrency(summary.totalIncome)}</div>
                                 </div>
-                            </div>
-
-                            <div class="subsection">
-                                <h3 class="subsection-title">Savings Analysis</h3>
-                                <div class="analysis-box">
-                                    <div class="analysis-summary">
-                                        <div class="rating-indicator">
-                                            <div class="rating-value" style="color: ${savingsStatus.color}">${summary.savingsRate}%</div>
-                                            <div class="rating-label">Savings Rate</div>
-                                        </div>
-                                        <div class="savings-status ${savingsStatus.class}">${savingsStatus.text}</div>
-                                    </div>
-                    
-                                    <p style="margin: 15px 0;">
-                                        ${savingsStatus.message}
-                                    </p>
-                                    <p style="margin-bottom: 20px;">
-                                        ${savingsStatus.advice}
-                                    </p>
-
-                                    <div class="savings-ranges">
-                                        <p style="margin-bottom: 15px;"><strong>Understanding Your Savings Rate</strong></p>
-                                        <p style="margin-bottom: 10px;">The savings rate is calculated as the percentage of income saved after expenses, and is sorted into 4 categories:</p>
-                                        <p>• <span style="color: #2da77a">Excellent (>= 20%)</span> - Strong financial health and long-term security</p>
-                                        <p>• <span style="color: #ff9800">Good (10% - 20%)</span> - Solid foundation for financial stability</p>
-                                        <p>• <span style="color: #f44336">Fair (> 0% - 10%)</span> - Room for improvement in savings habits</p>
-                                        <p>• <span style="color: #d32f2f">Needs Attention (0%)</span> - Immediate action recommended</p>
-                                    </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Expenses</div>
+                                    <div class="metric-value">${formatCurrency(summary.totalExpenses)}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Net Savings</div>
+                                    <div class="metric-value">${formatCurrency(summary.savings)}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Savings Rate</div>
+                                    <div class="metric-value">${summary.savingsRate}%</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="page-break"></div>
+                        <div class="subsection">
+                            <h3 class="subsection-title">Savings Analysis</h3>
+                            <div class="analysis-box-1">
+                                <div class="analysis-summary">
+                                    <div class="rating-indicator">
+                                        <div class="rating-value" style="color: ${savingsStatus.color}">${summary.savingsRate}%</div>
+                                        <div class="rating-label">Savings Rate</div>
+                                    </div>
+                                    <div class="savings-status ${savingsStatus.class}">${savingsStatus.text}</div>
+                                </div>
+                
+                                <p style="margin: 15px 0;">
+                                    ${savingsStatus.message}
+                                </p>
+                                <p style="margin-bottom: 20px;">
+                                    ${savingsStatus.advice}
+                                </p>
 
-                        <!-- Monthly Trends section -->
-                        <div class="section">
-                            <h2 class="section-title">Monthly Trends</h2>
-                            <p class="summary-intro">
-                                Visualize your financial journey month by month. By analyzing these patterns, you can identify seasonal variations in spending, income growth opportunities, and adjust your financial strategy accordingly.
-                            </p>
+                                <div class="savings-ranges avoid-break">
+                                    <p style="margin-bottom: 15px;"><strong>Understanding Your Savings Rate</strong></p>
+                                    <p style="margin-bottom: 10px;">The savings rate is calculated as the percentage of income saved after expenses, and is sorted into 4 categories:</p>
+                                    <p>• <span style="color: #2da77a">Excellent (>= 20%)</span> - Strong financial health and long-term security</p>
+                                    <p>• <span style="color: #ff9800">Good (10% - 20%)</span> - Solid foundation for financial stability</p>
+                                    <p>• <span style="color: #f44336">Fair (> 0% - 10%)</span> - Room for improvement in savings habits</p>
+                                    <p>• <span style="color: #d32f2f">Needs Attention (0%)</span> - Immediate action recommended</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
 
-                            <div class="subsection">
-                                <h3 class="subsection-title">Monthly Breakdown</h3>
-                                <table class="monthly-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align: left; width: 20%;">Month</th>
-                                            <th style="width: 21%;">Income</th>
-                                            <th style="width: 21%;">Expenses</th>
-                                            <th style="width: 21%;">Net Savings</th>
-                                            <th style="width: 17%;">Savings Rate</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${monthlyTrend.map(month => {
+                <!-- Monthly Trends Page -->
+                <div class="report-page">
+                    <section class="section">
+                        <h2 class="section-title">Monthly Trends</h2>
+                        <p class="summary-intro">
+                            Visualize your financial journey month by month. By analyzing these patterns, you can identify seasonal variations in spending, income growth opportunities, and adjust your financial strategy accordingly.
+                        </p>
+
+                        <div class="subsection">
+                            <h3 class="subsection-title">Monthly Breakdown</h3>
+                            <table class="monthly-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left; width: 15%;">Month</th>
+                                        <th style="width: 21.5%;">Income</th>
+                                        <th style="width: 21.5%;">Expenses</th>
+                                        <th style="width: 21.5%;">Net Savings</th>
+                                        <th style="width: 20.5%;">Savings Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${monthlyTrend.map(month => {
                 const savings = month.total_income - month.total_expenses;
                 const savingsRate = month.total_income > 0
                     ? ((savings / month.total_income) * 100).toFixed(1)
@@ -830,245 +867,245 @@ export const generatePDF = async (data) => {
                 const monthName = date.toLocaleString('default', { month: 'long' });
 
                 return `
-                                                <tr>
-                                                    <td style="text-align: left;">${monthName} ${year}</td>
-                                                    <td>${formatCurrency(month.total_income)}</td>
-                                                    <td>${formatCurrency(month.total_expenses)}</td>
-                                                    <td>${formatCurrency(savings)}</td>
-                                                    <td>${savingsRate}%</td>
-                                                </tr>
-                                            `;
+                                            <tr>
+                                                <td style="text-align: left;">${monthName} ${year}</td>
+                                                <td>${formatCurrency(month.total_income)}</td>
+                                                <td>${formatCurrency(month.total_expenses)}</td>
+                                                <td>${formatCurrency(savings)}</td>
+                                                <td>${savingsRate}%</td>
+                                            </tr>
+                                        `;
             }).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tbody>
+                            </table>
+                        </div>
 
-                            <div class="subsection">
-                                <h3 class="subsection-title">Statistical Metrics</h3>
-                                <div class="stats-container">
-                                    <div class="stats-row">
-                                        <div class="stats-header">
-                                            <h4>Income</h4>
-                                            <div class="monthly-average">
-                                                <span class="value">${formatCurrency(metrics.income.average)}</span>
-                                                <span class="label">monthly average</span>
+                        <div class="subsection">
+                            <h3 class="subsection-title">Statistical Metrics</h3>
+                            <div class="stats-container">
+                                <div class="stats-row avoid-break">
+                                    <div class="stats-header">
+                                        <h4>Income</h4>
+                                        <div class="monthly-average">
+                                            <span class="value">${formatCurrency(metrics.income.average)}</span>
+                                            <span class="label">monthly average</span>
+                                        </div>
+                                    </div>
+                                    <div class="stats-details">
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Median</span>
+                                                <span class="value">${formatCurrency(metrics.income.median)}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="label">Std Dev</span>
+                                                <span class="value">±${formatCurrency(metrics.income.stdDev)}</span>
                                             </div>
                                         </div>
-                                        <div class="stats-details">
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Median</span>
-                                                    <span class="value">${formatCurrency(metrics.income.median)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Std Dev</span>
-                                                    <span class="value">±${formatCurrency(metrics.income.stdDev)}</span>
-                                                </div>
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Min</span>
+                                                <span class="value">${formatCurrency(metrics.income.min)}</span>
                                             </div>
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Min</span>
-                                                    <span class="value">${formatCurrency(metrics.income.min)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Max</span>
-                                                    <span class="value">${formatCurrency(metrics.income.max)}</span>
-                                                </div>
+                                            <div class="stat-item">
+                                                <span class="label">Max</span>
+                                                <span class="value">${formatCurrency(metrics.income.max)}</span>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="stats-row">
-                                        <div class="stats-header">
-                                            <h4>Expenses</h4>
-                                            <div class="monthly-average">
-                                                <span class="value">${formatCurrency(metrics.expenses.average)}</span>
-                                                <span class="label">monthly average</span>
+                                <div class="stats-row avoid-break">
+                                    <div class="stats-header">
+                                        <h4>Expenses</h4>
+                                        <div class="monthly-average">
+                                            <span class="value">${formatCurrency(metrics.expenses.average)}</span>
+                                            <span class="label">monthly average</span>
+                                        </div>
+                                    </div>
+                                    <div class="stats-details">
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Median</span>
+                                                <span class="value">${formatCurrency(metrics.expenses.median)}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="label">Std Dev</span>
+                                                <span class="value">±${formatCurrency(metrics.expenses.stdDev)}</span>
                                             </div>
                                         </div>
-                                        <div class="stats-details">
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Median</span>
-                                                    <span class="value">${formatCurrency(metrics.expenses.median)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Std Dev</span>
-                                                    <span class="value">±${formatCurrency(metrics.expenses.stdDev)}</span>
-                                                </div>
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Min</span>
+                                                <span class="value">${formatCurrency(metrics.expenses.min)}</span>
                                             </div>
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Min</span>
-                                                    <span class="value">${formatCurrency(metrics.expenses.min)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Max</span>
-                                                    <span class="value">${formatCurrency(metrics.expenses.max)}</span>
-                                                </div>
+                                            <div class="stat-item">
+                                                <span class="label">Max</span>
+                                                <span class="value">${formatCurrency(metrics.expenses.max)}</span>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="stats-row">
-                                        <div class="stats-header">
-                                            <h4>Savings</h4>
-                                            <div class="monthly-average">
-                                                <span class="value">${formatCurrency(metrics.savings.average)}</span>
-                                                <span class="label">monthly average</span>
+                                <div class="stats-row avoid-break">
+                                    <div class="stats-header">
+                                        <h4>Savings</h4>
+                                        <div class="monthly-average">
+                                            <span class="value">${formatCurrency(metrics.savings.average)}</span>
+                                            <span class="label">monthly average</span>
+                                        </div>
+                                    </div>
+                                    <div class="stats-details">
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Median</span>
+                                                <span class="value">${formatCurrency(metrics.savings.median)}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="label">Std Dev</span>
+                                                <span class="value">±${formatCurrency(metrics.savings.stdDev)}</span>
                                             </div>
                                         </div>
-                                        <div class="stats-details">
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Median</span>
-                                                    <span class="value">${formatCurrency(metrics.savings.median)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Std Dev</span>
-                                                    <span class="value">±${formatCurrency(metrics.savings.stdDev)}</span>
-                                                </div>
+                                        <div class="stat-group">
+                                            <div class="stat-item">
+                                                <span class="label">Min</span>
+                                                <span class="value">${formatCurrency(metrics.savings.min)}</span>
                                             </div>
-                                            <div class="stat-group">
-                                                <div class="stat-item">
-                                                    <span class="label">Min</span>
-                                                    <span class="value">${formatCurrency(metrics.savings.min)}</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <span class="label">Max</span>
-                                                    <span class="value">${formatCurrency(metrics.savings.max)}</span>
-                                                </div>
+                                            <div class="stat-item">
+                                                <span class="label">Max</span>
+                                                <span class="value">${formatCurrency(metrics.savings.max)}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </section>
+                </div>
 
-                        <div class="page-break"></div>
+                <!-- Category Analysis Page -->
+                <div class="report-page">
+                    <section class="section">
+                        <h2 class="section-title">Category Analysis</h2>
+                        <p class="summary-intro">
+                            Discover where your money flows and how it aligns with your financial goals. 
+                            This breakdown helps identify areas where you're spending efficiently and where 
+                            there might be opportunities to reallocate resources for better financial outcomes.
+                        </p>
 
-                        <!-- Category Analysis section -->
-                        <div class="section">
-                            <h2 class="section-title">Category Analysis</h2>
-                            <p class="summary-intro">
-                                Discover where your money flows and how it aligns with your financial goals. 
-                                This breakdown helps identify areas where you're spending efficiently and where 
-                                there might be opportunities to reallocate resources for better financial outcomes.
-                            </p>
-
-                            <div class="subsection">
-                                <h3 class="subsection-title">Income Sources</h3>
-                                <table class="monthly-table">
-                                    <thead>
+                        <div class="subsection">
+                            <h3 class="subsection-title">Income Sources</h3>
+                            <table class="monthly-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${incomeCategories.map(category => `
                                         <tr>
-                                            <th>Category</th>
-                                            <th>Amount</th>
-                                            <th>Percentage</th>
+                                            <td style="text-align: left;">${category.category_name}</td>
+                                            <td>${formatCurrency(category.total_amount)}</td>
+                                            <td>${category.percentage.toFixed(1)}%</</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${incomeCategories.map(category => `
-                                            <tr>
-                                                <td style="text-align: left;">${category.category_name}</td>
-                                                <td>${formatCurrency(category.total_amount)}</td>
-                                                <td>${category.percentage.toFixed(1)}%</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                                
-                                <div class="analysis-box" style="margin-top: 20px;">
-                                    <h4 style="color: #2da77a; margin: 0 0 15px 0;">Analysis of Income Sources</h4>
-                                    <p style="margin: 0 0 15px 0;">
-                                        ${incomeCategories.length > 0
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            
+                            <div class="analysis-box" style="margin-top: 20px;">
+                                <h4 style="color: #2da77a; margin: 0 0 15px 0;">Analysis of Income Sources</h4>
+                                <p style="margin: 0 0 15px 0;">
+                                    ${incomeCategories.length > 0
                 ? `Your primary source of income is <strong>${incomeCategories[0].category_name}</strong> 
-                                               representing <strong>${incomeCategories[0].percentage.toFixed(1)}%</strong> of total income.
-                                               ${incomeCategories.length > 1
+                                           representing <strong>${incomeCategories[0].percentage.toFixed(1)}%</strong> of total income.
+                                           ${incomeCategories.length > 1
                     ? `This is followed by <strong>${incomeCategories[1].category_name}</strong> at 
-                                                   <strong>${incomeCategories[1].percentage.toFixed(1)}%</strong>.`
+                                               <strong>${incomeCategories[1].percentage.toFixed(1)}%</strong>.`
                     : ''}`
                 : 'No income data available for this period.'}
-                                    </p>
-                                    <p style="margin: 0;">
-                                        ${incomeCategories.length > 1
+                                </p>
+                                <p style="margin: 0;">
+                                    ${incomeCategories.length > 1
                 ? `Having multiple income sources provides financial stability and reduces dependency on a single source. 
-                                               Consider exploring opportunities to diversify income streams further for increased financial security.`
+                                           Consider exploring opportunities to diversify income streams further for increased financial security.`
                 : incomeCategories.length === 1
                     ? 'Consider exploring additional income sources to diversify your financial portfolio and reduce dependency on a single income stream.'
                     : ''}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="subsection">
-                                <h3 class="subsection-title">Expense Categories</h3>
-                                <table class="monthly-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Category</th>
-                                            <th>Amount</th>
-                                            <th>Percentage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${expenseCategories.map(category => `
-                                            <tr>
-                                                <td style="text-align: left;">${category.category_name}</td>
-                                                <td>${formatCurrency(category.total_amount)}</td>
-                                                <td>${category.percentage.toFixed(1)}%</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-
-                                <div class="analysis-box" style="margin-top: 20px;">
-                                    <h4 style="color: #EE6567; margin: 0 0 15px 0;">Analysis of Expense Categories</h4>
-                                    <p style="margin: 0 0 15px 0;">
-                                        ${expenseCategories.length > 0
-                ? `Your highest expense category is <strong>${expenseCategories[0].category_name}</strong> 
-                                               at <strong>${expenseCategories[0].percentage.toFixed(1)}%</strong> of total expenses.
-                                               ${expenseCategories.length > 1
-                    ? `The second highest is <strong>${expenseCategories[1].category_name}</strong> at 
-                                                   <strong>${expenseCategories[1].percentage.toFixed(1)}%</strong>.`
-                    : ''}`
-                : 'No expense data available for this period.'}
-                                    </p>
-                                    <p style="margin: 0;">
-                                        ${expenseCategories.length > 0
-                ? `These top categories represent significant portions of your spending. 
-                                               Consider reviewing these areas for potential optimization and savings opportunities, 
-                                               while ensuring they align with your financial goals and priorities.`
-                : ''}
-                                    </p>
-                                </div>
+                                </p>
                             </div>
                         </div>
 
-                        <div class="page-break"></div>
-
-                        <!-- Period Comparison section -->
-                        <div class="section">
-                            <h2 class="section-title">Period Comparison</h2>
-                            <p class="summary-intro">
-                                Compare your spending patterns between the current period 
-                                (<span class="highlight">${dateRange?.startDate} to ${dateRange?.endDate}</span>) and 
-                                the previous period (<span class="highlight">${previousDateRange?.startDate} to ${previousDateRange?.endDate}</span>).
-                            </p>
-
-                            <div class="subsection">
-                                <h3 class="subsection-title">Category Changes</h3>
-                                <table class="monthly-table">
-                                    <thead>
+                        <div class="subsection">
+                            <h3 class="subsection-title">Expense Categories</h3>
+                            <table class="monthly-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${expenseCategories.map(category => `
                                         <tr>
-                                            <th style="text-align: left; width: 32%;">Category</th>
-                                            <th style="width: 17%;">Current</th>
-                                            <th style="width: 17%;">Previous</th>
-                                            <th style="width: 17%;">Change</th>
-                                            <th style="width: 17%;">Percentage</th>
+                                            <td style="text-align: left;">${category.category_name}</td>
+                                            <td>${formatCurrency(category.total_amount)}</td>
+                                            <td>${category.percentage.toFixed(1)}%</</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${(() => {
+                                    `).join('')}
+                                </tbody>
+                            </table>
+
+                            <div class="analysis-box avoid-break" style="margin-top: 20px;">
+                                <h4 style="color: #EE6567; margin: 0 0 15px 0;">Analysis of Expense Categories</h4>
+                                <p style="margin: 0 0 15px 0;">
+                                    ${expenseCategories.length > 0
+                ? `Your highest expense category is <strong>${expenseCategories[0].category_name}</strong> 
+                                           at <strong>${expenseCategories[0].percentage.toFixed(1)}%</strong> of total expenses.
+                                           ${expenseCategories.length > 1
+                    ? `The second highest is <strong>${expenseCategories[1].category_name}</strong> at 
+                                               <strong>${expenseCategories[1].percentage.toFixed(1)}%</strong>.`
+                    : ''}`
+                : 'No expense data available for this period.'}
+                                </p>
+                                <p style="margin: 0;">
+                                    ${expenseCategories.length > 0
+                ? `These top categories represent significant portions of your spending. 
+                                           Consider reviewing these areas for potential optimization and savings opportunities, 
+                                           while ensuring they align with your financial goals and priorities.`
+                : ''}
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Period Comparison Page -->
+                <div class="report-page">
+                    <section class="section">
+                        <h2 class="section-title">Period Comparison</h2>
+                        <p class="summary-intro">
+                            Compare your spending patterns between the current period 
+                            (<span class="highlight">${dateRange?.startDate} to ${dateRange?.endDate}</span>) and 
+                            the previous period (<span class="highlight">${previousDateRange?.startDate} to ${previousDateRange?.endDate}</span>).
+                        </p>
+
+                        <div class="subsection">
+                            <h3 class="subsection-title">Category Changes</h3>
+                            <table class="monthly-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left; width: 28%;">Category</th>
+                                        <th style="width: 18%;">Current</th>
+                                        <th style="width: 18%;">Previous</th>
+                                        <th style="width: 18%;">Change</th>
+                                        <th style="width: 18%;">Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(() => {
                 const currentTotal = periodComparison.reduce((sum, cat) => sum + cat.current_period_expense, 0);
                 const previousTotal = periodComparison.reduce((sum, cat) => sum + cat.previous_period_expense, 0);
                 const totalChange = currentTotal - previousTotal;
@@ -1077,57 +1114,57 @@ export const generatePDF = async (data) => {
                     : 'New';
 
                 return `
-                                                ${periodComparison.map(category => {
+                                            ${periodComparison.map(category => {
                     const change = category.current_period_expense - category.previous_period_expense;
                     const percentChange = category.previous_period_expense !== 0
                         ? ((change / category.previous_period_expense) * 100).toFixed(1)
                         : category.current_period_expense > 0 ? 'New' : '-';
                     return `
-                                                        <tr>
-                                                            <td style="text-align: left;">${category.category_name}</td>
-                                                            <td>${formatCurrency(category.current_period_expense)}</td>
-                                                            <td>${formatCurrency(category.previous_period_expense)}</td>
-                                                            <td style="color: ${category.previous_period_expense === 0
+                                                <tr>
+                                                    <td style="text-align: left;">${category.category_name}</td>
+                                                    <td>${formatCurrency(category.current_period_expense)}</td>
+                                                    <td>${formatCurrency(category.previous_period_expense)}</td>
+                                                    <td style="color: ${category.previous_period_expense === 0
                             ? '#666'
                             : change > 0 ? '#f44336' : change < 0 ? '#2da77a' : '#666'}">
-                                                                ${category.previous_period_expense === 0
+                                                        ${category.previous_period_expense === 0
                             ? 'New'
                             : `${formatCurrency(Math.abs(change))} ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
-                                                            </td>
-                                                            <td style="color: ${category.previous_period_expense === 0
+                                                    </td>
+                                                    <td style="color: ${category.previous_period_expense === 0
                             ? '#666'
                             : change > 0 ? '#f44336' : change < 0 ? '#2da77a' : '#666'}">
-                                                                ${category.previous_period_expense === 0
+                                                        ${category.previous_period_expense === 0
                             ? 'New'
                             : `${Math.abs(percentChange)}% ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
-                                                            </td>
-                                                        </tr>
-                                                    `;
-                }).join('')}
-                                                <tr style="font-weight: bold; background-color: #f9f9f9;">
-                                                    <td style="text-align: left;">Total</td>
-                                                    <td>${formatCurrency(currentTotal)}</td>
-                                                    <td>${formatCurrency(previousTotal)}</td>
-                                                    <td style="color: ${totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
-                                                        ${formatCurrency(Math.abs(totalChange))} ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}
-                                                    </td>
-                                                    <td style="color: ${previousTotal === 0
-                        ? '#666'
-                        : totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
-                                                        ${previousTotal === 0
-                        ? 'New'
-                        : `${Math.abs(totalPercentChange)}% ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}`}
                                                     </td>
                                                 </tr>
                                             `;
+                }).join('')}
+                                            <tr style="font-weight: bold; background-color: #f9f9f9;">
+                                                <td style="text-align: left;">Total</td>
+                                                <td>${formatCurrency(currentTotal)}</td>
+                                                <td>${formatCurrency(previousTotal)}</td>
+                                                <td style="color: ${totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
+                                                    ${formatCurrency(Math.abs(totalChange))} ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}
+                                                </td>
+                                                <td style="color: ${previousTotal === 0
+                        ? '#666'
+                        : totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
+                                                    ${previousTotal === 0
+                        ? 'New'
+                        : `${Math.abs(totalPercentChange)}% ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}`}
+                                                </td>
+                                            </tr>
+                                        `;
             })()}
-                                    </tbody>
-                                </table>
+                                </tbody>
+                            </table>
 
-                                <div class="analysis-box" style="margin-top: 20px;">
-                                    <h4 style="color: #444; margin: 0 0 15px 0;">Period Analysis</h4>
-                                    <p style="margin: 0 0 15px 0;">
-                                        ${(() => {
+                            <div class="analysis-box avoid-break" style="margin-top: 20px;">
+                                <h4 style="color: #444; margin: 0 0 15px 0;">Period Analysis</h4>
+                                <p style="margin: 0 0 15px 0;">
+                                    ${(() => {
                 const totalCurrentExpense = periodComparison.reduce((sum, cat) => sum + cat.current_period_expense, 0);
                 const totalPreviousExpense = periodComparison.reduce((sum, cat) => sum + cat.previous_period_expense, 0);
                 const totalChange = totalCurrentExpense - totalPreviousExpense;
@@ -1151,18 +1188,18 @@ export const generatePDF = async (data) => {
                     });
 
                 return `
-                                                Overall spending has ${totalChange > 0 ? 'increased' : 'decreased'} by 
-                                                <strong>${formatCurrency(Math.abs(totalChange))}</strong>
-                                                ${percentChange ? ` (${Math.abs(percentChange)}%)` : ''} 
-                                                compared to the previous period.
-                                                ${significantChanges.length > 0
+                                            Overall spending has ${totalChange > 0 ? 'increased' : 'decreased'} by 
+                                            <strong>${formatCurrency(Math.abs(totalChange))}</strong>
+                                            ${percentChange ? ` (${Math.abs(percentChange)}%)` : ''} 
+                                            compared to the previous period.
+                                            ${significantChanges.length > 0
                         ? `\n\nNotable changes in spending:`
                         : ''}
-                                            `;
+                                        `;
             })()}
-                                    </p>
-                                    <ul style="margin: 0; padding-left: 20px;">
-                                        ${periodComparison
+                                </p>
+                                <ul style="margin: 0; padding-left: 20px;">
+                                    ${periodComparison
                 .filter(cat => {
                     const change = cat.current_period_expense - cat.previous_period_expense;
                     const percentChange = cat.previous_period_expense !== 0
@@ -1176,44 +1213,44 @@ export const generatePDF = async (data) => {
                         ? ((change / cat.previous_period_expense) * 100).toFixed(1)
                         : 'N/A';
                     return `
-                                                    <li style="margin-bottom: 8px;">
-                                                        <strong>${cat.category_name}</strong>: 
-                                                        ${change > 0 ? 'Increased' : 'Decreased'} by 
-                                                        ${formatCurrency(Math.abs(change))}
-                                                        ${percentChange !== 'N/A' ? ` (${Math.abs(percentChange)}%)` : ''}
-                                                    </li>
-                                                `;
+                                                <li style="margin-bottom: 8px;">
+                                                    <strong>${cat.category_name}</strong>: 
+                                                    ${change > 0 ? 'Increased' : 'Decreased'} by 
+                                                    ${formatCurrency(Math.abs(change))}
+                                                    ${percentChange !== 'N/A' ? ` (${Math.abs(percentChange)}%)` : ''}
+                                                </li>
+                                            `;
                 }).join('')}
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
                         </div>
+                    </section>
+                </div>
 
-                        <!-- Rest of the sections will follow -->
-                        <div class="page-break"></div>
-                        
-                        <div class="section">
-                            <h2 class="section-title">Recommendations & Next Steps</h2>
-                            <p class="summary-intro">
-                                Based on your financial data analysis, here are key recommendations to help optimize your financial health and achieve your goals.
-                            </p>
+                <!-- Recommendations Page -->
+                <div class="report-page">
+                    <section class="section">
+                        <h2 class="section-title">Recommendations & Next Steps</h2>
+                        <p class="summary-intro">
+                            Based on your financial data analysis, here are key recommendations to help optimize your financial health and achieve your goals.
+                        </p>
 
-                            <div class="analysis-box">
-                                ${(() => {
+                        <div class="analysis-box">
+                            ${(() => {
                 const recommendations = [];
 
                 // Savings recommendations
                 if (summary.savingsRate < 20) {
                     recommendations.push(`
-                                            <li>Consider increasing your savings rate (currently ${summary.savingsRate}%) by identifying non-essential expenses.</li>
-                                        `);
+                                        <li>Consider increasing your savings rate (currently ${summary.savingsRate}%) by identifying non-essential expenses.</li>
+                                    `);
                 }
 
                 // Income diversification
                 if (incomeCategories.length < 2) {
                     recommendations.push(`
-                                            <li>Look into additional income streams to reduce dependency on a single source of income.</li>
-                                        `);
+                                        <li>Look into additional income streams to reduce dependency on a single source of income.</li>
+                                    `);
                 }
 
                 // Expense optimization
@@ -1221,43 +1258,42 @@ export const generatePDF = async (data) => {
                     const topExpense = expenseCategories[0];
                     if (topExpense.percentage > 40) {
                         recommendations.push(`
-                                                <li>Review your ${topExpense.category_name.toLowerCase()} expenses which represent ${topExpense.percentage.toFixed(1)}% of total expenses.</li>
-                                            `);
+                                            <li>Review your ${topExpense.category_name.toLowerCase()} expenses which represent ${topExpense.percentage.toFixed(1)}% of total expenses.</li>
+                                        `);
                     }
                 }
 
                 // Monthly volatility
                 if (metrics.expenses.stdDev > metrics.expenses.average * 0.2) {
                     recommendations.push(`
-                                            <li>Work on stabilizing monthly expenses to reduce significant variations in spending.</li>
-                                        `);
+                                        <li>Work on stabilizing monthly expenses to reduce significant variations in spending.</li>
+                                    `);
                 }
 
                 // Add default recommendation if none apply
                 if (recommendations.length === 0) {
                     recommendations.push(`
-                                            <li>Continue maintaining your excellent financial habits while looking for optimization opportunities.</li>
-                                        `);
+                                        <li>Continue maintaining your excellent financial habits while looking for optimization opportunities.</li>
+                                    `);
                 }
 
                 return `
-                                        <h4 style="color: #444; margin: 0 0 15px 0;">Key Recommendations</h4>
-                                        <ul style="margin: 0; padding-left: 20px;">
-                                            ${recommendations.join('')}
-                                        </ul>
-                                    `;
+                                    <h4 style="color: #444; margin: 0 0 15px 0;">Key Recommendations</h4>
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                        ${recommendations.join('')}
+                                    </ul>
+                                `;
             })()}
-                            </div>
-
-                            <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px; padding: 20px;">
-                                <p style="margin: 0;">End of Report</p>
-                                <p style="margin: 5px 0 0 0;">Generated by Dobbi Financial Analytics</p>
-                            </div>
                         </div>
 
-                    </div>
+                        <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px; padding: 20px;">
+                            <p style="margin: 0;">End of Report</p>
+                            <p style="margin: 5px 0 0 0;">Generated by Dobbi Financial Analytics</p>
+                        </div>
+                    </section>
                 </div>
-                ${footerContent}
+
+                <!-- Remove the old footer -->
             </body>
             </html>
         `;
@@ -1267,6 +1303,14 @@ export const generatePDF = async (data) => {
         const { uri } = await Print.printToFileAsync({
             html: htmlContent,
             base64: false,
+            width: 595.28, // A4 width in points (72 dpi)
+            height: 841.89, // A4 height in points (72 dpi)
+            margins: {
+                top: 71, // 25mm in points
+                right: 57, // 20mm in points
+                bottom: 71, // 25mm in points
+                left: 57 // 20mm in points
+            }
         });
         console.log('PDF generated successfully at:', uri);
 
