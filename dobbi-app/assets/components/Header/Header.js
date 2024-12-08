@@ -7,6 +7,9 @@ import { ProfileSection } from './ProfileSection';
 import { Ionicons } from '@expo/vector-icons';
 import { useHeader } from '../../../contexts/HeaderContext';
 
+// Add this constant at the top of the file, outside the component
+const SKIP_BRAND_ANIMATION = false; // Set to true to always show brand name
+
 const Header = ({ title }) => {
     const insets = useSafeAreaInsets();
     const { user } = useAuth();
@@ -18,9 +21,15 @@ const Header = ({ title }) => {
     const fadeAnim = useState(new Animated.Value(1))[0];
     const titleOpacity = useState(new Animated.Value(0))[0];
     const brandOpacity = useState(new Animated.Value(1))[0];
-    const [isFirstRender, setIsFirstRender] = useState(true);
 
     useEffect(() => {
+        if (SKIP_BRAND_ANIMATION) {
+            // Always show brand name
+            titleOpacity.setValue(0);
+            brandOpacity.setValue(1);
+            return;
+        }
+
         if (!hasShownBrand && title) {
             // Only show Dobbi -> screen name transition on first app render
             const timer = setTimeout(() => {
@@ -37,7 +46,7 @@ const Header = ({ title }) => {
                     }),
                 ]).start();
                 setHasShownBrand(true);
-            }, 2000);
+            }, 3000);
 
             return () => clearTimeout(timer);
         } else if (hasShownBrand && title) {
@@ -87,17 +96,22 @@ const Header = ({ title }) => {
             <View style={styles.header}>
                 <TouchableOpacity style={styles.logoContainer} onPress={handleLogoPress}>
                     <Image
-                        source={require('../../images/dobbi-logo.png')}
+                        source={require('../../images/dobbi-heart.png')}
                         style={styles.logo}
                     />
-                    <Animated.View style={{ opacity: brandOpacity, position: 'absolute', left: 40 }}>
-                        <Text style={styles.brandName}>Dobbi</Text>
-                    </Animated.View>
-                    {title && (
-                        <Animated.View style={{ opacity: titleOpacity, position: 'absolute', left: 40 }}>
-                            <Text style={styles.brandName}>{title}</Text>
+                    <View style={styles.brandContainer}>
+                        <Animated.View style={{ opacity: brandOpacity }}>
+                            <Image
+                                source={require('../../images/dobbi-brand.png')}
+                                style={styles.brandImage}
+                            />
                         </Animated.View>
-                    )}
+                        {title && (
+                            <Animated.View style={{ opacity: titleOpacity, position: 'absolute', top: 0, left: 0 }}>
+                                <Text style={styles.brandName}>{title}</Text>
+                            </Animated.View>
+                        )}
+                    </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
                     <Ionicons name="menu" size={24} color="#EE6567" />
