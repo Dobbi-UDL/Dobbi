@@ -28,7 +28,7 @@ export const calculateMetrics = (data) => {
     const incomeValues = data.map(item => item.total_income);
     const expenseValues = data.map(item => item.total_expenses);
     const savingsValues = data.map(item => item.total_income - item.total_expenses);
-
+    
     return {
         income: calculateStats(incomeValues),
         expenses: calculateStats(expenseValues),

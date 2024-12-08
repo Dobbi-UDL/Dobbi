@@ -370,6 +370,125 @@ export const generatePDF = async (data) => {
                     .page-break + .section {
                         margin-top: 50px;
                     }
+
+                    /* Monthly Trends styles */
+                    .trend-graph {
+                        width: 100%;
+                        height: 300px;
+                        margin: 20px 0;
+                        border: 1px solid #eee;
+                        border-radius: 8px;
+                        padding: 20px;
+                    }
+
+                    .monthly-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
+                    }
+
+                    .monthly-table th,
+                    .monthly-table td {
+                        padding: 12px;
+                        text-align: right;
+                        border-bottom: 1px solid #eee;
+                    }
+
+                    .monthly-table th {
+                        background: #f9f9f9;
+                        font-weight: 600;
+                        color: #444;
+                        text-align: left;
+                    }
+
+                    .monthly-table th:not(:first-child) {
+                        text-align: right;
+                    }
+
+                    .stats-container {
+                        margin: 0;
+                    }
+
+                    .stats-row {
+                        padding: 25px;
+                        border-bottom: 1px solid #eee;
+                        background: #fff;
+                    }
+
+                    .stats-row:first-child {
+                        border-top-left-radius: 8px;
+                        border-top-right-radius: 8px;
+                    }
+
+                    .stats-row:last-child {
+                        border-bottom: none;
+                        border-bottom-left-radius: 8px;
+                        border-bottom-right-radius: 8px;
+                    }
+
+                    .stats-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                    }
+
+                    .stats-header h4 {
+                        font-size: 18px;
+                        color: #444;
+                        margin: 0;
+                        font-weight: 600;
+                    }
+
+                    .monthly-average {
+                        text-align: right;
+                    }
+
+                    .monthly-average .value {
+                        display: block;
+                        font-size: 24px;
+                        font-weight: 600;
+                        color: #333;
+                    }
+
+                    .monthly-average .label {
+                        font-size: 12px;
+                        color: #666;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .stats-details {
+                        display: flex;
+                        gap: 40px;
+                        margin-left: 20px;
+                        background: #f9f9f9;
+                        padding: 15px;
+                        border-radius: 6px;
+                    }
+
+                    .stat-group {
+                        display: flex;
+                        gap: 30px;
+                    }
+
+                    .stat-item {
+                        display: flex;
+                        flex-direction: column;
+                        min-width: 100px;
+                    }
+
+                    .stat-item .label {
+                        font-size: 12px;
+                        color: #666;
+                        margin-bottom: 4px;
+                    }
+
+                    .stat-item .value {
+                        font-size: 16px;
+                        color: #333;
+                        font-weight: 500;
+                    }
                 </style>
             </head>
             <body>
@@ -528,6 +647,163 @@ export const generatePDF = async (data) => {
                                         <p>• <span style="color: #ff9800">Good (10% - 20%)</span> - Solid foundation for financial stability</p>
                                         <p>• <span style="color: #f44336">Fair (> 0% - 10%)</span> - Room for improvement in savings habits</p>
                                         <p>• <span style="color: #d32f2f">Needs Attention (0%)</span> - Immediate action recommended</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="page-break"></div>
+
+                        <!-- Monthly Trends section -->
+                        <div class="section">
+                            <h2 class="section-title">Monthly Trends</h2>
+                            <p class="summary-intro">
+                                Visualize your financial journey month by month. By analyzing these patterns, you can identify seasonal variations in spending, income growth opportunities, and adjust your financial strategy accordingly.
+                            </p>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Income & Expenses Timeline</h3>
+                                <div class="trend-graph">
+                                    <!-- Placeholder for future graph implementation -->
+                                    <img src="data:image/png;base64,INSERT_GRAPH_BASE64_HERE" alt="Monthly Trends Graph">
+                                </div>
+                            </div>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Monthly Breakdown</h3>
+                                <table class="monthly-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Income</th>
+                                            <th>Expenses</th>
+                                            <th>Net Savings</th>
+                                            <th>Savings Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${monthlyTrend.map(month => {
+                                            const savings = month.total_income - month.total_expenses;
+                                            const savingsRate = month.total_income > 0 
+                                                ? ((savings / month.total_income) * 100).toFixed(1)
+                                                : '0.0';
+                                            const [year, monthNum] = month.month_year.split('-');
+                                            const date = new Date(year, parseInt(monthNum) - 1);
+                                            const monthName = date.toLocaleString('default', { month: 'long' });
+                                            
+                                            return `
+                                                <tr>
+                                                    <td>${monthName} ${year}</td>
+                                                    <td>${formatCurrency(month.total_income)}</td>
+                                                    <td>${formatCurrency(month.total_expenses)}</td>
+                                                    <td>${formatCurrency(savings)}</td>
+                                                    <td>${savingsRate}%</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Statistical Metrics</h3>
+                                <div class="analysis-box">
+                                    <div class="stats-container">
+                                        <div class="stats-row">
+                                            <div class="stats-header">
+                                                <h4>Income</h4>
+                                                <div class="monthly-average">
+                                                    <span class="value">${formatCurrency(metrics.income.average)}</span>
+                                                    <span class="label">monthly average</span>
+                                                </div>
+                                            </div>
+                                            <div class="stats-details">
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Median</span>
+                                                        <span class="value">${formatCurrency(metrics.income.median)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Std Dev</span>
+                                                        <span class="value">±${formatCurrency(metrics.income.stdDev)}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Min</span>
+                                                        <span class="value">${formatCurrency(metrics.income.min)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Max</span>
+                                                        <span class="value">${formatCurrency(metrics.income.max)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stats-row">
+                                            <div class="stats-header">
+                                                <h4>Expenses</h4>
+                                                <div class="monthly-average">
+                                                    <span class="value">${formatCurrency(metrics.expenses.average)}</span>
+                                                    <span class="label">monthly average</span>
+                                                </div>
+                                            </div>
+                                            <div class="stats-details">
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Median</span>
+                                                        <span class="value">${formatCurrency(metrics.expenses.median)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Std Dev</span>
+                                                        <span class="value">±${formatCurrency(metrics.expenses.stdDev)}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Min</span>
+                                                        <span class="value">${formatCurrency(metrics.expenses.min)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Max</span>
+                                                        <span class="value">${formatCurrency(metrics.expenses.max)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stats-row">
+                                            <div class="stats-header">
+                                                <h4>Savings</h4>
+                                                <div class="monthly-average">
+                                                    <span class="value">${formatCurrency(metrics.savings.average)}</span>
+                                                    <span class="label">monthly average</span>
+                                                </div>
+                                            </div>
+                                            <div class="stats-details">
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Median</span>
+                                                        <span class="value">${formatCurrency(metrics.savings.median)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Std Dev</span>
+                                                        <span class="value">±${formatCurrency(metrics.savings.stdDev)}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="stat-group">
+                                                    <div class="stat-item">
+                                                        <span class="label">Min</span>
+                                                        <span class="value">${formatCurrency(metrics.savings.min)}</span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="label">Max</span>
+                                                        <span class="value">${formatCurrency(metrics.savings.max)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
