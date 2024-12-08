@@ -4,8 +4,18 @@ import { VictoryChart, VictoryBar, VictoryAxis, VictoryTheme, VictoryLabel, Vict
 import Card from '../../common/Card';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ComparisonExplanationModal } from './ComparisonExplanationModal';
+import { formatCurrency, formatPercentage } from '../../../../utils/numberHelpers';
 
 const screenWidth = Dimensions.get('window').width;
+
+const formatAxisTick = (value) => {
+    if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`;
+    }
+    return value;
+};
 
 export const PeriodComparisonCard = ({ data }) => {
     const [explanationModalVisible, setExplanationModalVisible] = useState(false);
@@ -42,6 +52,9 @@ export const PeriodComparisonCard = ({ data }) => {
         setExplanationModalVisible(!explanationModalVisible);
     };
 
+    // add extra domain padding to the right to accommodate the amount labels. leave equivalt space for 8 characters adapted to the scale of the chart
+    const extraDomainRight = maxDomain * 0.3;
+
     return (
         <Card style={styles.card}>
             <Text style={styles.title}>Expense Comparison</Text>
@@ -49,7 +62,7 @@ export const PeriodComparisonCard = ({ data }) => {
             <View style={styles.comparisonBox}>
                 <View style={styles.periodBox}>
                     <Text style={styles.periodLabel}>Previous Period</Text>
-                    <Text style={styles.periodAmount}>${totalPreviousExpense}</Text>
+                    <Text style={styles.periodAmount}>{formatCurrency(totalPreviousExpense)}</Text>
                 </View>
                 <MaterialCommunityIcons
                     name="arrow-right-bold"
@@ -58,7 +71,7 @@ export const PeriodComparisonCard = ({ data }) => {
                 />
                 <View style={styles.periodBox}>
                     <Text style={styles.periodLabel}>Current Period</Text>
-                    <Text style={[styles.periodAmount]}>${totalCurrentExpense}</Text>
+                    <Text style={[styles.periodAmount]}>{formatCurrency(totalCurrentExpense)}</Text>
                 </View>
             </View>
 
@@ -71,10 +84,11 @@ export const PeriodComparisonCard = ({ data }) => {
                     />
                     <Text style={styles.trendText}>
                         <Text style={[styles.trendPercentage, { color: accentColor }]}>
-                            {'Spending '}{isIncrease ? 'Increased' : 'Decreased'}{' '}{Math.abs(percentageChange).toFixed(1)}%{'\n'}
+                            {'Spending '}{isIncrease ? 'Increased' : 'Decreased'}{' '}
+                            {formatPercentage(Math.abs(percentageChange))}{'\n'}
                         </Text>
                         <Text style={styles.trendDescription}>
-                            {'Your expenses went '}{isIncrease ? 'up' : 'down'} ${Math.abs(expenseDifference)}
+                            {'Your expenses went '}{isIncrease ? 'up' : 'down'} {formatCurrency(Math.abs(expenseDifference))}
                         </Text>
                     </Text>
                 </View>
@@ -102,8 +116,8 @@ export const PeriodComparisonCard = ({ data }) => {
                         domainPadding={{ x: 25 }}
                         width={screenWidth - 60} // Adjust width to accommodate icons
                         height={chartHeight}
-                        padding={{ top: 0, bottom: 25, left: 20, right: 45 }} // Reduced left padding
-                        domain={{ y: [0, maxDomain+200] }}
+                        padding={{ top: 0, bottom: 25, left: 10, right: 45 }} // Reduced left padding
+                        domain={{ y: [0, maxDomain + extraDomainRight] }}
                     >
                         <VictoryAxis
                             style={{
@@ -113,7 +127,7 @@ export const PeriodComparisonCard = ({ data }) => {
                         />
                         <VictoryAxis
                             dependentAxis
-                            tickFormat={(t) => t}
+                            tickFormat={formatAxisTick}
                             style={{
                                 tickLabels: { fontSize: 14, fill: '#666666', angle: 0 },
                                 grid: { stroke: '#EEEEEE', strokeDasharray: '8' },
@@ -124,7 +138,7 @@ export const PeriodComparisonCard = ({ data }) => {
                                 data={currentPeriodData}
                                 x="x"
                                 y="y"
-                                labels={({ datum }) => `$${datum.y}`}
+                                labels={({ datum }) => formatCurrency(datum.y)}
                                 labelComponent={
                                     <VictoryLabel 
                                         dx={8} 
@@ -140,7 +154,7 @@ export const PeriodComparisonCard = ({ data }) => {
                                 data={previousPeriodData}
                                 x="x"
                                 y="y"
-                                labels={({ datum }) => `$${datum.y}`}
+                                labels={({ datum }) => formatCurrency(datum.y)}
                                 labelComponent={
                                     <VictoryLabel 
                                         dx={8} 
@@ -311,13 +325,14 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     iconsColumn: {
-        width: 30,
+        marginLeft: -5,
+        width: 25,
         position: 'relative',
     },
     iconItem: {
         position: 'absolute',
         left: 0,
-        width: 30,
+        width: 25,
         alignItems: 'center',
         justifyContent: 'center',
     },

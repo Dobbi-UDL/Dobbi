@@ -10,7 +10,7 @@ import { styles } from './FinancialDetails.styles';
 import i18n from '../../../../i18n';
 import { fetchCategories, fetchEntries, addEntry, editEntry, deleteEntry } from '../../../../services/financesService';
 import { CategoryHeader } from './CategoryHeader';
-import { formatNumberWithCommas } from '../../../../utils/numberFormatting';
+import { formatCurrency } from '../../../../utils/numberHelpers';
 import { AddEntryForm } from './AddEntryForm';
 import { EditEntryForm } from './EditEntryForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,8 +24,6 @@ export default function FinancialDetails() {
 
     const [expandedCategory, setExpandedCategory] = useState(null);
     
-    const [numberModalVisible, setNumberModalVisible] = useState(false);
-    const [fullNumber, setFullNumber] = useState('');
 
     const [addEntryModalVisible, setAddEntryModalVisible] = useState(false);
     const [editCategoryModalVisible, setEditCategoryModalVisible] = useState(false);
@@ -154,11 +152,6 @@ export default function FinancialDetails() {
         router.push('/stats');
     };
     
-    const handleNumberClick = (number) => {
-        setFullNumber(formatNumberWithCommas(number.toFixed(2)));
-        console.log("fullNumber: ", fullNumber);
-        setNumberModalVisible(true);
-    };
 
     const handleAddEntry = (categoryId) => {
         const category = categories.find(cat => cat.id === categoryId);
@@ -522,7 +515,7 @@ export default function FinancialDetails() {
                                 category={category}
                                 expandedCategory={expandedCategory}
                                 setExpandedCategory={setExpandedCategory}
-                                handleNumberClick={handleNumberClick}
+                                
                                 handleEdit={handleEdit}
                                 handleAddEntry={handleAddEntry}
                             />
@@ -540,15 +533,7 @@ export default function FinancialDetails() {
                 <Ionicons name="add" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
-            <CustomModal
-                visible={numberModalVisible}
-                onClose={() => setNumberModalVisible(false)}
-                title="Your total amount is:"
-            >
-                <Text style={styles.modalText}>
-                    ${fullNumber}
-                </Text>
-            </CustomModal>
+            
 
             <AddEntryForm
                 visible={addEntryModalVisible}
@@ -595,9 +580,9 @@ export default function FinancialDetails() {
                             <View style={styles.errorActions}>
                                 <Button
                                     title="Dismiss"
-                                    variant="outline"
-                                    onPress={() => setShowErrorDetails(false)}
-                                    style={styles.dismissButton}
+                                        variant="outline"
+                                        onPress={handleDismiss}
+                                        style={styles.dismissButton}
                                 />
                                 <Button
                                     title="Report"

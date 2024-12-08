@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native
 import Card from '../../common/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomModal } from '../../common/Modal';
+import { formatCurrency, formatPercentage } from '../../../../utils/numberHelpers';
 
 export const TopCategoriesCard = ({ title, data = [], type }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -79,7 +80,7 @@ export const TopCategoriesCard = ({ title, data = [], type }) => {
                     </View>
                     <View style={styles.categoryInfo}>
                         <Text style={styles.categoryName}>{item.category_name}</Text>
-                        <Text style={styles.categoryAmount}>${item.total_amount}</Text>
+                        <Text style={styles.categoryAmount}>{formatCurrency(item.total_amount)}</Text>
                     </View>
                     <Animated.Text
                         style={[
@@ -90,7 +91,7 @@ export const TopCategoriesCard = ({ title, data = [], type }) => {
                             }
                         ]}
                     >
-                        {item.percentage.toFixed(1)}%
+                        {formatPercentage(item.percentage)}
                     </Animated.Text>
                 </View>
                 <View style={styles.progressBarContainer}>
@@ -122,9 +123,9 @@ export const TopCategoriesCard = ({ title, data = [], type }) => {
                         <View style={[styles.iconBackground, { backgroundColor: `${getBarColor()}20` }]}>
                             <Ionicons name={selectedCategory.category_icon} size={32} color={getBarColor()} />
                         </View>
-                        <Text style={styles.modalAmount}>${selectedCategory.total_amount}</Text>
+                        <Text style={styles.modalAmount}>{formatCurrency(selectedCategory.total_amount)}</Text>
                         <Text style={[styles.modalPercentage, { color: getBarColor() }]}>
-                            {selectedCategory.percentage.toFixed(1)}%
+                            {formatPercentage(selectedCategory.percentage)}
                         </Text>
                     </View>
 

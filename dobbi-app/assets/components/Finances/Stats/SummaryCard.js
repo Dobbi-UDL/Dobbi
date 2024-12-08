@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from '../../common/Card';
 import { SavingsRateModal } from './SavingsRateModal'; 
+import { formatCurrency, formatPercentage } from '../../../../utils/numberHelpers';
 
 export const SummaryCard = ({ data }) => {
     const [explanationModalVisible, setExplanationModalVisible] = useState(false);
@@ -72,10 +73,13 @@ export const SummaryCard = ({ data }) => {
     return (
         <Card title="Financial Summary" style={styles.card}>
             <View style={styles.summaryContainer}>
-                {renderSummaryItem('Total Income', (`$${data.totalIncome}`), 'cash-plus', '#4CAF50')}
-                {renderSummaryItem('Total Expenses', (`$${data.totalExpenses}`), 'cash-minus', '#F44336')}
-                {renderSummaryItem('Savings', (`$${data.savings}`), 'piggy-bank', '#2196F3')}
-                {renderSummaryItem('Savings Rate', (`${data.savingsRate} %`), 'chart-arc', '#FF9800')}
+                {renderSummaryItem('Total Income', formatCurrency(data.totalIncome), 'cash-plus', '#4CAF50')}
+                {renderSummaryItem('Total Expenses', formatCurrency(data.totalExpenses), 'cash-minus', '#F44336')}
+                {renderSummaryItem('Savings', formatCurrency(data.savings), 'piggy-bank', '#2196F3')}
+                {renderSummaryItem('Savings Rate', formatPercentage(data.savingsRate, {
+                    showSign: false,
+                    zeroDecimalsIfWhole: true
+                }), 'chart-arc', '#FF9800')}
             </View>
             <TouchableOpacity
                 onPress={toggleExplanationModal}

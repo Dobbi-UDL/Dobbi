@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-nati
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryLegend } from 'victory-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from '../../common/Card';
+import { formatCurrency, formatCompactCurrency } from '../../../../utils/numberHelpers';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -87,7 +88,7 @@ export const MonthlyTrendCard = ({ data }) => {
                     />
                     <VictoryAxis
                         dependentAxis
-                        tickFormat={(y) => `$${y / 1000}k`}
+                        tickFormat={(y) => formatCompactCurrency(y)}
                         style={{
                             tickLabels: { fontSize: 14, padding: 5 }
                         }}

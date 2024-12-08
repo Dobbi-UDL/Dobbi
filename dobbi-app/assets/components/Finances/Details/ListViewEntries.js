@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from './FinancialDetails.styles';
-import { truncateNumber } from '../../../../utils/numberFormatting';
+import { formatCurrency } from '../../../../utils/numberHelpers';
 import { Button } from '../../common/Button';
 import { useRouter } from 'expo-router';
 
 export const ListViewEntries = ({ 
     entries,
-    handleNumberClick,
     handleEdit,
     handleAddEntry,
 }) => {
@@ -21,9 +20,7 @@ export const ListViewEntries = ({
                     onPress={() => handleEdit(entry)}
                 >
                     <Text style={styles.entryName}>{entry.name}</Text>
-                    <TouchableOpacity onPress={() => handleNumberClick(entry.amount || 0)}>
-                        <Text style={styles.entryAmount}>${truncateNumber(entry.amount || 0)}</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.entryAmount}>{formatCurrency(entry.amount || 0)}</Text>
                 </TouchableOpacity>
             ))}
             <View style={styles.buttons}>

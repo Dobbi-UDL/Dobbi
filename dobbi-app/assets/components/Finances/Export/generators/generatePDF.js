@@ -1,6 +1,8 @@
 import * as Print from 'expo-print';
 import { DOBBI_LOGO_BASE64 } from '../../../../images/dobbiLogo';
 import { DOBBI_BRAND_BASE64 } from '../../../../images/dobbiBrand';
+import { formatCurrency, formatPercentage } from '../../../../../utils/numberHelpers';
+
 export const generatePDF = async (data) => {
     try {
         // Validate input data
@@ -29,29 +31,7 @@ export const generatePDF = async (data) => {
         const dobbiLogo = DOBBI_LOGO_BASE64;
         const dobbiBrand = DOBBI_BRAND_BASE64;
 
-        const formatCurrency = (amount) => {
-            if (amount === undefined || amount === null) return '$0.00';
-            
-            const absAmount = Math.abs(amount);
-            let formattedAmount;
-            
-            if (absAmount >= 1000000000) {
-                formattedAmount = `$${(amount / 1000000000).toFixed(2)}B`;
-            } else if (absAmount >= 1000000) {
-                formattedAmount = `$${(amount / 1000000).toFixed(2)}M`;
-            } else if (absAmount >= 100000) {
-                formattedAmount = `$${(amount / 1000).toFixed(1)}K`;
-            } else {
-                formattedAmount = amount.toLocaleString('en-US', { 
-                    style: 'currency', 
-                    currency: 'USD',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2 
-                });
-            }
-            
-            return formattedAmount;
-        };
+        // Remove the old formatCurrency function since we're now importing it
 
         // Calculate spending change percentage with better explanation
         const getSpendingChangeInfo = () => {
@@ -61,11 +41,11 @@ export const generatePDF = async (data) => {
 
             if (previousTotal === 0) return { text: 'No previous data for comparison' };
 
-            const change = ((currentTotal - previousTotal) / previousTotal * 100).toFixed(2);
+            const change = ((currentTotal - previousTotal) / previousTotal * 100);
             return {
                 text: change > 0
-                    ? `Spending <strong>increased by ${change}%</strong> compared to previous period`
-                    : `Spending <strong>decreased by ${Math.abs(change)}%</strong> compared to previous period`
+                    ? `Spending <strong>increased by ${formatPercentage(change, { showSign: true })}</strong>`
+                    : `Spending <strong>decreased by ${formatPercentage(Math.abs(change))}</strong>`
             };
         };
 
@@ -734,7 +714,7 @@ export const generatePDF = async (data) => {
                                             <ul>
                                                 <li>Total Income: <strong>${formatCurrency(summary?.totalIncome || 0)}</strong></li>
                                                 <li>Total Expenses: <strong>${formatCurrency(summary?.totalExpenses || 0)}</strong></li>
-                                                <li>Net Savings: <strong>${formatCurrency(summary?.savings || 0)} (${summary?.savingsRate || 0}%)</strong></li>
+                                                <li>Net Savings: <strong>${formatCurrency(summary?.savings || 0)} (${formatPercentage(summary?.savingsRate || 0)})</strong></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -756,20 +736,20 @@ export const generatePDF = async (data) => {
                                                 <li>Top Expenses:
                                                     ${expenseCategories.length >= 2
                 ? `<br>
-                                                           1. <strong>${expenseCategories[0].category_name} (${expenseCategories[0].percentage.toFixed(2)}%)</strong><br>
-                                                           2. <strong>${expenseCategories[1].category_name} (${expenseCategories[1].percentage.toFixed(2)}%)</strong>`
+                                                           1. <strong>${expenseCategories[0].category_name} (${formatPercentage(expenseCategories[0].percentage.toFixed(2))})</strong><br>
+                                                           2. <strong>${expenseCategories[1].category_name} (${formatPercentage(expenseCategories[1].percentage.toFixed(2))})</strong>`
                 : expenseCategories.length === 1
-                    ? `<br>1. <strong>${expenseCategories[0].category_name} (${expenseCategories[0].percentage.toFixed(2)}%)</strong>`
+                    ? `<br>1. <strong>${expenseCategories[0].category_name} (${formatPercentage(expenseCategories[0].percentage.toFixed(2))})</strong>`
                     : 'This period has no expense data'
             }
                                                 </li>
                                                 <li>Top Income:
                                                     ${incomeCategories.length >= 2
                 ? `<br>
-                                                           1. <strong>${incomeCategories[0].category_name} (${incomeCategories[0].percentage.toFixed(2)}%)</strong><br>
-                                                           2. <strong>${incomeCategories[1].category_name} (${incomeCategories[1].percentage.toFixed(2)}%)</strong>`
+                                                           1. <strong>${incomeCategories[0].category_name} (${formatPercentage(incomeCategories[0].percentage.toFixed(2))})}</strong><br>
+                                                           2. <strong>${incomeCategories[1].category_name} (${formatPercentage(incomeCategories[1].percentage.toFixed(2))})}</strong>`
                 : incomeCategories.length === 1
-                    ? `<br>1. <strong>${incomeCategories[0].category_name} (${incomeCategories[0].percentage.toFixed(2)}%)</strong>`
+                    ? `<br>1. <strong>${incomeCategories[0].category_name} (${formatPercentage(incomeCategories[0].percentage.toFixed(2))})}</strong>`
                     : 'This period has no income data'
             }
                                                 </li>
@@ -819,7 +799,7 @@ export const generatePDF = async (data) => {
                                 </div>
                                 <div class="metric-card">
                                     <div class="metric-label">Savings Rate</div>
-                                    <div class="metric-value">${summary.savingsRate}%</div>
+                                    <div class="metric-value">${formatPercentage(summary.savingsRate)}</div>
                                 </div>
                             </div>
                         </div>
@@ -829,7 +809,7 @@ export const generatePDF = async (data) => {
                             <div class="analysis-box-1">
                                 <div class="analysis-summary">
                                     <div class="rating-indicator">
-                                        <div class="rating-value" style="color: ${savingsStatus.color}">${summary.savingsRate}%</div>
+                                        <div class="rating-value" style="color: ${savingsStatus.color}">${formatPercentage(summary.savingsRate)}</div>
                                         <div class="rating-label">Savings Rate</div>
                                     </div>
                                     <div class="savings-status ${savingsStatus.class}">${savingsStatus.text}</div>
@@ -891,7 +871,7 @@ export const generatePDF = async (data) => {
                                                 <td>${formatCurrency(month.total_income)}</td>
                                                 <td>${formatCurrency(month.total_expenses)}</td>
                                                 <td>${formatCurrency(savings)}</td>
-                                                <td>${savingsRate}%</td>
+                                                <td>${formatPercentage(savingsRate)}</td>
                                             </tr>
                                         `;
             }).join('')}
@@ -1027,7 +1007,7 @@ export const generatePDF = async (data) => {
                                         <tr>
                                             <td style="text-align: left;">${category.category_name}</td>
                                             <td>${formatCurrency(category.total_amount)}</td>
-                                            <td>${category.percentage.toFixed(1)}%</</td>
+                                            <td>${formatPercentage(category.percentage.toFixed(1))}%</</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1038,10 +1018,10 @@ export const generatePDF = async (data) => {
                                 <p style="margin: 0 0 15px 0;">
                                     ${incomeCategories.length > 0
                 ? `Your primary source of income is <strong>${incomeCategories[0].category_name}</strong> 
-                                           representing <strong>${incomeCategories[0].percentage.toFixed(1)}%</strong> of total income.
+                                           representing <strong>${formatPercentage(incomeCategories[0].percentage.toFixed(1))}%</strong> of total income.
                                            ${incomeCategories.length > 1
                     ? `This is followed by <strong>${incomeCategories[1].category_name}</strong> at 
-                                               <strong>${incomeCategories[1].percentage.toFixed(1)}%</strong>.`
+                                               <strong>${formatPercentage(incomeCategories[1].percentage.toFixed(1))}%</strong>.`
                     : ''}`
                 : 'No income data available for this period.'}
                                 </p>
@@ -1071,7 +1051,7 @@ export const generatePDF = async (data) => {
                                         <tr>
                                             <td style="text-align: left;">${category.category_name}</td>
                                             <td>${formatCurrency(category.total_amount)}</td>
-                                            <td>${category.percentage.toFixed(1)}%</</td>
+                                            <td>${formatPercentage(category.percentage.toFixed(1))}%</</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1082,10 +1062,10 @@ export const generatePDF = async (data) => {
                                 <p style="margin: 0 0 15px 0;">
                                     ${expenseCategories.length > 0
                 ? `Your highest expense category is <strong>${expenseCategories[0].category_name}</strong> 
-                                           at <strong>${expenseCategories[0].percentage.toFixed(1)}%</strong> of total expenses.
+                                           at <strong>${formatPercentage(expenseCategories[0].percentage.toFixed(1))}%</strong> of total expenses.
                                            ${expenseCategories.length > 1
                     ? `The second highest is <strong>${expenseCategories[1].category_name}</strong> at 
-                                               <strong>${expenseCategories[1].percentage.toFixed(1)}%</strong>.`
+                                               <strong>${formatPercentage(expenseCategories[1].percentage.toFixed(1))}%</strong>.`
                     : ''}`
                 : 'No expense data available for this period.'}
                                 </p>
@@ -1155,7 +1135,7 @@ export const generatePDF = async (data) => {
                             : change > 0 ? '#f44336' : change < 0 ? '#2da77a' : '#666'}">
                                                         ${category.previous_period_expense === 0
                             ? 'New'
-                            : `${Math.abs(percentChange)}% ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
+                            : `${formatPercentage(percentChange, { showSign: true })} ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
                                                     </td>
                                                 </tr>
                                             `;
@@ -1172,7 +1152,7 @@ export const generatePDF = async (data) => {
                         : totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
                                                     ${previousTotal === 0
                         ? 'New'
-                        : `${Math.abs(totalPercentChange)}% ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}`}
+                        : `${formatPercentage(totalPercentChange, { showSign: true })} ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}`}
                                                 </td>
                                             </tr>
                                         `;
@@ -1209,7 +1189,7 @@ export const generatePDF = async (data) => {
                 return `
                                             Overall spending has ${totalChange > 0 ? 'increased' : 'decreased'} by 
                                             <strong>${formatCurrency(Math.abs(totalChange))}</strong>
-                                            ${percentChange ? ` (${Math.abs(percentChange)}%)` : ''} 
+                                            ${percentChange ? ` (${formatPercentage(Math.abs(percentChange))})` : ''} 
                                             compared to the previous period.
                                             ${significantChanges.length > 0
                         ? `\n\nNotable changes in spending:`
@@ -1236,7 +1216,7 @@ export const generatePDF = async (data) => {
                                                     <strong>${cat.category_name}</strong>: 
                                                     ${change > 0 ? 'Increased' : 'Decreased'} by 
                                                     ${formatCurrency(Math.abs(change))}
-                                                    ${percentChange !== 'N/A' ? ` (${Math.abs(percentChange)}%)` : ''}
+                                                    ${percentChange !== 'N/A' ? ` (${formatPercentage(percentChange, { showSign: true })})` : ''}
                                                 </li>
                                             `;
                 }).join('')}
@@ -1261,7 +1241,7 @@ export const generatePDF = async (data) => {
                 // Savings recommendations
                 if (summary.savingsRate < 20) {
                     recommendations.push(`
-                                        <li>Consider increasing your savings rate (currently ${summary.savingsRate}%) by identifying non-essential expenses.</li>
+                                        <li>Consider increasing your savings rate (currently ${formatPercentage(summary.savingsRate)}) by identifying non-essential expenses.</li>
                                     `);
                 }
 
@@ -1277,7 +1257,7 @@ export const generatePDF = async (data) => {
                     const topExpense = expenseCategories[0];
                     if (topExpense.percentage > 40) {
                         recommendations.push(`
-                                            <li>Review your ${topExpense.category_name.toLowerCase()} expenses which represent ${topExpense.percentage.toFixed(1)}% of total expenses.</li>
+                                            <li>Review your ${topExpense.category_name.toLowerCase()} expenses which represent ${formatPercentage(topExpense.percentage.toFixed(1))}% of total expenses.</li>
                                         `);
                     }
                 }

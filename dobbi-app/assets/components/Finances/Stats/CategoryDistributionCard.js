@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { VictoryPie, VictoryLabel } from 'victory-native';
 import Card from '../../common/Card';
 import { Ionicons } from '@expo/vector-icons';
+import { formatPercentage } from '../../../../utils/numberHelpers';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -23,7 +24,7 @@ export const CategoryDistributionCard = ({ data, title, startAngle=0, endAngle=3
     useEffect(() => {
         setTimeout(() => {
             setChartData(data.map((item, index) => ({
-                x: `${item.percentage.toFixed(1)}%`,
+                x: formatPercentage(item.percentage),
                 y: item.percentage,
                 color: colorScale[index % colorScale.length],
             })));
@@ -36,7 +37,7 @@ export const CategoryDistributionCard = ({ data, title, startAngle=0, endAngle=3
         return datum.y > 1 ? (
             <VictoryLabel
                 {...props}
-                text={`${datum.y.toFixed(1)}%`}
+                text={formatPercentage(datum.y)}
             />
         ) : null;
     };
