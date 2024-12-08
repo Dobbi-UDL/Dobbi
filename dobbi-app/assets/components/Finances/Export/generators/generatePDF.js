@@ -128,12 +128,16 @@ export const generatePDF = async (data) => {
                     .page {
                         width: 210mm;
                         height: 297mm;
+                        padding-top: 40px; /* Add this */
                         page-break-after: always;
                     }
                     .header {
+                        position: relative; /* Add this */
+                        top: -40px; /* Add this */
                         background: #fafafa;
                         padding: 40px 50px;
                         border-bottom: 3px solid #eee;
+                        margin-bottom: -40px; /* Add this */
                     }
                     .header-content {
                         max-width: 1000px;
@@ -1004,9 +1008,149 @@ export const generatePDF = async (data) => {
                             </div>
                         </div>
 
-                        <!-- Rest of the sections will follow -->
+                        <div class="page-break"></div>
+
+                        <!-- Period Comparison section -->
                         <div class="section">
-                            <h2 class="section-title">Dummy title</h2>
+                            <h2 class="section-title">Period Comparison</h2>
+                            <p class="summary-intro">
+                                Compare your spending patterns between the current period 
+                                (<span class="highlight">${dateRange?.startDate} to ${dateRange?.endDate}</span>) and 
+                                the previous period (<span class="highlight">${previousDateRange?.startDate} to ${previousDateRange?.endDate}</span>).
+                            </p>
+
+                            <div class="subsection">
+                                <h3 class="subsection-title">Category Changes</h3>
+                                <table class="monthly-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: left; width: 32%;">Category</th>
+                                            <th style="width: 17%;">Current</th>
+                                            <th style="width: 17%;">Previous</th>
+                                            <th style="width: 17%;">Change</th>
+                                            <th style="width: 17%;">Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${(() => {
+                                            const currentTotal = periodComparison.reduce((sum, cat) => sum + cat.current_period_expense, 0);
+                                            const previousTotal = periodComparison.reduce((sum, cat) => sum + cat.previous_period_expense, 0);
+                                            const totalChange = currentTotal - previousTotal;
+                                            const totalPercentChange = previousTotal !== 0 
+                                                ? ((totalChange / previousTotal) * 100).toFixed(1)
+                                                : 'New';
+
+                                            return `
+                                                ${periodComparison.map(category => {
+                                                    const change = category.current_period_expense - category.previous_period_expense;
+                                                    const percentChange = category.previous_period_expense !== 0
+                                                        ? ((change / category.previous_period_expense) * 100).toFixed(1)
+                                                        : category.current_period_expense > 0 ? 'New' : '-';
+                                                    return `
+                                                        <tr>
+                                                            <td style="text-align: left;">${category.category_name}</td>
+                                                            <td>${formatCurrency(category.current_period_expense)}</td>
+                                                            <td>${formatCurrency(category.previous_period_expense)}</td>
+                                                            <td style="color: ${category.previous_period_expense === 0 
+                                                                    ? '#666' 
+                                                                    : change > 0 ? '#f44336' : change < 0 ? '#2da77a' : '#666'}">
+                                                                ${category.previous_period_expense === 0
+                                                                    ? 'New'
+                                                                    : `${formatCurrency(Math.abs(change))} ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
+                                                            </td>
+                                                            <td style="color: ${category.previous_period_expense === 0 
+                                                                    ? '#666' 
+                                                                    : change > 0 ? '#f44336' : change < 0 ? '#2da77a' : '#666'}">
+                                                                ${category.previous_period_expense === 0
+                                                                    ? 'New'
+                                                                    : `${Math.abs(percentChange)}% ${change > 0 ? '▲' : change < 0 ? '▼' : ''}`}
+                                                            </td>
+                                                        </tr>
+                                                    `;
+                                                }).join('')}
+                                                <tr style="font-weight: bold; background-color: #f9f9f9;">
+                                                    <td style="text-align: left;">Total</td>
+                                                    <td>${formatCurrency(currentTotal)}</td>
+                                                    <td>${formatCurrency(previousTotal)}</td>
+                                                    <td style="color: ${totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
+                                                        ${formatCurrency(Math.abs(totalChange))} ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}
+                                                    </td>
+                                                    <td style="color: ${previousTotal === 0 
+                                                            ? '#666' 
+                                                            : totalChange > 0 ? '#f44336' : totalChange < 0 ? '#2da77a' : '#666'}">
+                                                        ${previousTotal === 0
+                                                            ? 'New'
+                                                            : `${Math.abs(totalPercentChange)}% ${totalChange > 0 ? '▲' : totalChange < 0 ? '▼' : ''}`}
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        })()}
+                                    </tbody>
+                                </table>
+
+                                <div class="analysis-box" style="margin-top: 20px;">
+                                    <h4 style="color: #444; margin: 0 0 15px 0;">Period Analysis</h4>
+                                    <p style="margin: 0 0 15px 0;">
+                                        ${(() => {
+                                            const totalCurrentExpense = periodComparison.reduce((sum, cat) => sum + cat.current_period_expense, 0);
+                                            const totalPreviousExpense = periodComparison.reduce((sum, cat) => sum + cat.previous_period_expense, 0);
+                                            const totalChange = totalCurrentExpense - totalPreviousExpense;
+                                            const percentChange = totalPreviousExpense !== 0
+                                                ? ((totalChange / totalPreviousExpense) * 100).toFixed(1)
+                                                : null;
+
+                                            // Find categories with significant changes
+                                            const significantChanges = periodComparison
+                                                .filter(cat => {
+                                                    const change = cat.current_period_expense - cat.previous_period_expense;
+                                                    const percentChange = cat.previous_period_expense !== 0
+                                                        ? (change / cat.previous_period_expense) * 100
+                                                        : 0;
+                                                    return Math.abs(percentChange) > 20; // Consider changes over 20% significant
+                                                })
+                                                .sort((a, b) => {
+                                                    const changeA = Math.abs(a.current_period_expense - a.previous_period_expense);
+                                                    const changeB = Math.abs(b.current_period_expense - b.previous_period_expense);
+                                                    return changeB - changeA;
+                                                });
+
+                                            return `
+                                                Overall spending has ${totalChange > 0 ? 'increased' : 'decreased'} by 
+                                                <strong>${formatCurrency(Math.abs(totalChange))}</strong>
+                                                ${percentChange ? ` (${Math.abs(percentChange)}%)` : ''} 
+                                                compared to the previous period.
+                                                ${significantChanges.length > 0 
+                                                    ? `\n\nNotable changes in spending:`
+                                                    : ''}
+                                            `;
+                                        })()}
+                                    </p>
+                                    <ul style="margin: 0; padding-left: 20px;">
+                                        ${periodComparison
+                                            .filter(cat => {
+                                                const change = cat.current_period_expense - cat.previous_period_expense;
+                                                const percentChange = cat.previous_period_expense !== 0
+                                                    ? (change / cat.previous_period_expense) * 100
+                                                    : 0;
+                                                return Math.abs(percentChange) > 20;
+                                            })
+                                            .map(cat => {
+                                                const change = cat.current_period_expense - cat.previous_period_expense;
+                                                const percentChange = cat.previous_period_expense !== 0
+                                                    ? ((change / cat.previous_period_expense) * 100).toFixed(1)
+                                                    : 'N/A';
+                                                return `
+                                                    <li style="margin-bottom: 8px;">
+                                                        <strong>${cat.category_name}</strong>: 
+                                                        ${change > 0 ? 'Increased' : 'Decreased'} by 
+                                                        ${formatCurrency(Math.abs(change))}
+                                                        ${percentChange !== 'N/A' ? ` (${Math.abs(percentChange)}%)` : ''}
+                                                    </li>
+                                                `;
+                                            }).join('')}
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
