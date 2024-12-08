@@ -109,6 +109,12 @@ export const generatePDF = async (data) => {
         const monthlyTrendInfo = getMonthlyTrendInfo();
         const savingsStatus = getSavingsStatus(summary.savingsRate);
 
+        const footerContent = `
+            <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Dobbi Financial Analytics. All rights reserved.</p>
+            </div>
+        `;
+
         const htmlContent = `
             <!DOCTYPE html>
             <html>
@@ -124,12 +130,16 @@ export const generatePDF = async (data) => {
                         margin: 0;
                         padding: 0;
                         background: #fff;
+                        position: relative;
+                        z-index: 0;
                     }
                     .page {
                         width: 210mm;
                         height: 297mm;
-                        padding-top: 40px; /* Add this */
-                        page-break-after: always;
+                        padding-top: 40px;
+                        background: #fff;
+                        position: relative;
+                        z-index: 0;
                     }
                     .header {
                         position: relative; /* Add this */
@@ -191,10 +201,16 @@ export const generatePDF = async (data) => {
                         padding: 40px 50px;
                         max-width: 1000px;
                         margin: 0 auto;
+                        background: #fff;
+                        position: relative;
+                        z-index: 2;
                     }
                     .section {
                         margin-bottom: 40px;
                         width: 100%;
+                        background: #fff;
+                        position: relative;
+                        z-index: 2;
                     }
                     .section > * {
                         max-width: 100%;
@@ -204,6 +220,9 @@ export const generatePDF = async (data) => {
                     .metric-grid {
                         width: 100%;
                         box-sizing: border-box;
+                        position: relative;
+                        z-index: 2;
+                        background: #fff;
                     }
                     .summary-intro {
                         width: 100%;
@@ -305,6 +324,9 @@ export const generatePDF = async (data) => {
                         border-radius: 8px;
                         padding: 20px;
                         margin: 15px 0;
+                        position: relative;
+                        z-index: 200;
+                        background: #fff;
                     }
                     .analysis-summary {
                         display: flex;
@@ -389,6 +411,9 @@ export const generatePDF = async (data) => {
                         width: 100%;
                         border-collapse: collapse;
                         margin: 20px 0;
+                        position: relative;
+                        z-index: 2;
+                        background: #fff;
                     }
 
                     .monthly-table th,
@@ -411,6 +436,9 @@ export const generatePDF = async (data) => {
 
                     .stats-container {
                         margin: 0;
+                        position: relative;
+                        z-index: 2;
+                        background: #fff;
                     }
 
                     .stats-row {
@@ -500,6 +528,9 @@ export const generatePDF = async (data) => {
                         border-radius: 8px;
                         padding: 25px;
                         margin: 20px 0;
+                        position: relative;
+                        z-index: 2;
+                        background: #fff;
                     }
                     
                     .category-header {
@@ -596,6 +627,16 @@ export const generatePDF = async (data) => {
                     .monthly-table th:nth-child(3) {
                         width: 25%;
                         text-align: right;
+                    }
+                    .footer {
+                        text-align: center;
+                        color: #888;
+                        font-size: 12px;
+                        padding: 10px;
+                        position: fixed;
+                        bottom: 0;
+                        width: 100%;
+                        z-index: 1;
                     }
                 </style>
             </head>
@@ -1152,8 +1193,76 @@ export const generatePDF = async (data) => {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Rest of the sections will follow -->
+                        <div class="page-break"></div>
+                        
+                        <div class="section">
+                            <h2 class="section-title">Recommendations & Next Steps</h2>
+                            <p class="summary-intro">
+                                Based on your financial data analysis, here are key recommendations to help optimize your financial health and achieve your goals.
+                            </p>
+
+                            <div class="analysis-box">
+                                ${(() => {
+                                    const recommendations = [];
+                                    
+                                    // Savings recommendations
+                                    if (summary.savingsRate < 20) {
+                                        recommendations.push(`
+                                            <li>Consider increasing your savings rate (currently ${summary.savingsRate}%) by identifying non-essential expenses.</li>
+                                        `);
+                                    }
+
+                                    // Income diversification
+                                    if (incomeCategories.length < 2) {
+                                        recommendations.push(`
+                                            <li>Look into additional income streams to reduce dependency on a single source of income.</li>
+                                        `);
+                                    }
+
+                                    // Expense optimization
+                                    if (expenseCategories.length > 0) {
+                                        const topExpense = expenseCategories[0];
+                                        if (topExpense.percentage > 40) {
+                                            recommendations.push(`
+                                                <li>Review your ${topExpense.category_name.toLowerCase()} expenses which represent ${topExpense.percentage.toFixed(1)}% of total expenses.</li>
+                                            `);
+                                        }
+                                    }
+
+                                    // Monthly volatility
+                                    if (metrics.expenses.stdDev > metrics.expenses.average * 0.2) {
+                                        recommendations.push(`
+                                            <li>Work on stabilizing monthly expenses to reduce significant variations in spending.</li>
+                                        `);
+                                    }
+
+                                    // Add default recommendation if none apply
+                                    if (recommendations.length === 0) {
+                                        recommendations.push(`
+                                            <li>Continue maintaining your excellent financial habits while looking for optimization opportunities.</li>
+                                        `);
+                                    }
+
+                                    return `
+                                        <h4 style="color: #444; margin: 0 0 15px 0;">Key Recommendations</h4>
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            ${recommendations.join('')}
+                                        </ul>
+                                    `;
+                                })()}
+                            </div>
+
+                            <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px; padding: 20px;">
+                                <p style="margin: 0;">End of Report</p>
+                                <p style="margin: 5px 0 0 0;">Generated by Dobbi Financial Analytics</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+                ${footerContent}
             </body>
             </html>
         `;
