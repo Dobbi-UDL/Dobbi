@@ -39,7 +39,7 @@ export const ChallengeCard = ({ challenge }) => {
             const result = await assignGoal(challenge.id, user.id);
             if (result) {
                 console.log("Objetivo asignado exitosamente:", result);
-                // Consider adding a success notification here
+                router.puss('/my-goals');
             }
         } else {
             Alert.alert("Error", "No se pudo asignar el objetivo. Por favor, inicia sesión.");
