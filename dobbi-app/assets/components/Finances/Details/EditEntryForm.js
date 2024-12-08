@@ -18,9 +18,9 @@ export const EditEntryForm = ({ visible, entry, onUpdate, onDelete, onClose, onR
 
     useEffect(() => {
         if (entry) {
-            setEntryName(entry.name);
-            setAmount(entry.amount.toString());
-            setDate(new Date(entry.date));
+            setEntryName(entry.name || '');
+            setAmount(entry.amount != null ? entry.amount.toString() : '');
+            setDate(entry.date ? new Date(entry.date) : new Date());
         } else {
             setEntryName('');
             setAmount('');
@@ -30,9 +30,10 @@ export const EditEntryForm = ({ visible, entry, onUpdate, onDelete, onClose, onR
 
     // Validation Form
     const isFormValid = () => {
-        return (
-            true
-        );
+        return entryName.trim() !== '' && 
+               amount.trim() !== '' && 
+               !isNaN(parseFloat(amount)) &&
+               date instanceof Date && !isNaN(date);
     };
 
     const handleClose = () => {
@@ -57,21 +58,23 @@ export const EditEntryForm = ({ visible, entry, onUpdate, onDelete, onClose, onR
         );
     }
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         if (!isFormValid()) {
             Alert.alert('Incomplete Form', 'Please fill out all fields correctly.');
             return;
         }
 
-        try{
-            onUpdate({
+        try {
+            const updatedEntry = {
                 id: entry.id,
-                name: entryName,
+                name: entryName.trim(),
                 amount: parseFloat(amount),
                 date: date,
-            });
+                category_id: entry.category_id // Preserve the category
+            };
 
-            // If successful, show success message
+            await onUpdate(updatedEntry);
+
             Alert.alert('Entry Updated', 'The entry has been successfully updated.',
                 [
                     {
@@ -88,7 +91,6 @@ export const EditEntryForm = ({ visible, entry, onUpdate, onDelete, onClose, onR
         } catch (error) {
             console.error('Error updating entry: ', error);
             Alert.alert('Error Updating Entry', 'An error occurred while updating the entry. Please try again.');
-            return;
         }
     };
 
@@ -224,6 +226,7 @@ const styles = StyleSheet.create({
     container: {
         width: '95%',
         marginTop: 16,
+        alignSelf: 'center',
     },
     section: {
         marginBottom: 16,

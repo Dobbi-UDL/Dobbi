@@ -14,28 +14,35 @@ export const CategoryHeader = ({
     handleNumberClick,
     handleEdit,
     handleAddEntry
-}) => (
-    <View>
-        <TouchableOpacity
-            style={styles.categoryHeader}
-            onPress={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-        >
-            <View style={styles.categoryIcon}>
-                <Ionicons name={category.icon} size={22} color="#EE6567" />
-            </View>
-            <Text style={styles.categoryName}>{category.name}</Text>
-            <TouchableOpacity onPress={() => handleNumberClick(category.total)}>
-                <View style={styles.categoryAmount}>
-                    <Text style={styles.amountText}>${truncateNumber(category.total)}</Text>
+}) => {
+    // Filter out invalid entries
+    const validEntries = category.entries.filter(entry => 
+        entry && entry.id && entry.amount !== null && entry.name
+    );
+
+    return (
+        <View>
+            <TouchableOpacity
+                style={styles.categoryHeader}
+                onPress={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+            >
+                <View style={styles.categoryIcon}>
+                    <Ionicons name={category.icon} size={22} color="#EE6567" />
                 </View>
+                <Text style={styles.categoryName}>{category.name}</Text>
+                <TouchableOpacity onPress={() => handleNumberClick(category.total)}>
+                    <View style={styles.categoryAmount}>
+                        <Text style={styles.amountText}>${truncateNumber(category.total)}</Text>
+                    </View>
+                </TouchableOpacity>
             </TouchableOpacity>
-        </TouchableOpacity>
-        {expandedCategory === category.id && <ListViewEntries 
-            entries={category.entries}
-            handleNumberClick={handleNumberClick}
-            handleEdit={handleEdit}
-            handleAddEntry={() => handleAddEntry(category.id)}
-        />}
-    </View>
-);
+            {expandedCategory === category.id && <ListViewEntries 
+                entries={validEntries}
+                handleNumberClick={handleNumberClick}
+                handleEdit={handleEdit}
+                handleAddEntry={() => handleAddEntry(category.id)}
+            />}
+        </View>
+    );
+};
 

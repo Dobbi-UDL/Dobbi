@@ -21,8 +21,8 @@ export const ListViewEntries = ({
                     onPress={() => handleEdit(entry)}
                 >
                     <Text style={styles.entryName}>{entry.name}</Text>
-                    <TouchableOpacity onPress={() => handleNumberClick(entry.amount)}>
-                        <Text style={styles.entryAmount}>${truncateNumber(entry.amount)}</Text>
+                    <TouchableOpacity onPress={() => handleNumberClick(entry.amount || 0)}>
+                        <Text style={styles.entryAmount}>${truncateNumber(entry.amount || 0)}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
             ))}

@@ -243,6 +243,7 @@ const styles = StyleSheet.create({
     container: {
         width: '95%',
         marginTop: 16,
+        alignSelf: 'center',
     },
     section: {
         marginBottom: 16,

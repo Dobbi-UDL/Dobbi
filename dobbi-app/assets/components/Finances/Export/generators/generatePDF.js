@@ -31,7 +31,26 @@ export const generatePDF = async (data) => {
 
         const formatCurrency = (amount) => {
             if (amount === undefined || amount === null) return '$0.00';
-            return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+            
+            const absAmount = Math.abs(amount);
+            let formattedAmount;
+            
+            if (absAmount >= 1000000000) {
+                formattedAmount = `$${(amount / 1000000000).toFixed(2)}B`;
+            } else if (absAmount >= 1000000) {
+                formattedAmount = `$${(amount / 1000000).toFixed(2)}M`;
+            } else if (absAmount >= 100000) {
+                formattedAmount = `$${(amount / 1000).toFixed(1)}K`;
+            } else {
+                formattedAmount = amount.toLocaleString('en-US', { 
+                    style: 'currency', 
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 
+                });
+            }
+            
+            return formattedAmount;
         };
 
         // Calculate spending change percentage with better explanation
@@ -1097,11 +1116,11 @@ export const generatePDF = async (data) => {
                             <table class="monthly-table">
                                 <thead>
                                     <tr>
-                                        <th style="text-align: left; width: 28%;">Category</th>
-                                        <th style="width: 18%;">Current</th>
-                                        <th style="width: 18%;">Previous</th>
-                                        <th style="width: 18%;">Change</th>
-                                        <th style="width: 18%;">Percentage</th>
+                                        <th style="text-align: left; width: 25%;">Category</th>
+                                        <th style="width: 19%;">Current</th>
+                                        <th style="width: 19%;">Previous</th>
+                                        <th style="width: 20.5%;">Change</th>
+                                        <th style="width: 16.5%;">Percentage</th>
                                     </tr>
                                 </thead>
                                 <tbody>
