@@ -14,6 +14,7 @@ import { formatCurrency } from '../../../../utils/numberHelpers';
 import { AddEntryForm } from './AddEntryForm';
 import { EditEntryForm } from './EditEntryForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MonthSelector } from './MonthSelector';
 
 export default function FinancialDetails() {
     const router = useRouter();
@@ -451,6 +452,11 @@ export default function FinancialDetails() {
         }
     };
 
+    const handleMonthChange = (date) => {
+        // To be implemented: Update data based on selected month
+        console.log('Month changed:', date);
+    };
+
     return (
         <View style={styles.container}>
             {showSnoozeSuccess && (
@@ -474,39 +480,20 @@ export default function FinancialDetails() {
                 </TouchableOpacity>
             )}
 
+            <MonthSelector 
+                onMonthChange={handleMonthChange}
+                onStatsPress={handleStats}
+                issuesCount={dataErrors.length}
+                onIssuesPress={handleReportIssue}
+                isSnoozed={!!snoozedUntil}
+            />
+
             <ScrollView
                 style={styles.scrollView}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
-                <View style={styles.header}>
-                    <Text style={styles.headerTitle}>{i18n.t("financialDetails")}</Text>
-                    <View style={styles.headerButtons}>
-                        {dataErrors.length > 0 && (
-                            <TouchableOpacity 
-                                onPress={handleReportIssue} 
-                                style={styles.issuesButton}
-                            >
-                                <Ionicons 
-                                    name="alert-circle-outline" 
-                                    size={24} 
-                                    color={snoozedUntil ? "#666" : "#CC0000"} 
-                                />
-                                <View style={[
-                                    styles.badge,
-                                    snoozedUntil && styles.badgeSnoozed
-                                ]}>
-                                    <Text style={styles.badgeText}>{dataErrors.length}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                        <TouchableOpacity onPress={handleStats} style={styles.statsButton}>
-                            <Ionicons name="stats-chart" size={24} color="#4A90E2" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
                 {['income', 'expenses'].map((type) => (
                     <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
                         {financialData[type].map((category) => (

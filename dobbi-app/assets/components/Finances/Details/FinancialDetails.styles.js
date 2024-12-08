@@ -4,28 +4,13 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF5F5',
-
   },
   scrollView: {
+    flex: 1,
     padding: 16,
   },
   footer: {
     height: 100,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  statsButton: {
-    padding: 8,
-    borderRadius: 8,
   },
   section: {
     marginBottom: 24,
@@ -77,7 +62,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
-
   },
   entryName: {
     fontSize: 16,
@@ -159,8 +143,8 @@ export const styles = StyleSheet.create({
     right: 10,
   },
   editInput: {
-    fontSize: 18,          // Increased font size
-    height: 50,            // Increased height
+    fontSize: 18, // Increased font size
+    height: 50, // Increased height
     borderColor: '#CCCCCC',
     borderWidth: 1,
     borderRadius: 8,
@@ -173,7 +157,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8
+    gap: 8,
   },
   errorText: {
     color: '#CC0000',
@@ -192,8 +176,7 @@ export const styles = StyleSheet.create({
   errorEntriesList: {
     marginVertical: 20,
   },
-  errorEntry: {
-  },
+  errorEntry: {},
   errorMainInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -398,17 +381,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8
+    gap: 8,
   },
   snoozedText: {
     color: '#666',
     fontSize: 14,
     flex: 1,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
   },
   issuesButton: {
     padding: 8,
