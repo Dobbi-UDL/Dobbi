@@ -128,4 +128,15 @@ export const styles = StyleSheet.create({
         color: '#ff6b6b',
         fontSize: 14,
     },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+
+    },
+    leftSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        gap: 14,
+    },
 });

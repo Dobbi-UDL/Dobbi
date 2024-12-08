@@ -6,6 +6,7 @@ import { styles } from './Header.styles.js';
 import { ProfileSection } from './ProfileSection';
 import { Ionicons } from '@expo/vector-icons';
 import { useHeader } from '../../../contexts/HeaderContext';
+import { useRouter, usePathname } from 'expo-router';
 
 // Add this constant at the top of the file, outside the component
 const SKIP_BRAND_ANIMATION = false; // Set to true to always show brand name
@@ -21,6 +22,8 @@ const Header = ({ title }) => {
     const fadeAnim = useState(new Animated.Value(1))[0];
     const titleOpacity = useState(new Animated.Value(0))[0];
     const brandOpacity = useState(new Animated.Value(1))[0];
+    const router = useRouter();
+    const currentPath = usePathname();
 
     useEffect(() => {
         if (SKIP_BRAND_ANIMATION) {
@@ -91,28 +94,49 @@ const Header = ({ title }) => {
         ]).start(() => setIsSettingsOpen(false));
     }
 
+    const renderLeftSection = () => {
+        const backButtonRoutes = ['/stats'];
+        const showBackButton = backButtonRoutes.includes(currentPath);
+        
+        return (
+            <View style={styles.leftSection}>
+                {showBackButton && (
+                    <TouchableOpacity 
+                        style={styles.backButton} 
+                        onPress={() => router.back()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#EE6567" />
+                    </TouchableOpacity>
+                )}
+                {!showBackButton && (
+                    <TouchableOpacity onPress={handleLogoPress}>
+                        <Image
+                            source={require('../../images/dobbi-heart.png')}
+                            style={styles.logo}
+                        />
+                    </TouchableOpacity>
+                )}
+                <View style={styles.brandContainer}>
+                    <Animated.View style={{ opacity: brandOpacity }}>
+                        <Image
+                            source={require('../../images/dobbi-brand.png')}
+                            style={styles.brandImage}
+                        />
+                    </Animated.View>
+                    {title && (
+                        <Animated.View style={{ opacity: titleOpacity, position: 'absolute', top: 0, left: 0 }}>
+                            <Text style={styles.brandName}>{title}</Text>
+                        </Animated.View>
+                    )}
+                </View>
+            </View>
+        );
+    };
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.logoContainer} onPress={handleLogoPress}>
-                    <Image
-                        source={require('../../images/dobbi-heart.png')}
-                        style={styles.logo}
-                    />
-                    <View style={styles.brandContainer}>
-                        <Animated.View style={{ opacity: brandOpacity }}>
-                            <Image
-                                source={require('../../images/dobbi-brand.png')}
-                                style={styles.brandImage}
-                            />
-                        </Animated.View>
-                        {title && (
-                            <Animated.View style={{ opacity: titleOpacity, position: 'absolute', top: 0, left: 0 }}>
-                                <Text style={styles.brandName}>{title}</Text>
-                            </Animated.View>
-                        )}
-                    </View>
-                </TouchableOpacity>
+                {renderLeftSection()}
                 <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
                     <Ionicons name="menu" size={24} color="#EE6567" />
                 </TouchableOpacity>

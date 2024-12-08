@@ -21,6 +21,12 @@ export const BottomNavBar = () => {
     { name: "ChatBot", icon: "chatbox-ellipses", route: "/assistant" },
   ];
 
+  const hiddenRoutes = ['/stats'];
+
+  if (hiddenRoutes.includes(currentPath)) {
+    return null;
+  }
+
   const handleNavigation = (route) => {
     if (currentPath !== route) {
       router.push(route);
