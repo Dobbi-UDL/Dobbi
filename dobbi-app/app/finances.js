@@ -9,15 +9,11 @@ import { useLanguage } from '@languagecontext';
 
 const Finances = () => {
     const { locale } = useLanguage();
-    const tabs = [i18n.t('overview'), i18n.t('details')];
 
     return (
         <>
         <Header />
-        <TabView tabs={tabs}>
-            <FinancesOverview />
-            <FinancialDetails />
-        </TabView>
+        <FinancialDetails />
         <BottomNavBar />
         </>
     );
