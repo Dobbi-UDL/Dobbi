@@ -96,7 +96,7 @@ const ChallengesScreen = () => {
 
   return (
     <>
-      <Header />
+      <Header title="Saving Goals" />
       <View style={[styles.container, styles.flexContainer]}>
         <TabBar
           tabs={tabs}

@@ -12,7 +12,7 @@ const Finances = () => {
 
     return (
         <>
-        <Header />
+        <Header title='Finances' />
         <FinancialDetails />
         <BottomNavBar />
         </>

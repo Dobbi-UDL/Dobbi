@@ -32,7 +32,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Header />
+      <Header title="Home" />
       <View style={styles.container}>
         <FlatList
           style={styles.contentContainer}

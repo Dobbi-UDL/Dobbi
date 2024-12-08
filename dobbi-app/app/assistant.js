@@ -246,7 +246,7 @@ const ChatbotScreen = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <Header />
+        <Header title="Chatbot" />
 
         {/* Chat History Modal */}
         {showHistory && (
