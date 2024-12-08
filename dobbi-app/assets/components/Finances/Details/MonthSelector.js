@@ -30,23 +30,21 @@ export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssu
         <View style={styles.container}>
             {/* Left side */}
             <View style={styles.sideContainer}>
-                {issuesCount > 0 ? (
-                    <TouchableOpacity
-                        style={styles.iconButton}
-                        onPress={onIssuesPress}
-                    >
-                        <Ionicons
-                            name="alert-circle-outline"
-                            size={24}
-                            color={isSnoozed ? "#666" : "#CC0000"}
-                        />
+                <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={issuesCount ? onIssuesPress : undefined}
+                >
+                    <Ionicons
+                        name="alert-circle-outline"
+                        size={24}
+                        color={issuesCount ? (isSnoozed ? "#E9B4B5" : "#CC0000") : "#E9B4B5"}
+                    />
+                    {issuesCount > 0 && (
                         <View style={[styles.badge, isSnoozed && styles.badgeSnoozed]}>
                             <Text style={styles.badgeText}>{issuesCount}</Text>
                         </View>
-                    </TouchableOpacity>
-                ) : (
-                    <View style={styles.placeholder} />
-                )}
+                    )}
+                </TouchableOpacity>
             </View>
 
             {/* Center - Month Controls */}
@@ -164,7 +162,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     badgeSnoozed: {
-        backgroundColor: '#666',
+        backgroundColor: '#E9B4B5',
+    },
+    iconButtonHidden: {
+        opacity: 0.3,  // Makes the button visible but subtle when there are no issues
     },
 });
 
