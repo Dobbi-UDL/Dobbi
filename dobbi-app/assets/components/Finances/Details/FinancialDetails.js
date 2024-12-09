@@ -166,8 +166,13 @@ export default function FinancialDetails() {
         setAddEntryModalVisible(true);
     };
 
-    const handleFloatingButtonPress = () => {
-        setPreselectedCategory(null);
+    // Update the handleFloatingButtonPress function
+    const handleFloatingButtonPress = (preselectedType) => {
+        // Convert 'expenses' to 'expense' for consistency
+        const type = preselectedType === 'expenses' ? 'expense' : preselectedType;
+        setPreselectedCategory({
+            type: type || 'expense'
+        });
         setAddEntryModalVisible(true);
     };
 
@@ -464,6 +469,25 @@ export default function FinancialDetails() {
         // loadFinancialData will be triggered by the useEffect
     };
 
+    const EmptyTypeState = ({ type, onAdd }) => (
+        <View style={styles.emptyStateContainer}>
+            <Ionicons 
+                name={type === 'income' ? 'wallet-outline' : 'cart-outline'} 
+                size={24} 
+                color="#CCCCCC"
+                style={styles.emptyStateIcon}
+            />
+            <Text style={styles.emptyStateText}>
+                {i18n.t(`no${type}Categories`)}
+            </Text>
+            <Button
+                title="Add"
+                onPress={() => onAdd(type)}
+                style={styles.emptyStateButton}
+            />
+        </View>
+    );
+
     return (
         <View style={styles.container}>
             {showSnoozeSuccess && (
@@ -509,17 +533,23 @@ export default function FinancialDetails() {
                 >
                     {['income', 'expenses'].map((type) => (
                         <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
-                            {financialData[type].map((category) => (
-                                <CategoryHeader
-                                    key={category.id}
-                                    category={category}
-                                    expandedCategory={expandedCategory}
-                                    setExpandedCategory={setExpandedCategory}
-                                    
-                                    handleEdit={handleEdit}
-                                    handleAddEntry={handleAddEntry}
+                            {financialData[type].length > 0 ? (
+                                financialData[type].map((category) => (
+                                    <CategoryHeader
+                                        key={category.id}
+                                        category={category}
+                                        expandedCategory={expandedCategory}
+                                        setExpandedCategory={setExpandedCategory}
+                                        handleEdit={handleEdit}
+                                        handleAddEntry={handleAddEntry}
+                                    />
+                                ))
+                            ) : (
+                                <EmptyTypeState 
+                                    type={type} 
+                                    onAdd={() => handleFloatingButtonPress(type)}
                                 />
-                            ))}
+                            )}
                         </Card>
                     ))}
                     <View style={styles.footer} />
@@ -528,7 +558,7 @@ export default function FinancialDetails() {
 
             <TouchableOpacity
                 style={styles.floatingButton}
-                onPress={handleFloatingButtonPress}
+                onPress={() => handleFloatingButtonPress()}
                 accessibilityLabel={i18n.t("addNewEntry")}
             >
                 <Ionicons name="add" size={24} color="#FFFFFF" />

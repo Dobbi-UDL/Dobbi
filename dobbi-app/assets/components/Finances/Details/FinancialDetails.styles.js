@@ -433,4 +433,33 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emptyStateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginVertical: 4,
+  },
+  emptyStateIcon: {
+    marginRight: 12,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#666666',
+    flex: 1,
+  },
+  emptyEntriesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    borderRadius: 8,
+    margin: 8,
+  },
+  emptyEntriesText: {
+    fontSize: 14,
+    color: '#666666',
+    flex: 1,
+  },
 });

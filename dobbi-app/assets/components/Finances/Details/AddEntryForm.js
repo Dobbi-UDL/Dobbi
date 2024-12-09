@@ -7,8 +7,8 @@ import { Button } from '../../common/Button';
 import { Ionicons } from '@expo/vector-icons';
 
 export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, preselectedCategory, onRefresh }) => {
-    const [entryType, setEntryType] = useState(preselectedCategory ? preselectedCategory.type : 'expense');
-    const [categoryId, setCategoryId] = useState(preselectedCategory ? preselectedCategory.id : '');
+    const [entryType, setEntryType] = useState('expense'); // Default to expense
+    const [categoryId, setCategoryId] = useState('0');
     const [entryName, setEntryName] = useState('');
     const [amount, setAmount] = useState('');
     const [date, setDate] = useState(new Date());
@@ -16,14 +16,19 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
-        if (preselectedCategory) {
-            setEntryType(preselectedCategory.type);
-            setCategoryId(preselectedCategory.id);
-        } else {
-            setEntryType('expense');
-            setCategoryId('');
+        if (visible) {  // Only reset when modal becomes visible
+            if (preselectedCategory && preselectedCategory.type) {
+                setEntryType(preselectedCategory.type);
+                setCategoryId(preselectedCategory.id || '0');
+            } else {
+                setEntryType('expense');
+                setCategoryId('0');
+            }
+            // Reset other form fields
+            setEntryName('');
+            setAmount('');
+            setDate(new Date());
         }
-        console.log('preselectedCategory', preselectedCategory);
     }, [preselectedCategory, visible]);
 
     // Filter categories based on entry type
@@ -86,7 +91,7 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
 
     const resetForm = () => {
         setEntryType('expense');
-        setCategoryId('');
+        setCategoryId('0');
         setEntryName('');
         setAmount('');
         setDate(new Date());
@@ -125,7 +130,11 @@ export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, p
                                 styles.segmentedButton,
                                 entryType === 'expense' && styles.segmentedButtonActive
                             ]}
-                            onPress={() => setEntryType('expense')}
+                            onPress={() => {
+                                setEntryType('expense');
+                                setCategoryId('0');
+                                setSelectedCategory(null);
+                            }}
                         >
                             <Text style={[
                                 styles.segmentedButtonText,
