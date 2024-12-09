@@ -428,4 +428,9 @@ export const styles = StyleSheet.create({
     color: '#4CAF50',
     fontWeight: '500',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

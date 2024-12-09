@@ -14,12 +14,23 @@ export const fetchCategories = async () => {
     }
 };
 
-export const fetchEntries = async (userId) => {
+export const fetchEntries = async (userId, date = new Date()) => {
     try {
+        // Get first and last day of the month
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        
+        // Format dates to match your database format (assuming ISO string)
+        const startDate = startOfMonth.toISOString();
+        const endDate = endOfMonth.toISOString();
+
         const { data, error } = await supabase
             .from('financial_entries')
             .select('id, name, amount, date, category_id')
-            .eq('user_id', userId);
+            .eq('user_id', userId)
+            .gte('date', startDate)
+            .lte('date', endDate)
+            .order('date', { ascending: false });
 
         if (error) throw error;
         return data;

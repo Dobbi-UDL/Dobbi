@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssuesPress, isSnoozed }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
+export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssuesPress, isSnoozed, selectedDate }) => {
+    const [currentDate, setCurrentDate] = useState(selectedDate || new Date());
+
+    // Update when selectedDate prop changes
+    useEffect(() => {
+        if (selectedDate && selectedDate.getTime() !== currentDate.getTime()) {
+            setCurrentDate(selectedDate);
+        }
+    }, [selectedDate]);
 
     const formatMonth = (date: Date) => {
         return date.toLocaleString('default', { month: 'long', year: 'numeric' });
     };
 
     const handlePrevMonth = () => {
-        const newDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         setCurrentDate(newDate);
         onMonthChange?.(newDate);
     };
 
     const handleNextMonth = () => {
-        const newDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
+        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
         setCurrentDate(newDate);
         onMonthChange?.(newDate);
     };

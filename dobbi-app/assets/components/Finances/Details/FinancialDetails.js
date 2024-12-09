@@ -20,6 +20,7 @@ export default function FinancialDetails() {
     const router = useRouter();
     const { user } = useAuth();
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [categories, setCategories] = useState([]);
     const [financialData, setFinancialData] = useState({ income: [], expenses: [] });
 
@@ -79,27 +80,33 @@ export default function FinancialDetails() {
     useEffect(() => {
         if (!user) {
             router.push('/login');
+            return;
         }
-        
-        loadFinancialData(); 
-        
-    }, [user]);
+        loadFinancialData();
+    }, [user, selectedDate]); 
 
     const loadFinancialData = async () => {
         try{
+            setLoading(true); // Show loading state while fetching
             let fetchedCategories = categories;
             if(categories.length === 0) {
                 fetchedCategories = await fetchCategories();
                 setCategories(fetchedCategories);
             }
 
-            const entries = await fetchEntries(user.id);
+            const entries = await fetchEntries(user.id, selectedDate);
             const { expenseCategories, incomeCategories } = sortEntriesIntoCategories(fetchedCategories, entries);
 
             setFinancialData({ income: incomeCategories, expenses: expenseCategories });
-            setLoading(false);
         } catch (error) {
             console.error("Error loading financial data: ", error);
+            Alert.alert(
+                "Error",
+                "Failed to load financial data. Please try again.",
+                [{ text: "OK" }]
+            );
+        } finally {
+            console.log('Finished loading financial data');
             setLoading(false);
         }   
     };
@@ -453,8 +460,9 @@ export default function FinancialDetails() {
     };
 
     const handleMonthChange = (date) => {
-        // To be implemented: Update data based on selected month
-        console.log('Month changed:', date);
+        console.log('Month changed to:', date);
+        setSelectedDate(date);
+        // loadFinancialData will be triggered by the useEffect
     };
 
     return (
@@ -486,31 +494,38 @@ export default function FinancialDetails() {
                 issuesCount={dataErrors.length}
                 onIssuesPress={handleReportIssue}
                 isSnoozed={!!snoozedUntil}
+                selectedDate={selectedDate}
             />
 
-            <ScrollView
-                style={styles.scrollView}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
-                {['income', 'expenses'].map((type) => (
-                    <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
-                        {financialData[type].map((category) => (
-                            <CategoryHeader
-                                key={category.id}
-                                category={category}
-                                expandedCategory={expandedCategory}
-                                setExpandedCategory={setExpandedCategory}
-                                
-                                handleEdit={handleEdit}
-                                handleAddEntry={handleAddEntry}
-                            />
-                        ))}
-                    </Card>
-                ))}
-                <View style={styles.footer} />
-            </ScrollView>
+            {loading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#EE6567" />
+                </View>
+            ) : (
+                <ScrollView
+                    style={styles.scrollView}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                >
+                    {['income', 'expenses'].map((type) => (
+                        <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
+                            {financialData[type].map((category) => (
+                                <CategoryHeader
+                                    key={category.id}
+                                    category={category}
+                                    expandedCategory={expandedCategory}
+                                    setExpandedCategory={setExpandedCategory}
+                                    
+                                    handleEdit={handleEdit}
+                                    handleAddEntry={handleAddEntry}
+                                />
+                            ))}
+                        </Card>
+                    ))}
+                    <View style={styles.footer} />
+                </ScrollView>
+            )}
 
             <TouchableOpacity
                 style={styles.floatingButton}
