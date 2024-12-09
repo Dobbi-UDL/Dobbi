@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MonthYearPickerModal } from './MonthYearPickerModal';
 
 export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssuesPress, isSnoozed, selectedDate }) => {
     const [currentDate, setCurrentDate] = useState(selectedDate || new Date());
+    const [showPicker, setShowPicker] = useState(false);
 
     // Update when selectedDate prop changes
     useEffect(() => {
@@ -12,7 +14,7 @@ export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssu
         }
     }, [selectedDate]);
 
-    const formatMonth = (date: Date) => {
+    const formatMonth = (date) => {
         return date.toLocaleString('default', { month: 'long', year: 'numeric' });
     };
 
@@ -29,8 +31,12 @@ export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssu
     };
 
     const handleMonthPress = () => {
-        // Placeholder for future month picker functionality
-        console.log('Month picker to be implemented');
+        setShowPicker(true);
+    };
+
+    const handleDateSelected = (date) => {
+        setCurrentDate(date);
+        onMonthChange?.(date);
     };
 
     return (
@@ -87,6 +93,13 @@ export const MonthSelector = ({ onMonthChange, onStatsPress, issuesCount, onIssu
                     <Ionicons name="stats-chart" size={24} color="#f66c72" />
                 </TouchableOpacity>
             </View>
+
+            <MonthYearPickerModal
+                visible={showPicker}
+                onClose={() => setShowPicker(false)}
+                onSelect={handleDateSelected}
+                initialDate={currentDate}
+            />
         </View>
     );
 };

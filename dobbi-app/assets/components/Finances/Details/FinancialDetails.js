@@ -10,7 +10,6 @@ import { styles } from './FinancialDetails.styles';
 import i18n from '../../../../i18n';
 import { fetchCategories, fetchEntries, addEntry, editEntry, deleteEntry } from '../../../../services/financesService';
 import { CategoryHeader } from './CategoryHeader';
-import { formatCurrency } from '../../../../utils/numberHelpers';
 import { AddEntryForm } from './AddEntryForm';
 import { EditEntryForm } from './EditEntryForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
