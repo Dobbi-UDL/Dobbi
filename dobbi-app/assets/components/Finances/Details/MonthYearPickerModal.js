@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
         height: ITEM_HEIGHT * VISIBLE_ITEMS,
         backgroundColor: 'white',
         position: 'relative',
+        marginBottom: -20,
     },
     selectionBand: {
         position: 'absolute',
