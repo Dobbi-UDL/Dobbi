@@ -44,7 +44,7 @@ const ActionPanel = ({ isVisible, isUser, onCopy, onShare, onReport, onDelete })
   );
 };
 
-const ChatBubble = ({ text, isUser, onPress, isSelected, messageId }) => {
+const ChatBubble = ({ text, isUser, onPress, isSelected, messageId, disabled }) => {
   const [localSelected, setLocalSelected] = useState(false);
 
   useEffect(() => {
@@ -76,9 +76,14 @@ const ChatBubble = ({ text, isUser, onPress, isSelected, messageId }) => {
         onLongPress={handleLongPress}
         onPress={handlePress}
         delayLongPress={200}
-        activeOpacity={0.9}
-        style={styles.touchableWrapper}
+        activeOpacity={disabled ? 1 : 0.9}  
+        style={[
+          styles.touchableWrapper,
+          disabled && styles.disabledWrapper,
+          { pointerEvents: disabled ? 'none' : 'auto' }  // Completely disable touch events
+        ]}
         delayPressOut={0}
+        disabled={disabled}  // Disable touch during transitions
       >
         {isSelected && <View style={styles.fullWidthOverlay} />}
         <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
@@ -111,7 +116,7 @@ const ChatBubble = ({ text, isUser, onPress, isSelected, messageId }) => {
           </View>
         </View>
       </TouchableOpacity>
-      {localSelected && (
+      {localSelected && !disabled && (  // Don't show action panel when disabled
         <ActionPanel 
           isVisible={localSelected}
           isUser={isUser}
@@ -252,6 +257,11 @@ const styles = StyleSheet.create({
   bubbleContainer: {
     width: '100%',
     position: 'relative',
+  },
+  disabledWrapper: {
+    opacity: 1,  // Ensure full opacity when disabled
+    transform: [{ scale: 1 }],  // Prevent any transform effects
+    backgroundColor: 'transparent',  // Prevent any background color changes
   },
 });
 

@@ -11,6 +11,7 @@ import {
   Animated,
   ScrollView,
   TouchableWithoutFeedback,
+  Alert,  // Add Alert to imports
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import "react-native-get-random-values";
@@ -32,6 +33,8 @@ const ChatbotScreen = () => {
   const [chatList, setChatList] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [fadeAnim] = useState(new Animated.Value(1)); // Add this state for fade animation
+  const [isTransitioning, setIsTransitioning] = useState(false);  // Add this state
 
   useEffect(() => {
     const initializeNewChat = async () => {
@@ -115,24 +118,47 @@ const ChatbotScreen = () => {
     }
   };
 
-  const deleteChat = async (chatId) => {
+  const performDeleteChat = async (chatId) => {
     try {
       await AsyncStorage.removeItem(`chat_${chatId}`);
       setChatList((prev) => prev.filter((chat) => chat.id !== chatId));
 
-      // If current chat was deleted, load the most recent chat
+      // If deleting current chat, create a new one with fade transition
       if (chatId === conversationId) {
+        fadeToNewChat();
+      } else {
+        // If there are no chats left after deletion, create a new one
         const remainingChats = chatList.filter((chat) => chat.id !== chatId);
-        if (remainingChats.length > 0) {
-          await loadChat(remainingChats[0].id);
-        } else {
-          setMessages([]);
-          setConversationId("");
+        if (remainingChats.length === 0) {
+          fadeToNewChat();
         }
       }
     } catch (error) {
       console.error("Error deleting chat:", error);
     }
+  };
+
+  const deleteChat = async (chatId) => {
+    const isCurrentChat = chatId === conversationId;
+    Alert.alert(
+      "Delete Chat",
+      isCurrentChat 
+        ? "Are you sure you want to delete this chat?" 
+        : "Are you sure you want to delete this chat from history?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await performDeleteChat(chatId);
+          }
+        }
+      ]
+    );
   };
 
   // Update loadChat function
@@ -206,6 +232,7 @@ const ChatbotScreen = () => {
   }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (messageId) => {
+    if (isTransitioning) return;  // Ignore touches during transition
     setSelectedMessage(currentSelected => 
       currentSelected === messageId ? null : messageId
     );
@@ -219,9 +246,10 @@ const ChatbotScreen = () => {
         onPress={handleBubblePress}
         isSelected={selectedMessage === item.id}  // Compare by id instead of text
         messageId={item.id}  // Pass the id to ChatBubble
+        disabled={isTransitioning}  // Pass disabled state to ChatBubble
       />
     ),
-    [selectedMessage]
+    [selectedMessage, isTransitioning]  // Add isTransitioning to dependencies
   );
 
   // Update keyExtractor to use message ID
@@ -242,6 +270,7 @@ const ChatbotScreen = () => {
 
   const handleNewChatPress = useCallback(async () => {
     try {
+      console.log('Creating new chat...');
       const newChatId = uuidv4();
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
@@ -262,6 +291,38 @@ const ChatbotScreen = () => {
       console.error("Error creating new chat:", error);
     }
   }, [menuAnimation]);
+
+  const fadeToNewChat = async () => {
+    // Start transition state immediately
+    setIsTransitioning(true);
+    setSelectedMessage(null);
+    
+    // Clear current messages
+    setMessages([]);
+
+   // wait 1s for nothing
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Set new messages while invisible
+    const newChatId = uuidv4();
+    await chatStorageService.setCurrentChat(newChatId);
+    setConversationId(newChatId);
+    setMessages([WELCOME_MESSAGE]);
+    setSelectedMessage(null);
+
+    
+
+    // Keep transition state active until animation is completely done
+    await new Promise(resolve => setTimeout(resolve, fadeInDuration));
+    setIsTransitioning(false);
+  };
+
+  const handleDeleteCurrentChat = useCallback(async () => {
+    deleteChat(conversationId); // Now using the shared deleteChat function
+  }, [conversationId]);
+
+  // Calculate if chat is deletable (has user messages)
+  const canDeleteChat = messages.some(message => message.isUser);
 
   return (
     <>
@@ -319,14 +380,16 @@ const ChatbotScreen = () => {
           </View>
         )}
 
-        <FlatList
-          style={styles.chatContainer}
-          data={messages}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          inverted
-          showsVerticalScrollIndicator={false}
-        />
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <FlatList
+            style={styles.chatContainer}
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            inverted
+            showsVerticalScrollIndicator={false}
+          />
+        </Animated.View>
         <ChatInput 
           inputText={inputText}
           setInputText={setInputText}
@@ -336,6 +399,8 @@ const ChatbotScreen = () => {
           menuAnimation={menuAnimation}
           onHistoryPress={handleHistoryPress}
           onNewChatPress={handleNewChatPress}
+          onDeleteChat={handleDeleteCurrentChat}
+          canDelete={canDeleteChat}
         />
       </KeyboardAvoidingView>
       <BottomNavBar />

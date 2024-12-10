@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-const FloatingMenu = ({ isOpen, animation, onHistoryPress, onNewChatPress }) => {
+const FloatingMenu = ({ isOpen, animation, onHistoryPress, onNewChatPress, onDeleteChat, canDelete }) => {
   const translateY = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [48, -160], // First value (48) is menu button height, -64 is -(112 - 48)
+    outputRange: [48, -160], 
   });
 
   const handlePress = (handler) => () => {
@@ -20,6 +20,16 @@ const FloatingMenu = ({ isOpen, animation, onHistoryPress, onNewChatPress }) => 
         styles.menuItems,
         { transform: [{ translateY }] }
       ]}>
+        {canDelete && (
+          <TouchableOpacity 
+            style={styles.menuButton} 
+            onPress={handlePress(onDeleteChat)}
+          >
+            <View style={styles.buttonContent}>
+              <MaterialIcons name="delete" size={24} color="#E57373" />
+            </View>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity 
           style={styles.menuButton} 
           onPress={handlePress(onHistoryPress)}

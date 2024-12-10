@@ -11,7 +11,9 @@ const ChatInput = ({
   isMenuOpen, 
   menuAnimation,
   onHistoryPress,
-  onNewChatPress 
+  onNewChatPress,
+  onDeleteChat,
+  canDelete
 }) => {
   return (
     <View style={styles.inputContainer}>
@@ -24,12 +26,17 @@ const ChatInput = ({
           placeholderTextColor="#B4B4B4"
           multiline
           maxHeight={100}
+          onFocus={() => isMenuOpen && onMenuPress()} // Close menu when typing starts
         />
       </View>
       {inputText.trim() !== "" ? (
         <TouchableOpacity 
           style={styles.sendButton}
-          onPress={onSend}
+          onPress={() => {
+            onSend();
+              // Ensure menu closes after sending
+            if (isMenuOpen) onMenuPress();
+          }}
           activeOpacity={0.7}
         >
           <View>
@@ -51,12 +58,16 @@ const ChatInput = ({
               />
             </View>
           </TouchableOpacity>
-          <FloatingMenu 
-            isOpen={isMenuOpen} 
-            animation={menuAnimation} 
-            onHistoryPress={onHistoryPress}
-            onNewChatPress={onNewChatPress}
-          />
+          {isMenuOpen && (
+            <FloatingMenu 
+              isOpen={isMenuOpen}
+              animation={menuAnimation} 
+              onHistoryPress={onHistoryPress}
+              onNewChatPress={onNewChatPress}
+              onDeleteChat={onDeleteChat}
+              canDelete={canDelete}
+            />
+          )}
         </>
       )}
     </View>
