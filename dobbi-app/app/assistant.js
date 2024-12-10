@@ -281,12 +281,21 @@ const ChatbotScreen = () => {
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
       setMessages([WELCOME_MESSAGE]);
-      toggleMenu();
-      // Don't save the chat until user sends first message
+      
+      // Animate menu closing first
+      Animated.spring(menuAnimation, {
+        toValue: 0,
+        friction: 8, // Increased from 5
+        tension: 45, // Added tension for smoother movement
+        useNativeDriver: true,
+      }).start(() => {
+        // Only close menu after animation completes
+        setIsMenuOpen(false);
+      });
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
-  }, []);
+  }, [menuAnimation]);
 
   return (
     <>
