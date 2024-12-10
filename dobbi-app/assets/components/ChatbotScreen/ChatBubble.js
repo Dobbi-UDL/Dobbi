@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+import Markdown from 'react-native-markdown-display';
 
 // Helper function to get initials from the username
 const getInitials = (name) => {
@@ -32,9 +33,16 @@ const ChatBubble = ({ text, isUser, username }) => {
           isUser ? styles.userBubble : styles.botBubble,
         ]}
       >
-        <Text style={[styles.text, isUser ? styles.userText : styles.botText]}>
+        <Markdown 
+          style={{
+            body: [styles.text, isUser ? styles.userText : styles.botText],
+            strong: styles.boldText,
+            link: styles.linkText,
+            bullet_list: styles.bulletList,
+          }}
+        >
           {text}
-        </Text>
+        </Markdown>
       </View>
 
       {isUser && (
@@ -107,6 +115,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: 8,
     borderColor: "#FF6B6B",
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  linkText: {
+    color: '#FF6B6B',
+    textDecorationLine: 'underline',
+  },
+  bulletList: {
+    marginLeft: 10,
   },
 });
 
