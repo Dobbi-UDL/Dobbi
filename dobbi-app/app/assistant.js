@@ -180,6 +180,7 @@ const ChatbotScreen = () => {
         }));
         setMessages(messagesWithIds);
         setConversationId(chatId);
+        setSelectedMessage(null); // Reset selected message
       }
       setShowHistory(false);
       toggleMenu();
@@ -281,6 +282,7 @@ const ChatbotScreen = () => {
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
       setMessages([WELCOME_MESSAGE]);
+      setSelectedMessage(null); // Reset selected message
       
       // Animate menu closing first
       Animated.spring(menuAnimation, {
