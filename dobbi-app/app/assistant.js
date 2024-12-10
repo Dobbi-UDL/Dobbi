@@ -29,6 +29,7 @@ const ChatbotScreen = () => {
   const [menuAnimation] = useState(new Animated.Value(0));
   const [chatList, setChatList] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
   // Load the chat history for a conversation when the screen loads
   useEffect(() => {
@@ -234,9 +235,9 @@ const ChatbotScreen = () => {
   }, [inputText, conversationId]);
 
   const handleBubblePress = (text) => {
-    // Here you can implement your copy options
-    console.log('Message pressed:', text);
-    // Later we'll add copy functionality here
+    setSelectedMessage(currentSelected => 
+      currentSelected === text ? null : text
+    );
   };
 
   const renderItem = useCallback(
@@ -245,9 +246,10 @@ const ChatbotScreen = () => {
         text={item.text} 
         isUser={item.isUser} 
         onPress={handleBubblePress}
+        isSelected={selectedMessage === item.text}
       />
     ),
-    []
+    [selectedMessage]
   );
 
   const keyExtractor = useCallback((_, index) => index.toString(), []);
