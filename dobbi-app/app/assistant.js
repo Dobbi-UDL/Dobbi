@@ -33,47 +33,14 @@ const ChatbotScreen = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  // Modify the loadConversation effect
   useEffect(() => {
-    const loadConversation = async () => {
-      try {
-        const storedId = await AsyncStorage.getItem("currentConversationId");
-        const existingId = storedId || uuidv4();
-
-        if (!storedId) {
-          await AsyncStorage.setItem("currentConversationId", existingId);
-          const welcomeMessage = {
-            id: uuidv4(),  // Ensure welcome message has ID
-            text: "Hi! I'm Dobbi...",
-            isUser: false,
-          };
-          setMessages([welcomeMessage]);
-          await AsyncStorage.setItem(
-            `chat_${existingId}`,
-            JSON.stringify({
-              messages: [welcomeMessage],  // Save with ID
-              lastModified: new Date().toISOString(),
-            })
-          );
-        } else {
-          const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
-          if (storedChats) {
-            const parsedData = JSON.parse(storedChats);
-            // Ensure all messages have IDs
-            const messagesWithIds = parsedData.messages.map(msg => ({
-              ...msg,
-              id: msg.id || uuidv4() // Add ID if missing
-            }));
-            setMessages(messagesWithIds);
-          }
-        }
-        setConversationId(existingId);
-      } catch (error) {
-        console.error("Error loading chat history:", error);
-      }
+    const initializeNewChat = async () => {
+      const newChatId = uuidv4();
+      setConversationId(newChatId);
+      setMessages([WELCOME_MESSAGE]);
     };
 
-    loadConversation();
+    initializeNewChat();
   }, []);
 
   // Save messages to AsyncStorage whenever they change
@@ -209,7 +176,7 @@ const ChatbotScreen = () => {
     if (inputText.trim() === "") return;
 
     const userMessage = { 
-      id: uuidv4(),  // Add unique id
+      id: uuidv4(),
       text: inputText, 
       isUser: true 
     };
@@ -228,17 +195,14 @@ const ChatbotScreen = () => {
     const updatedMessages = [mockResponse, userMessage, ...messages];
     setMessages(updatedMessages);
 
-    // Save to storage only when there's actual conversation
+    // Save to storage since we always have user interaction at this point
     const chatId = conversationId || uuidv4();
     if (!conversationId) {
       setConversationId(chatId);
     }
-
-    // Only save if there are messages beyond the welcome message
-    if (updatedMessages.length > 1) {
-      await chatStorageService.saveChat(chatId, updatedMessages);
-      loadChatHistory(); // Refresh history after saving
-    }
+    
+    await chatStorageService.saveChat(chatId, updatedMessages);
+    loadChatHistory(); // Refresh history after saving
   }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (messageId) => {
