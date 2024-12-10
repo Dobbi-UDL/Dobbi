@@ -21,6 +21,7 @@ import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
+import { chatStorageService } from "../services/chatStorageService";
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -191,49 +192,35 @@ const ChatbotScreen = () => {
     if (inputText.trim() === "") return;
 
     const userMessage = { text: inputText, isUser: true };
-    const question = inputText;
     setInputText("");
 
-    // Ensure we have a valid conversationId
+    // Update messages with user input immediately
+    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+
+    // Mock AI response for UI testing
+    const mockResponse = { 
+      text: "This is a test response to: " + inputText, 
+      isUser: false 
+    };
+    
+    setMessages((prevMessages) => [mockResponse, ...prevMessages]);
+
+    // Still save to AsyncStorage to test that functionality
     const chatId = conversationId || uuidv4();
     if (!conversationId) {
       setConversationId(chatId);
     }
 
-    // Update messages with user input immediately
-    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+    AsyncStorage.setItem(
+      `chat_${chatId}`,
+      JSON.stringify({
+        messages: [mockResponse, userMessage, ...messages],
+        lastModified: new Date().toISOString(),
+      })
+    );
 
-    try {
-      const response = await getOpenAIResponse(question);
-      const aiMessage = { text: response, isUser: false };
-
-      // Update messages with AI response
-      setMessages((prevMessages) => {
-        const updatedMessages = [aiMessage, ...prevMessages];
-
-        // Save chat after first message
-        AsyncStorage.setItem(
-          `chat_${chatId}`,
-          JSON.stringify({
-            messages: updatedMessages,
-            lastModified: new Date().toISOString(),
-          })
-        );
-
-        // Update chat list
-        loadChatHistory();
-
-        return updatedMessages;
-      });
-    } catch (error) {
-      console.error("Error calling OpenAI API:", error);
-      const errorMessage = {
-        text: "Sorry, I couldn't process your request.",
-        isUser: false,
-      };
-      setMessages((prevMessages) => [errorMessage, ...prevMessages]);
-    }
-  }, [inputText, conversationId]);
+    loadChatHistory();
+  }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (text) => {
     setSelectedMessage(currentSelected => 
@@ -260,6 +247,27 @@ const ChatbotScreen = () => {
     console.log('===================');
     console.log(getSystemPrompt());
     console.log('===================');
+  }, []);
+
+  const handleHistoryPress = useCallback(async () => {
+    await loadChatHistory();
+    setShowHistory(true);
+    toggleMenu();
+  }, []);
+
+  const handleNewChatPress = useCallback(async () => {
+    try {
+      const newChatId = uuidv4();
+      await chatStorageService.setCurrentChat(newChatId);
+      setConversationId(newChatId);
+      setMessages([WELCOME_MESSAGE]);
+      toggleMenu();
+      
+      // Save the new chat
+      await chatStorageService.saveChat(newChatId, [WELCOME_MESSAGE]);
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
   }, []);
 
   return (
@@ -332,6 +340,9 @@ const ChatbotScreen = () => {
           onSend={sendMessage}
           onMenuPress={toggleMenu}
           isMenuOpen={isMenuOpen}
+          menuAnimation={menuAnimation}
+          onHistoryPress={handleHistoryPress}
+          onNewChatPress={handleNewChatPress}
         />
       </KeyboardAvoidingView>
       <BottomNavBar />

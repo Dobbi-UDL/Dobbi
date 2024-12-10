@@ -22,10 +22,13 @@ const ChatBubble = ({ text, isUser, onPress, isSelected }) => {
       onLongPress={handleLongPress}
       onPress={handlePress}
       delayLongPress={200}
-      activeOpacity={1} // Changed to 1 to prevent opacity flash
+      activeOpacity={isSelected ? 1 : 0.9} // Adjusted for better feedback
       style={styles.touchableWrapper}
     >
-      {isSelected && <View style={styles.fullWidthOverlay} />}
+      {isSelected && <View style={[
+        styles.fullWidthOverlay,
+        isUser && styles.userFullWidthOverlay
+      ]} />}
       <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
         {!isUser && (
           <View style={styles.avatarContainer}>
@@ -75,6 +78,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingVertical: 6,
   },
+  userFullWidthOverlay: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Lighter overlay for user messages
+  },
   wrapper: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -105,6 +111,8 @@ const styles = StyleSheet.create({
   userBubble: {
     backgroundColor: "#f66c72",
     marginLeft: 50,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle border for depth
   },
   botBubble: {
     backgroundColor: "#FFFFFF",
@@ -133,7 +141,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   linkText: {
-    color: isUser => isUser ? '#FFE9E9' : '#EE6567',
+    color: isUser => isUser ? 'rgba(255, 255, 255, 0.9)' : '#EE6567',
     textDecorationLine: 'underline',
   },
   bulletList: {
@@ -143,6 +151,16 @@ const styles = StyleSheet.create({
     margin: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  userInteractiveElement: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  userInteractiveText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });
 
