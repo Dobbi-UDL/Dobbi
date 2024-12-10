@@ -19,6 +19,10 @@ import { supabase } from "../../../config/supabaseClient.js";
 import { PrivacyModal } from "./Modals/PrivacyModal.js";
 import { TermsModal } from "./Modals/TermsModal.js";
 import { EditProfileModal } from "./Modals/EditProfileModal.js";
+import {
+  calculateXPForLevel,
+  calculateProgressPercentage,
+} from "../../../utils/experienceSystem";
 
 export const ProfileSection = ({ userData, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -45,7 +49,7 @@ export const ProfileSection = ({ userData, onClose }) => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      signOut;
       if (error) throw error;
     } catch (err) {
       console.error("Error during signOut:", err);
@@ -108,15 +112,30 @@ export const ProfileSection = ({ userData, onClose }) => {
             <View style={styles.levelHeader}>
               <View style={styles.levelBadge}>
                 <Icon name="star" size={16} color="#FFD700" />
-                <Text style={styles.levelText}>Level 5</Text>
+                <Text style={styles.levelText}>
+                  Level {userData?.current_level || 1}
+                </Text>
               </View>
               <View style={styles.expBadge}>
                 <Icon name="lightning-bolt" size={14} color="#FF6B6B" />
-                <Text style={styles.expText}>700/1000 XP</Text>
+                <Text style={styles.expText}>
+                  {userData?.current_xp || 0}/
+                  {calculateXPForLevel(userData?.current_level || 1)} XP
+                </Text>
               </View>
             </View>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "70%" }]} />
+              <View
+                style={[
+                  styles.progressBar,
+                  {
+                    width: `${calculateProgressPercentage(
+                      userData?.current_xp || 0,
+                      userData?.current_level || 1
+                    )}%`,
+                  },
+                ]}
+              />
             </View>
           </View>
         </View>

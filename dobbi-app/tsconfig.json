@@ -3,18 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ],
+      "@/*": ["./*"],
       "@i18n": ["./i18n.js"],
       "@authcontext": ["./contexts/AuthContext"],
-      "@languagecontext": ["./contexts/LanguageContext"],
+      "@languagecontext": ["./contexts/LanguageContext"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
