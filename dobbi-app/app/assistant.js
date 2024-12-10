@@ -17,7 +17,7 @@ import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
 import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
-import { getOpenAIResponse } from "../services/openaiService";
+import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
@@ -233,12 +233,31 @@ const ChatbotScreen = () => {
     }
   }, [inputText, conversationId]);
 
+  const handleBubblePress = (text) => {
+    // Here you can implement your copy options
+    console.log('Message pressed:', text);
+    // Later we'll add copy functionality here
+  };
+
   const renderItem = useCallback(
-    ({ item }) => <ChatBubble text={item.text} isUser={item.isUser} />,
+    ({ item }) => (
+      <ChatBubble 
+        text={item.text} 
+        isUser={item.isUser} 
+        onPress={handleBubblePress}
+      />
+    ),
     []
   );
 
   const keyExtractor = useCallback((_, index) => index.toString(), []);
+
+  useEffect(() => {
+    console.log('Current System Prompt:');
+    console.log('===================');
+    console.log(getSystemPrompt());
+    console.log('===================');
+  }, []);
 
   return (
     <>

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import Markdown from 'react-native-markdown-display';
 
 // Helper function to get initials from the username
@@ -13,7 +13,7 @@ const getInitials = (name) => {
   return initials;
 };
 
-const ChatBubble = ({ text, isUser, username }) => {
+const ChatBubble = ({ text, isUser, onPress }) => {
   return (
     <View
       style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}
@@ -26,34 +26,29 @@ const ChatBubble = ({ text, isUser, username }) => {
         />
       )}
 
-      {/* Message Bubble */}
-      <View
+      <TouchableOpacity
+        onPress={() => onPress?.(text)}
+        activeOpacity={0.7}
         style={[
           styles.container,
           isUser ? styles.userBubble : styles.botBubble,
         ]}
       >
-        <Markdown 
-          style={{
-            body: { margin: 0, padding: 0 },
-            text: [styles.text, isUser ? styles.userText : styles.botText],
-            strong: styles.boldText,
-            link: styles.linkText,
-            bullet_list: styles.bulletList,
-            paragraph: styles.paragraph,
-          }}
-          selectable={true}  
-          longPressEnabled={true}
-        >
-          {text}
-        </Markdown>
-      </View>
-
-      {isUser && (
-        <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
-          <Text style={styles.avatarText}>{username}</Text>
-        </View>
-      )}
+          <Markdown 
+            style={{
+              body: { margin: 0, padding: 0 },
+              text: [styles.text, isUser ? styles.userText : styles.botText],
+              strong: styles.boldText,
+              link: styles.linkText,
+              bullet_list: styles.bulletList,
+              paragraph: styles.paragraph,
+            }}
+            selectable={true}  
+            longPressEnabled={true}
+          >
+            {text}
+          </Markdown>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -71,26 +66,6 @@ const styles = StyleSheet.create({
   botWrapper: {
     justifyContent: "flex-start",
     marginLeft: 15,
-  },
-  profileAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#007AFF",
-    marginLeft: 8,
-  },
-  avatarPlaceholder: {
-    backgroundColor: "#FF6B6B",
-  },
-  avatarText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  botAvatar: {
-    marginRight: 8,
   },
   container: {
     maxWidth: "75%",
