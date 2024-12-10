@@ -57,18 +57,45 @@ const ChatbotScreen = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);  // Add this state
   const [isTyping, setIsTyping] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);  // Add this state
+  const [activeTyping, setActiveTyping] = useState(null); // Add this state
 
   // Add this helper function
   const showAssistantResponse = async (isWelcome = false) => {
-    // Natural delay before showing avatar typing
-    await new Promise(resolve => setTimeout(resolve, isWelcome ? 200 : 1000));
-    setShowAvatar(true);
-    
-    // Show typing indicator
-    setIsTyping(true);
+    // Create new abort controller for this typing session
+    const typingSession = new AbortController();
+    setActiveTyping(typingSession);
 
-    // Typing delay with indicator
-    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+    try {
+      // Natural delay before showing avatar typing
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, isWelcome ? 200 : 1000);
+        typingSession.signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(new Error('Typing cancelled'));
+        });
+      });
+
+      setShowAvatar(true);
+      setIsTyping(true);
+
+      // Typing delay with indicator
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, 1500 + Math.random() * 1000);
+        typingSession.signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(new Error('Typing cancelled'));
+        });
+      });
+
+      return true; // Typing completed successfully
+    } catch (error) {
+      if (error.message === 'Typing cancelled') {
+        return false; // Typing was interrupted
+      }
+      throw error;
+    } finally {
+      setActiveTyping(null);
+    }
   };
 
   useEffect(() => {
@@ -158,11 +185,19 @@ const ChatbotScreen = () => {
 
   const performDeleteChat = async (chatId) => {
     try {
+      // Cancel any ongoing typing
+      if (activeTyping) {
+        activeTyping.abort();
+        setShowAvatar(false);
+        setIsTyping(false);
+      }
+
       await AsyncStorage.removeItem(`chat_${chatId}`);
       setChatList((prev) => prev.filter((chat) => chat.id !== chatId));
 
-      // If deleting current chat, create a new one with fade transition
+      // Close menu if deleting current chat
       if (chatId === conversationId) {
+        setIsMenuOpen(false);
         fadeToNewChat();
       } else {
         // If there are no chats left after deletion, create a new one
@@ -247,21 +282,24 @@ const ChatbotScreen = () => {
     setInputText("");
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
 
-    await showAssistantResponse(false); // Pass false for regular responses
-
-    const mockResponse = { 
-      id: uuidv4(),
-      text: "This is a test response to: " + inputText, 
-      isUser: false 
-    };
+    const typingCompleted = await showAssistantResponse(false);
     
-    setShowAvatar(false);
-    setIsTyping(false);
-    setMessages(prevMessages => [mockResponse, ...prevMessages]);
+    // Only show response if typing wasn't interrupted
+    if (typingCompleted) {
+      const mockResponse = { 
+        id: uuidv4(),
+        text: "This is a test response to: " + inputText, 
+        isUser: false 
+      };
+      
+      setShowAvatar(false);
+      setIsTyping(false);
+      setMessages(prevMessages => [mockResponse, ...prevMessages]);
 
-    const updatedMessages = [mockResponse, userMessage, ...messages];
-    await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
-    loadChatHistory();
+      const updatedMessages = [mockResponse, userMessage, ...messages];
+      await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
+      loadChatHistory();
+    }
   }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (messageId) => {
