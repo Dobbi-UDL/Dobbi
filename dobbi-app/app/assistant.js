@@ -20,6 +20,7 @@ import Header from "../assets/components/Header/Header";
 import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -325,103 +326,13 @@ const ChatbotScreen = () => {
           inverted
           showsVerticalScrollIndicator={false}
         />
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={(text) => {
-              setInputText(text);
-            }}
-            placeholder="Type a message..."
-          />
-          {inputText.trim() !== "" ? (
-            <View style={styles.menuContainer}>
-              <TouchableOpacity style={styles.menuButton} onPress={sendMessage}>
-                <MaterialIcons name="send" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <>
-              {isMenuOpen && (
-                <TouchableWithoutFeedback onPress={toggleMenu}>
-                  <View
-                    style={[
-                      StyleSheet.absoluteFill,
-                      {
-                        position: "absolute",
-                        top: -1000,
-                        left: -1000,
-                        right: -1000,
-                        bottom: -1000,
-                        zIndex: 1,
-                      },
-                    ]}
-                  />
-                </TouchableWithoutFeedback>
-              )}
-              <View style={[styles.menuContainer, { zIndex: 2 }]}>
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={toggleMenu}
-                >
-                  <MaterialIcons
-                    name={isMenuOpen ? "close" : "more-vert"}
-                    size={24}
-                    color="#FFF"
-                  />
-                </TouchableOpacity>
-                <Animated.View
-                  style={[
-                    styles.menuItem,
-                    {
-                      transform: [
-                        {
-                          translateY: menuAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -70],
-                          }),
-                        },
-                      ],
-                      opacity: menuAnimation,
-                      zIndex: 2,
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.menuOption}
-                    onPress={createNewChat}
-                  >
-                    <MaterialIcons name="add" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </Animated.View>
-
-                <Animated.View
-                  style={[
-                    styles.menuItem,
-                    {
-                      transform: [
-                        {
-                          translateY: menuAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -140], // Increased spacing
-                          }),
-                        },
-                      ],
-                      opacity: menuAnimation,
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.menuOption}
-                    onPress={viewChatHistory}
-                  >
-                    <MaterialIcons name="history" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-            </>
-          )}
-        </View>
+        <ChatInput 
+          inputText={inputText}
+          setInputText={setInputText}
+          onSend={sendMessage}
+          onMenuPress={toggleMenu}
+          isMenuOpen={isMenuOpen}
+        />
       </KeyboardAvoidingView>
       <BottomNavBar />
     </>
@@ -435,58 +346,6 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: "#FFF5F5",
-  },
-  input: {
-    flex: 1,
-    backgroundColor: "#F2D4D4",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: "#333333",
-  },
-  sendButton: {
-    backgroundColor: "#FF6B6B",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginLeft: 12,
-  },
-  menuContainer: {
-    position: "relative",
-    width: 40,
-    height: 40,
-    marginRight: 10,
-    marginLeft: 12,
-  },
-
-  menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FF6B6B",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  menuItem: {
-    position: "absolute",
-    right: 0,
-    backgroundColor: "#FF6B6B",
-    borderRadius: 20,
-    padding: 10,
-    marginTop: 10,
-  },
-  menuOption: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   historyOverlay: {
     position: "absolute",
