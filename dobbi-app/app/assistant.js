@@ -33,7 +33,7 @@ const ChatbotScreen = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  // Load the chat history for a conversation when the screen loads
+  // Modify the loadConversation effect
   useEffect(() => {
     const loadConversation = async () => {
       try {
@@ -42,22 +42,31 @@ const ChatbotScreen = () => {
 
         if (!storedId) {
           await AsyncStorage.setItem("currentConversationId", existingId);
-          // Add welcome message for first-time users
-          setMessages([WELCOME_MESSAGE]);
+          const welcomeMessage = {
+            id: uuidv4(),  // Ensure welcome message has ID
+            text: "Hi! I'm Dobbi...",
+            isUser: false,
+          };
+          setMessages([welcomeMessage]);
           await AsyncStorage.setItem(
             `chat_${existingId}`,
             JSON.stringify({
-              messages: [WELCOME_MESSAGE],
+              messages: [welcomeMessage],  // Save with ID
               lastModified: new Date().toISOString(),
             })
           );
         } else {
           const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
           if (storedChats) {
-            setMessages(JSON.parse(storedChats).messages || []);
+            const parsedData = JSON.parse(storedChats);
+            // Ensure all messages have IDs
+            const messagesWithIds = parsedData.messages.map(msg => ({
+              ...msg,
+              id: msg.id || uuidv4() // Add ID if missing
+            }));
+            setMessages(messagesWithIds);
           }
         }
-
         setConversationId(existingId);
       } catch (error) {
         console.error("Error loading chat history:", error);
@@ -89,6 +98,7 @@ const ChatbotScreen = () => {
   };
 
   const WELCOME_MESSAGE = {
+    id: uuidv4(),  
     text: "Hi! I'm Dobbi, your personal AI assistant. I can help you with questions, coding, research, or just friendly chat. What would you like to talk about?",
     isUser: false,
   };
@@ -158,11 +168,17 @@ const ChatbotScreen = () => {
     }
   };
 
+  // Update loadChat function
   const loadChat = async (chatId) => {
     try {
       const storedChat = await AsyncStorage.getItem(`chat_${chatId}`);
       if (storedChat) {
-        setMessages(JSON.parse(storedChat).messages || []);
+        const parsedData = JSON.parse(storedChat);
+        const messagesWithIds = parsedData.messages.map(msg => ({
+          ...msg,
+          id: msg.id || uuidv4() // Add ID if missing
+        }));
+        setMessages(messagesWithIds);
         setConversationId(chatId);
       }
       setShowHistory(false);
@@ -191,7 +207,11 @@ const ChatbotScreen = () => {
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
 
-    const userMessage = { text: inputText, isUser: true };
+    const userMessage = { 
+      id: uuidv4(),  // Add unique id
+      text: inputText, 
+      isUser: true 
+    };
     setInputText("");
 
     // Update messages with user input immediately
@@ -199,6 +219,7 @@ const ChatbotScreen = () => {
 
     // Mock AI response for UI testing
     const mockResponse = { 
+      id: uuidv4(),  // Add unique id
       text: "This is a test response to: " + inputText, 
       isUser: false 
     };
@@ -219,9 +240,9 @@ const ChatbotScreen = () => {
     }
   }, [inputText, conversationId, messages]);
 
-  const handleBubblePress = (text) => {
+  const handleBubblePress = (messageId) => {
     setSelectedMessage(currentSelected => 
-      currentSelected === text ? null : text
+      currentSelected === messageId ? null : messageId
     );
   };
 
@@ -231,13 +252,15 @@ const ChatbotScreen = () => {
         text={item.text} 
         isUser={item.isUser} 
         onPress={handleBubblePress}
-        isSelected={selectedMessage === item.text}
+        isSelected={selectedMessage === item.id}  // Compare by id instead of text
+        messageId={item.id}  // Pass the id to ChatBubble
       />
     ),
     [selectedMessage]
   );
 
-  const keyExtractor = useCallback((_, index) => index.toString(), []);
+  // Update keyExtractor to use message ID
+  const keyExtractor = useCallback((item) => item.id, []);
 
   useEffect(() => {
     console.log('Current System Prompt:');

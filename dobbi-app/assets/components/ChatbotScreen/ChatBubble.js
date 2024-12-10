@@ -1,64 +1,127 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Vibration } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Vibration, Animated } from "react-native";
 import Markdown from 'react-native-markdown-display';
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 
+const ActionPanel = ({ isVisible, isUser, onCopy, onShare, onReport, onDelete }) => {
+  const translateY = useRef(new Animated.Value(100)).current;
 
-const ChatBubble = ({ text, isUser, onPress, isSelected }) => {
-  const handleLongPress = (event) => {
-    event.stopPropagation(); // Prevent event from bubbling up
-    Vibration.vibrate(40);
-    onPress?.(text);
+  useEffect(() => {
+    Animated.spring(translateY, {
+      toValue: isVisible ? 0 : 100,
+      friction: 8,
+      tension: 60,
+      useNativeDriver: true,
+    }).start();
+  }, [isVisible]);
+
+  if (!isVisible) return null;  // Only render when visible
+
+  return (
+    <Animated.View style={[styles.actionPanel, { transform: [{ translateY }] }]}>
+      <TouchableOpacity key="copy" style={styles.actionButton} onPress={onCopy}>
+        <MaterialIcons name="content-copy" size={24} color="#555" />
+        <Text style={styles.actionText}>Copy</Text>
+      </TouchableOpacity>
+      <TouchableOpacity key="share" style={styles.actionButton} onPress={onShare}>
+        <MaterialIcons name="share" size={24} color="#555" />
+        <Text style={styles.actionText}>Share</Text>
+      </TouchableOpacity>
+      {isUser ? (
+        <TouchableOpacity key="delete" style={styles.actionButton} onPress={onDelete}>
+          <MaterialIcons name="delete" size={24} color="#ff4444" />
+          <Text style={[styles.actionText, { color: '#ff4444' }]}>Delete</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity key="report" style={styles.actionButton} onPress={onReport}>
+          <MaterialIcons name="flag" size={24} color="#555" />
+          <Text style={styles.actionText}>Report</Text>
+        </TouchableOpacity>
+      )}
+    </Animated.View>
+  );
+};
+
+const ChatBubble = ({ text, isUser, onPress, isSelected, messageId }) => {
+  const [localSelected, setLocalSelected] = useState(false);
+
+  useEffect(() => {
+    setLocalSelected(isSelected);
+  }, [isSelected]);
+
+  const handleLongPress = async (event) => {
+    if (!isSelected) {
+      event.stopPropagation();
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onPress?.(messageId);  // Pass messageId instead of text
+    }
   };
 
   const handlePress = () => {
     if (isSelected) {
-      // unselect
       onPress?.(null);
     }
   };
 
-  return (
-    <TouchableOpacity
-      onLongPress={handleLongPress}
-      onPress={handlePress}
-      delayLongPress={200}
-      activeOpacity={isSelected ? 1 : 0.9} // Adjusted for better feedback
-      style={styles.touchableWrapper}
-    >
-      {isSelected && <View style={[
-        styles.fullWidthOverlay,
-        isUser && styles.userFullWidthOverlay
-      ]} />}
-      <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
-        {!isUser && (
-          <View style={styles.avatarContainer}>
-            <Image
-              source={require("../../images/dobbi-avatar.png")}
-              style={styles.logo}
-            />
-          </View>
-        )}
+  const handleCopy = async () => {
+    await Clipboard.setStringAsync(text);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
-        <View style={[
-          styles.container,
-          isUser ? styles.userBubble : styles.botBubble,
-        ]}>
-          <Markdown 
-            style={{
-              body: styles.markdownBody,
-              text: [styles.text, isUser ? styles.userText : styles.botText],
-              strong: styles.boldText,
-              link: styles.linkText,
-              bullet_list: styles.bulletList,
-              paragraph: styles.paragraph,
-            }}
-            selectable={true}
-          >
-            {text}
-          </Markdown>
+  return (
+    <View style={styles.bubbleContainer}>
+      <TouchableOpacity
+        onLongPress={handleLongPress}
+        onPress={handlePress}
+        delayLongPress={200}
+        activeOpacity={0.9}
+        style={styles.touchableWrapper}
+        delayPressOut={0}
+      >
+        {isSelected && <View style={styles.fullWidthOverlay} />}
+        <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
+          {!isUser && (
+            <View style={styles.avatarContainer}>
+              <Image
+                source={require("../../images/dobbi-avatar.png")}
+                style={styles.logo}
+              />
+            </View>
+          )}
+
+          <View style={[
+            styles.container,
+            isUser ? styles.userBubble : styles.botBubble,
+          ]}>
+            <Markdown 
+              style={{
+                body: styles.markdownBody,
+                text: [styles.text, isUser ? styles.userText : styles.botText],
+                strong: styles.boldText,
+                link: styles.linkText,
+                bullet_list: styles.bulletList,
+                paragraph: styles.paragraph,
+              }}
+              selectable={true}
+            >
+              {text}
+            </Markdown>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      {localSelected && (
+        <ActionPanel 
+          isVisible={localSelected}
+          isUser={isUser}
+          onCopy={handleCopy}
+          onShare={() => {/* implement share */}}
+          onReport={() => {/* implement report */}}
+          onDelete={() => {/* implement delete */}}
+        />
+      )}
+    </View>
   );
 };
 
@@ -78,13 +141,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
     paddingVertical: 6,
   },
-  userFullWidthOverlay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Lighter overlay for user messages
-  },
   wrapper: {
     flexDirection: "row",
     alignItems: "flex-end",
-    marginVertical: 6, // This controls the inner gap between bubble content
+    marginVertical: 6,
     zIndex: 2,
   },
   userWrapper: {
@@ -112,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f66c72",
     marginLeft: 50,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle border for depth
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   botBubble: {
     backgroundColor: "#FFFFFF",
@@ -133,7 +193,6 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   logo: {
-    // 808 x 700
     width: 36,
     height: 31,
   },
@@ -161,6 +220,38 @@ const styles = StyleSheet.create({
   userInteractiveText: {
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  actionPanel: {
+    position: 'absolute',
+    bottom: -60, // Adjust this value to position the panel properly
+    left: 16,
+    right: 16,
+    backgroundColor: '#FFF',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#EEE',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionText: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#555',
+  },
+  bubbleContainer: {
+    width: '100%',
+    position: 'relative',
   },
 });
 
