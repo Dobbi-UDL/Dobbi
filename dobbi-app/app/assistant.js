@@ -343,6 +343,14 @@ const ChatbotScreen = () => {
   const handleNewChatPress = useCallback(async () => {
     try {
       console.log('Creating new chat...');
+      
+      // Cancel any ongoing typing
+      if (activeTyping) {
+        activeTyping.abort();
+        setShowAvatar(false);
+        setIsTyping(false);
+      }
+
       const newChatId = uuidv4();
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
@@ -367,7 +375,7 @@ const ChatbotScreen = () => {
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
-  }, [menuAnimation]);
+  }, [menuAnimation, activeTyping]); // Add activeTyping to dependencies
 
   const fadeToNewChat = async () => {
     // Start transition state immediately
