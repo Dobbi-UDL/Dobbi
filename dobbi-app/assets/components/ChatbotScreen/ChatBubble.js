@@ -35,11 +35,15 @@ const ChatBubble = ({ text, isUser, username }) => {
       >
         <Markdown 
           style={{
-            body: [styles.text, isUser ? styles.userText : styles.botText],
+            body: { margin: 0, padding: 0 },
+            text: [styles.text, isUser ? styles.userText : styles.botText],
             strong: styles.boldText,
             link: styles.linkText,
             bullet_list: styles.bulletList,
+            paragraph: styles.paragraph,
           }}
+          selectable={true}  
+          longPressEnabled={true}
         >
           {text}
         </Markdown>
@@ -91,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     maxWidth: "75%",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 4, // Reduced from 12
     borderRadius: 16,
   },
   userBubble: {
@@ -125,6 +129,16 @@ const styles = StyleSheet.create({
   },
   bulletList: {
     marginLeft: 10,
+  },
+  markdownText: {
+    color: 'inherit',
+    textAlign: 'left',
+    textAlignVertical: 'center',
+  },
+  paragraph: {
+    margin: 0,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });
 
