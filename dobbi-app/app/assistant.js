@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
   FlatList,
@@ -16,13 +16,33 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
-import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
+import ChatBubble, { TypingIndicator } from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
 import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
 import { chatStorageService } from "../services/chatStorageService";
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
+const MessageAnimation = ({ index, children }) => {
+  const bubbleAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Increased delay to allow avatar to fade in first
+    setTimeout(() => {
+      Animated.spring(bubbleAnimation, {
+        toValue: 1,
+        tension: 50,
+        friction: 12,
+        useNativeDriver: true,
+      }).start();
+    }, 600); // Increased from 300 to 600 to wait for avatar fade-in
+  }, []);
+
+  return React.cloneElement(children, { bubbleAnimation });
+};
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -35,11 +55,29 @@ const ChatbotScreen = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [fadeAnim] = useState(new Animated.Value(1)); // Add this state for fade animation
   const [isTransitioning, setIsTransitioning] = useState(false);  // Add this state
+  const [isTyping, setIsTyping] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(false);  // Add this state
+
+  // Add this helper function
+  const showAssistantResponse = async (isWelcome = false) => {
+    // Natural delay before showing avatar typing
+    await new Promise(resolve => setTimeout(resolve, isWelcome ? 200 : 1000));
+    setShowAvatar(true);
+    
+    // Show typing indicator
+    setIsTyping(true);
+
+    // Typing delay with indicator
+    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+  };
 
   useEffect(() => {
     const initializeNewChat = async () => {
       const newChatId = uuidv4();
       setConversationId(newChatId);
+      await showAssistantResponse(true); // Pass true for welcome message
+      setShowAvatar(false);
+      setIsTyping(false);
       setMessages([WELCOME_MESSAGE]);
     };
 
@@ -207,28 +245,23 @@ const ChatbotScreen = () => {
       isUser: true 
     };
     setInputText("");
-
-    // Update messages with user input immediately
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
 
-    // Mock AI response for UI testing
+    await showAssistantResponse(false); // Pass false for regular responses
+
     const mockResponse = { 
-      id: uuidv4(),  // Add unique id
+      id: uuidv4(),
       text: "This is a test response to: " + inputText, 
       isUser: false 
     };
     
-    const updatedMessages = [mockResponse, userMessage, ...messages];
-    setMessages(updatedMessages);
+    setShowAvatar(false);
+    setIsTyping(false);
+    setMessages(prevMessages => [mockResponse, ...prevMessages]);
 
-    // Save to storage since we always have user interaction at this point
-    const chatId = conversationId || uuidv4();
-    if (!conversationId) {
-      setConversationId(chatId);
-    }
-    
-    await chatStorageService.saveChat(chatId, updatedMessages);
-    loadChatHistory(); // Refresh history after saving
+    const updatedMessages = [mockResponse, userMessage, ...messages];
+    await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
+    loadChatHistory();
   }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (messageId) => {
@@ -239,15 +272,17 @@ const ChatbotScreen = () => {
   };
 
   const renderItem = useCallback(
-    ({ item }) => (
-      <ChatBubble 
-        text={item.text} 
-        isUser={item.isUser} 
-        onPress={handleBubblePress}
-        isSelected={selectedMessage === item.id}  // Compare by id instead of text
-        messageId={item.id}  // Pass the id to ChatBubble
-        disabled={isTransitioning}  // Pass disabled state to ChatBubble
-      />
+    ({ item, index }) => (
+      <MessageAnimation index={index}>
+        <ChatBubble 
+          text={item.text} 
+          isUser={item.isUser} 
+          onPress={handleBubblePress}
+          isSelected={selectedMessage === item.id}  // Compare by id instead of text
+          messageId={item.id}  // Pass the id to ChatBubble
+          disabled={isTransitioning}  // Pass disabled state to ChatBubble
+        />
+      </MessageAnimation>
     ),
     [selectedMessage, isTransitioning]  // Add isTransitioning to dependencies
   );
@@ -258,7 +293,6 @@ const ChatbotScreen = () => {
   useEffect(() => {
     console.log('Current System Prompt:');
     console.log('===================');
-    console.log(getSystemPrompt());
     console.log('===================');
   }, []);
 
@@ -274,19 +308,24 @@ const ChatbotScreen = () => {
       const newChatId = uuidv4();
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
-      setMessages([WELCOME_MESSAGE]);
-      setSelectedMessage(null); // Reset selected message
+      setMessages([]); // Clear messages first
       
       // Animate menu closing first
       Animated.spring(menuAnimation, {
         toValue: 0,
-        friction: 8, // Increased from 5
-        tension: 45, // Added tension for smoother movement
+        friction: 8,
+        tension: 45,
         useNativeDriver: true,
       }).start(() => {
-        // Only close menu after animation completes
         setIsMenuOpen(false);
       });
+
+      // Show typing animation for welcome message
+      await showAssistantResponse(true);
+      setShowAvatar(false);
+      setIsTyping(false);
+      setMessages([WELCOME_MESSAGE]);
+      
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
@@ -301,16 +340,18 @@ const ChatbotScreen = () => {
     setMessages([]);
 
    // wait 1s for nothing
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     // Set new messages while invisible
     const newChatId = uuidv4();
     await chatStorageService.setCurrentChat(newChatId);
     setConversationId(newChatId);
-    setMessages([WELCOME_MESSAGE]);
-    setSelectedMessage(null);
-
     
+    // Add typing animation here too
+    await showAssistantResponse(true);
+    setShowAvatar(false);
+    setIsTyping(false);
+    setMessages([WELCOME_MESSAGE]);
 
     // Keep transition state active until animation is completely done
     await new Promise(resolve => setTimeout(resolve, fadeInDuration));
@@ -381,13 +422,17 @@ const ChatbotScreen = () => {
         )}
 
         <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-          <FlatList
+          <AnimatedFlatList
             style={styles.chatContainer}
             data={messages}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             inverted
             showsVerticalScrollIndicator={false}
+            // Add smooth scroll behavior
+            onScrollBeginDrag={() => setSelectedMessage(null)}
+            scrollEventThrottle={16}
+            ListHeaderComponent={isTyping ? <TypingIndicator /> : null}
           />
         </Animated.View>
         <ChatInput 

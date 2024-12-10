@@ -5,6 +5,131 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 
+const TypingIndicator = () => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const dotAnims = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
+
+  useEffect(() => {
+    // Fade in the entire indicator
+    Animated.spring(fadeAnim, {
+      toValue: 1,
+      tension: 50,
+      friction: 8,
+      useNativeDriver: true
+    }).start();
+
+    // Animate dots in sequence
+    const animateDots = () => {
+      Animated.sequence([
+        // Reset all dots
+        Animated.parallel(dotAnims.map(anim => 
+          Animated.timing(anim, {
+            toValue: 0,
+            duration: 0,
+            useNativeDriver: true
+          })
+        )),
+        // Animate each dot in sequence
+        ...dotAnims.map((anim, i) =>
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: 300,
+            delay: i * 200,
+            useNativeDriver: true
+          })
+        )
+      ]).start(() => animateDots());
+    };
+
+    animateDots();
+  }, []);
+
+  return (
+    <View style={[styles.bubbleContainer, { paddingHorizontal: 16 }]}>
+      <View style={[styles.wrapper, styles.botWrapper]}>
+        <View style={styles.avatarContainer}>
+          {/* Avatar without animation for stable positioning */}
+          <Image
+            source={require("../../images/dobbi-avatar.png")}
+            style={styles.logo}
+          />
+        </View>
+        <Animated.View 
+          style={[
+            styles.container, 
+            styles.botBubble,
+            {
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              minWidth: 52,
+              opacity: fadeAnim,
+              transform: [{ scale: fadeAnim }],
+              marginRight: 50
+            }
+          ]}
+        >
+          <View style={styles.typingIndicator}>
+            {dotAnims.map((anim, i) => (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.typingDot,
+                  {
+                    transform: [{
+                      translateY: anim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -4]
+                      })
+                    }]
+                  }
+                ]}
+              />
+            ))}
+          </View>
+        </Animated.View>
+      </View>
+    </View>
+  );
+};
+
+const MessageAnimation = ({ index, children, isUser }) => {
+  const bubbleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(bubbleAnim, {
+      toValue: 1,
+      tension: 50,
+      friction: 12,
+      useNativeDriver: true,
+      restSpeedThreshold: 0.1,
+      restDisplacementThreshold: 0.1,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.messageContainer,
+        {
+          opacity: bubbleAnim,
+          transform: [{
+            translateX: bubbleAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [isUser ? 20 : -20, 0]
+            })
+          }]
+        }
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+};
+
 const ActionPanel = ({ isVisible, isUser, onCopy, onShare, onReport, onDelete }) => {
   const translateY = useRef(new Animated.Value(100)).current;
 
@@ -95,7 +220,6 @@ const ChatBubble = ({ text, isUser, onPress, isSelected, messageId, disabled }) 
               />
             </View>
           )}
-
           <View style={[
             styles.container,
             isUser ? styles.userBubble : styles.botBubble,
@@ -263,6 +387,32 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1 }],  // Prevent any transform effects
     backgroundColor: 'transparent',  // Prevent any background color changes
   },
+  typingContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 52,
+    marginLeft: 8,
+  },
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 16,
+  },
+  typingDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#999',
+    marginHorizontal: 2,
+  },
+  messageContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 16,
+    marginVertical: 2,
+  }
 });
 
 export default ChatBubble;
+export { TypingIndicator };
