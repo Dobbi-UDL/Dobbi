@@ -24,13 +24,17 @@ const FloatingMenu = ({ isOpen, animation, onHistoryPress, onNewChatPress }) => 
           style={styles.menuButton} 
           onPress={handlePress(onHistoryPress)}
         >
-          <MaterialIcons name="history" size={24} color="#E57373" />
+          <View style={styles.buttonContent}>
+            <MaterialIcons name="history" size={24} color="#E57373" />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.menuButton} 
           onPress={handlePress(onNewChatPress)}
         >
-          <MaterialIcons name="add" size={24} color="#E57373" />
+          <View style={styles.buttonContent}>
+            <MaterialIcons name="add" size={24} color="#E57373" />
+          </View>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -61,6 +65,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 3,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    marginLeft: 8,
+    color: '#E57373',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

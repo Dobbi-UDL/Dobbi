@@ -24,9 +24,6 @@ const ChatInput = ({
           placeholderTextColor="#B4B4B4"
           multiline
           maxHeight={100}
-          textAlignVertical="center"
-          paddingTop={12}
-          paddingBottom={12}
         />
       </View>
       {inputText.trim() !== "" ? (
@@ -35,7 +32,9 @@ const ChatInput = ({
           onPress={onSend}
           activeOpacity={0.7}
         >
-          <MaterialIcons name="send" size={24} color="#fff" /> {/* Increased from 20 */}
+          <View>
+            <MaterialIcons name="send" size={24} color="#fff" />
+          </View>
         </TouchableOpacity>
       ) : (
         <>
@@ -44,11 +43,13 @@ const ChatInput = ({
             onPress={onMenuPress}
             activeOpacity={0.7}
           >
-            <MaterialIcons
-              name={isMenuOpen ? "close" : "more-vert"}
-              size={28} // Increased from 24
-              color="#FFF"
-            />
+            <View>
+              <MaterialIcons
+                name={isMenuOpen ? "close" : "more-vert"}
+                size={28}
+                color="#FFF"
+              />
+            </View>
           </TouchableOpacity>
           <FloatingMenu 
             isOpen={isMenuOpen} 
@@ -83,7 +84,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center', // Added for better alignment
   },
   input: {
-    flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 16,

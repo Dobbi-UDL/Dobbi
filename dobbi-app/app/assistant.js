@@ -203,23 +203,20 @@ const ChatbotScreen = () => {
       isUser: false 
     };
     
-    setMessages((prevMessages) => [mockResponse, ...prevMessages]);
+    const updatedMessages = [mockResponse, userMessage, ...messages];
+    setMessages(updatedMessages);
 
-    // Still save to AsyncStorage to test that functionality
+    // Save to storage only when there's actual conversation
     const chatId = conversationId || uuidv4();
     if (!conversationId) {
       setConversationId(chatId);
     }
 
-    AsyncStorage.setItem(
-      `chat_${chatId}`,
-      JSON.stringify({
-        messages: [mockResponse, userMessage, ...messages],
-        lastModified: new Date().toISOString(),
-      })
-    );
-
-    loadChatHistory();
+    // Only save if there are messages beyond the welcome message
+    if (updatedMessages.length > 1) {
+      await chatStorageService.saveChat(chatId, updatedMessages);
+      loadChatHistory(); // Refresh history after saving
+    }
   }, [inputText, conversationId, messages]);
 
   const handleBubblePress = (text) => {
@@ -262,9 +259,7 @@ const ChatbotScreen = () => {
       setConversationId(newChatId);
       setMessages([WELCOME_MESSAGE]);
       toggleMenu();
-      
-      // Save the new chat
-      await chatStorageService.saveChat(newChatId, [WELCOME_MESSAGE]);
+      // Don't save the chat until user sends first message
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
