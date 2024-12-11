@@ -15,22 +15,41 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 16,
         backgroundColor: '#FFFFFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#FFE5E5',
+        shadowColor: '#AA6667',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
     logoContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
+        gap: 14, // Add gap between elements
     },
     logo: {
-        width: 32,
-        height: 32,
-        marginRight: 8,
+        width: 24,
+        height: 24,
+    },
+    brandContainer: {
+        position: 'relative',  // Container for brand/title
+        height: 24,      // Match brandImage height
+        justifyContent: 'center', // Center content vertically
+        minWidth: 250,
     },
     brandName: {
-        fontSize: 22,
+        fontSize: 24,    
         fontWeight: 'bold',
         color: '#EE6567',
+        height: 32,   
+        lineHeight: 26.5,
+        letterSpacing: 0.5,
+    },
+    brandImage: {
+        //Image dimensions: 3684 x 984
+        width: 90,    // Adjusted based on 24px height and original aspect ratio
+        height: 24,   // Standard height
+        marginTop: -1,
     },
     menuButton: {
         backgroundColor: '#FFE5E5',
@@ -111,5 +130,16 @@ export const styles = StyleSheet.create({
     editProfileLink: {
         color: '#ff6b6b',
         fontSize: 14,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+
+    },
+    leftSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        gap: 14,
     },
 });

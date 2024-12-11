@@ -91,5 +91,11 @@
   "edit": "Edit",
   "addNewEntry": "Add New Entry",
 
-  "welcome" : "Welcome"
+  "welcome" : "Welcome",
+"noincomeCategories": "No income categories yet",
+"noexpensesCategories": "No expense categories yet",
+"addincomeEntry": "Add Income",
+"addexpensesEntry": "Add Expense",
+"noincomeCategories": "No income transactions",
+"noexpensesCategories": "No expense transactions"
 }

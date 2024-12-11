@@ -160,7 +160,7 @@ const OffersScreen = () => {
 
   return (
     <>
-      <Header />
+      <Header title="Marketplace" />
       <View style={[styles.container, styles.flexContainer]}>
       <UserPointsDisplay 
         userName={userName} 

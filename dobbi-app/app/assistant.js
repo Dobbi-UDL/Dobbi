@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from "react";
+// NEW VERSION
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
   FlatList,
@@ -11,17 +12,28 @@ import {
   Animated,
   ScrollView,
   TouchableWithoutFeedback,
+  Alert,  // Add Alert to imports
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
-import ChatBubble from "../assets/components/ChatbotScreen/ChatBubble";
+import ChatBubble, { TypingIndicator, Banner } from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
-import { getOpenAIResponse } from "../services/openaiService";
+import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
+import { chatStorageService } from "../services/chatStorageService";
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
+import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
+import { useAuth } from '../contexts/AuthContext';
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ChatbotScreen = () => {
+  const { user } = useAuth();
+
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [conversationId, setConversationId] = useState("");
@@ -29,39 +41,85 @@ const ChatbotScreen = () => {
   const [menuAnimation] = useState(new Animated.Value(0));
   const [chatList, setChatList] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [fadeAnim] = useState(new Animated.Value(1)); // Add this state for fade animation
+  const [isTransitioning, setIsTransitioning] = useState(false);  // Add this state
+  const [isTyping, setIsTyping] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(false);  // Add this state
+  const [activeTyping, setActiveTyping] = useState(null); // Add this state
+  const flatListRef = useRef(null);
+  const messageRefs = useRef(new Map()).current;  // Add this to store message refs
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
+  const copyNotificationAnim = useRef(new Animated.Value(0)).current;
 
-  // Load the chat history for a conversation when the screen loads
-  useEffect(() => {
-    const loadConversation = async () => {
-      try {
-        const storedId = await AsyncStorage.getItem("currentConversationId");
-        const existingId = storedId || uuidv4();
+  const showCopySuccess = () => {
+    setShowCopyNotification(true);
+    Animated.sequence([
+      Animated.spring(copyNotificationAnim, {
+        toValue: 1,
+        tension: 80,
+        friction: 8,
+        useNativeDriver: true
+      }),
+      Animated.delay(1500),
+      Animated.timing(copyNotificationAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true
+      })
+    ]).start(() => setShowCopyNotification(false));
+  };
 
-        if (!storedId) {
-          await AsyncStorage.setItem("currentConversationId", existingId);
-          // Add welcome message for first-time users
-          setMessages([WELCOME_MESSAGE]);
-          await AsyncStorage.setItem(
-            `chat_${existingId}`,
-            JSON.stringify({
-              messages: [WELCOME_MESSAGE],
-              lastModified: new Date().toISOString(),
-            })
-          );
-        } else {
-          const storedChats = await AsyncStorage.getItem(`chat_${existingId}`);
-          if (storedChats) {
-            setMessages(JSON.parse(storedChats).messages || []);
-          }
-        }
+  // Add this helper function
+  const showAssistantResponse = async (isWelcome = false) => {
+    // Create new abort controller for this typing session
+    const typingSession = new AbortController();
+    setActiveTyping(typingSession);
 
-        setConversationId(existingId);
-      } catch (error) {
-        console.error("Error loading chat history:", error);
+    try {
+      // Natural delay before showing avatar typing
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, isWelcome ? 150 : 300 + Math.random() * 150);
+        typingSession.signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(new Error('Typing cancelled'));
+        });
+      });
+
+      setShowAvatar(true);
+      setIsTyping(true);
+
+      // Typing delay with indicator
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, isWelcome ? 1500 : 0);
+        typingSession.signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(new Error('Typing cancelled'));
+        });
+      });
+
+      return true; // Typing completed successfully
+    } catch (error) {
+      if (error.message === 'Typing cancelled') {
+        return false; // Typing was interrupted
       }
+      throw error;
+    } finally {
+      setActiveTyping(null);
+    }
+  };
+
+  useEffect(() => {
+    const initializeNewChat = async () => {
+      const newChatId = uuidv4();
+      setConversationId(newChatId);
+      await showAssistantResponse(true); // Pass true for welcome message
+      setShowAvatar(false);
+      setIsTyping(false);
+      setMessages([WELCOME_MESSAGE]);
     };
 
-    loadConversation();
+    initializeNewChat();
   }, []);
 
   // Save messages to AsyncStorage whenever they change
@@ -86,6 +144,7 @@ const ChatbotScreen = () => {
   };
 
   const WELCOME_MESSAGE = {
+    id: uuidv4(),  
     text: "Hi! I'm Dobbi, your personal AI assistant. I can help you with questions, coding, research, or just friendly chat. What would you like to talk about?",
     isUser: false,
   };
@@ -135,19 +194,27 @@ const ChatbotScreen = () => {
     }
   };
 
-  const deleteChat = async (chatId) => {
+  const performDeleteChat = async (chatId) => {
     try {
+      // Cancel any ongoing typing
+      if (activeTyping) {
+        activeTyping.abort();
+        setShowAvatar(false);
+        setIsTyping(false);
+      }
+
       await AsyncStorage.removeItem(`chat_${chatId}`);
       setChatList((prev) => prev.filter((chat) => chat.id !== chatId));
 
-      // If current chat was deleted, load the most recent chat
+      // Close menu if deleting current chat
       if (chatId === conversationId) {
+        setIsMenuOpen(false);
+        fadeToNewChat();
+      } else {
+        // If there are no chats left after deletion, create a new one
         const remainingChats = chatList.filter((chat) => chat.id !== chatId);
-        if (remainingChats.length > 0) {
-          await loadChat(remainingChats[0].id);
-        } else {
-          setMessages([]);
-          setConversationId("");
+        if (remainingChats.length === 0) {
+          fadeToNewChat();
         }
       }
     } catch (error) {
@@ -155,12 +222,42 @@ const ChatbotScreen = () => {
     }
   };
 
+  const deleteChat = async (chatId) => {
+    const isCurrentChat = chatId === conversationId;
+    Alert.alert(
+      "Delete Chat",
+      isCurrentChat 
+        ? "Are you sure you want to delete this chat?" 
+        : "Are you sure you want to delete this chat from history?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await performDeleteChat(chatId);
+          }
+        }
+      ]
+    );
+  };
+
+  // Update loadChat function
   const loadChat = async (chatId) => {
     try {
       const storedChat = await AsyncStorage.getItem(`chat_${chatId}`);
       if (storedChat) {
-        setMessages(JSON.parse(storedChat).messages || []);
+        const parsedData = JSON.parse(storedChat);
+        const messagesWithIds = parsedData.messages.map(msg => ({
+          ...msg,
+          id: msg.id || uuidv4() // Add ID if missing
+        }));
+        setMessages(messagesWithIds);
         setConversationId(chatId);
+        setSelectedMessage(null); // Reset selected message
       }
       setShowHistory(false);
       toggleMenu();
@@ -185,60 +282,229 @@ const ChatbotScreen = () => {
     loadLastChat();
   }, []);
 
+  const splitResponse = (response) => {
+    // Split by -- markers and filter out empty chunks
+    const chunks = response
+      .split('--')
+      .map(chunk => chunk.trim())
+      .filter(Boolean);
+    
+    chunks.forEach((chunk, index) => {
+      console.log(`📝 Split Message (${index + 1}/${chunks.length}):`, chunk);
+    });
+    
+    console.log('📚 Total Chunks:', chunks.length);
+    return chunks;
+  };
+
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
-
-    const userMessage = { text: inputText, isUser: true };
-    const question = inputText;
+  
+    const userMessage = { 
+      id: uuidv4(),
+      text: inputText, 
+      isUser: true,
+      timestamp: Date.now()
+    };
+    
+    console.log('\n🧑 User:', inputText);
+    
     setInputText("");
-
-    // Ensure we have a valid conversationId
-    const chatId = conversationId || uuidv4();
-    if (!conversationId) {
-      setConversationId(chatId);
-    }
-
-    // Update messages with user input immediately
-    setMessages((prevMessages) => [userMessage, ...prevMessages]);
-
+    setMessages(prevMessages => [userMessage, ...prevMessages]);
+  
     try {
-      const response = await getOpenAIResponse(question);
-      const aiMessage = { text: response, isUser: false };
-
-      // Update messages with AI response
-      setMessages((prevMessages) => {
-        const updatedMessages = [aiMessage, ...prevMessages];
-
-        // Save chat after first message
-        AsyncStorage.setItem(
-          `chat_${chatId}`,
-          JSON.stringify({
-            messages: updatedMessages,
-            lastModified: new Date().toISOString(),
-          })
-        );
-
-        // Update chat list
-        loadChatHistory();
-
-        return updatedMessages;
-      });
+      // Start typing immediately after user message
+      let typingCompleted = await showAssistantResponse(false);
+      
+      const financialData = await getFinancialContextData(user.id);
+      // Get AI response while showing typing indicator
+      const aiResponse = await getOpenAIResponse(inputText, financialData, user.username);
+      console.log('🤖 Dobbi:', aiResponse);
+      
+      const responseChunks = splitResponse(aiResponse);
+      const botMessages = [];
+      
+      for (const [index, chunk] of responseChunks.entries()) {
+        // Make sure we're still typing
+        if (!typingCompleted) {
+          typingCompleted = await showAssistantResponse(false);
+        }
+  
+        const botMessage = { 
+          id: uuidv4(),
+          text: chunk,
+          isUser: false,
+          timestamp: Date.now() + index
+        };
+        
+        botMessages.push(botMessage);
+        setMessages(prevMessages => [botMessage, ...prevMessages]);
+        
+        if (index < responseChunks.length - 1) {
+          // Brief pause in typing (150-300ms)
+          setShowAvatar(false);
+          setIsTyping(false);
+          
+          // Start typing again for next message
+          typingCompleted = await showAssistantResponse(false);
+          
+          // Reading delay while typing next message
+          const wordCount = chunk.split(' ').length;
+          const readingDelay = Math.min(Math.max(wordCount * 150, 300), 4500);
+          await new Promise(resolve => setTimeout(resolve, readingDelay));
+        }
+      }
+      
+      // Finally stop typing after last message
+      setShowAvatar(false);
+      setIsTyping(false);
+      
+      // Save all messages
+      const updatedMessages = [...botMessages, userMessage, ...messages];
+      await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
+      loadChatHistory();
+      
     } catch (error) {
-      console.error("Error calling OpenAI API:", error);
-      const errorMessage = {
-        text: "Sorry, I couldn't process your request.",
-        isUser: false,
-      };
-      setMessages((prevMessages) => [errorMessage, ...prevMessages]);
+      console.error("❌ Error getting AI response:", error);
+      setShowAvatar(false);
+      setIsTyping(false);
     }
-  }, [inputText, conversationId]);
+  }, [inputText, conversationId, messages, user?.id]);
 
+  const handleBubblePress = useCallback((messageId) => {
+    console.log('Message selected:', messageId); // Add debug logging
+    setSelectedMessage(prevSelected => {
+      const newSelected = prevSelected === messageId ? null : messageId;
+      console.log('New selected state:', newSelected); // Add debug logging
+      return newSelected;
+    });
+  }, []);
+
+  // Add this useEffect to debug selection changes
+  useEffect(() => {
+    console.log('Selected message changed:', selectedMessage);
+  }, [selectedMessage]);
+
+  // Add this function to find selected message data
+  const getSelectedMessageData = useCallback(() => {
+    if (!selectedMessage) return null;
+    return messages.find(msg => msg.id === selectedMessage);
+  }, [selectedMessage, messages]);
+
+  // Update renderItem to disable bubble interaction during transitions
   const renderItem = useCallback(
-    ({ item }) => <ChatBubble text={item.text} isUser={item.isUser} />,
-    []
+    ({ item, index }) => {
+      // Check if previous message was from bot
+      const previousMessageIsBot = index < messages.length - 1 && 
+        !messages[index + 1].isUser;  // Remember FlatList is inverted
+  
+      return (
+        <ChatBubble 
+          ref={ref => {
+            if (ref) {
+              messageRefs.set(item.id, ref);
+            } else {
+              messageRefs.delete(item.id);
+            }
+          }}
+          text={item.text} 
+          isUser={item.isUser} 
+          onPress={handleBubblePress}
+          isSelected={selectedMessage === item.id}
+          messageId={item.id}
+          disabled={isTransitioning}
+          previousMessageIsBot={previousMessageIsBot}
+        />
+      );
+    },
+    [selectedMessage, messages, isTransitioning, handleBubblePress]
   );
 
-  const keyExtractor = useCallback((_, index) => index.toString(), []);
+  // Update keyExtractor to use message ID
+  const keyExtractor = useCallback((item) => item.id, []);
+
+  useEffect(() => {
+    console.log('Current System Prompt:');
+    console.log('===================');
+    console.log('===================');
+  }, []);
+
+  const handleHistoryPress = useCallback(async () => {
+    await loadChatHistory();
+    setShowHistory(true);
+    toggleMenu();
+  }, []);
+
+  const handleNewChatPress = useCallback(async () => {
+    try {
+      console.log('Creating new chat...');
+      
+      // Cancel any ongoing typing
+      if (activeTyping) {
+        activeTyping.abort();
+        setShowAvatar(false);
+        setIsTyping(false);
+      }
+
+      const newChatId = uuidv4();
+      await chatStorageService.setCurrentChat(newChatId);
+      setConversationId(newChatId);
+      setMessages([]); // Clear messages first
+      
+      // Animate menu closing first
+      Animated.spring(menuAnimation, {
+        toValue: 0,
+        friction: 8,
+        tension: 45,
+        useNativeDriver: true,
+      }).start(() => {
+        setIsMenuOpen(false);
+      });
+
+      // Show typing animation for welcome message
+      await showAssistantResponse(true);
+      setShowAvatar(false);
+      setIsTyping(false);
+      setMessages([WELCOME_MESSAGE]);
+      
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
+  }, [menuAnimation, activeTyping]); // Add activeTyping to dependencies
+
+  const fadeToNewChat = async () => {
+    // Start transition state immediately
+    setIsTransitioning(true);
+    setSelectedMessage(null);
+    
+    // Clear current messages
+    setMessages([]);
+
+   // wait
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Set new messages while invisible
+    const newChatId = uuidv4();
+    await chatStorageService.setCurrentChat(newChatId);
+    setConversationId(newChatId);
+    
+    // Add typing animation here too
+    await showAssistantResponse(true);
+    setShowAvatar(false);
+    setIsTyping(false);
+    setMessages([WELCOME_MESSAGE]);
+
+    // Keep transition state active until animation is completely done
+    await new Promise(resolve => setTimeout(resolve, fadeInDuration));
+    setIsTransitioning(false);
+  };
+
+  const handleDeleteCurrentChat = useCallback(async () => {
+    deleteChat(conversationId); // Now using the shared deleteChat function
+  }, [conversationId]);
+
+  // Calculate if chat is deletable (has user messages)
+  const canDeleteChat = messages.some(message => message.isUser);
 
   return (
     <>
@@ -246,7 +512,51 @@ const ChatbotScreen = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <Header />
+        <Header title="Chatbot" />
+
+        {/* Move the Banner component here */}
+        <Banner 
+          isVisible={!!selectedMessage}
+          message={getSelectedMessageData()}
+          onClose={() => setSelectedMessage(null)}
+          onCopy={async (text) => {
+            await Clipboard.setStringAsync(text);
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            showCopySuccess(); // Add this line
+            setSelectedMessage(null);
+          }}
+          onShare={() => {
+            // Implement share
+            setSelectedMessage(null);
+          }}
+          onReport={() => {
+            // Implement report
+            setSelectedMessage(null);
+          }}
+          onDelete={() => {
+            // Implement delete
+            setSelectedMessage(null);
+          }}
+          // Remove the style prop or adjust it if necessary
+        />
+
+        {showCopyNotification && (
+          <Animated.View style={[
+            styles.copyNotification,
+            {
+              opacity: copyNotificationAnim,
+              transform: [{
+                translateY: copyNotificationAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-20, 0]
+                })
+              }]
+            }
+          ]}>
+            <MaterialIcons name="check-circle" size={16} color="#fff" style={{ marginRight: 4 }} />
+            <Text style={styles.copyNotificationText}>Copied to clipboard</Text>
+          </Animated.View>
+        )}
 
         {/* Chat History Modal */}
         {showHistory && (
@@ -296,111 +606,31 @@ const ChatbotScreen = () => {
           </View>
         )}
 
-        <FlatList
-          style={styles.chatContainer}
-          data={messages}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          inverted
-          showsVerticalScrollIndicator={false}
-        />
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={(text) => {
-              setInputText(text);
-            }}
-            placeholder="Type a message..."
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <AnimatedFlatList
+            ref={flatListRef}
+            style={styles.chatContainer}
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            inverted
+            removeClippedSubviews={false}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={isTyping ? <TypingIndicator /> : null}
           />
-          {inputText.trim() !== "" ? (
-            <View style={styles.menuContainer}>
-              <TouchableOpacity style={styles.menuButton} onPress={sendMessage}>
-                <MaterialIcons name="send" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <>
-              {isMenuOpen && (
-                <TouchableWithoutFeedback onPress={toggleMenu}>
-                  <View
-                    style={[
-                      StyleSheet.absoluteFill,
-                      {
-                        position: "absolute",
-                        top: -1000,
-                        left: -1000,
-                        right: -1000,
-                        bottom: -1000,
-                        zIndex: 1,
-                      },
-                    ]}
-                  />
-                </TouchableWithoutFeedback>
-              )}
-              <View style={[styles.menuContainer, { zIndex: 2 }]}>
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={toggleMenu}
-                >
-                  <MaterialIcons
-                    name={isMenuOpen ? "close" : "more-vert"}
-                    size={24}
-                    color="#FFF"
-                  />
-                </TouchableOpacity>
-                <Animated.View
-                  style={[
-                    styles.menuItem,
-                    {
-                      transform: [
-                        {
-                          translateY: menuAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -70],
-                          }),
-                        },
-                      ],
-                      opacity: menuAnimation,
-                      zIndex: 2,
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.menuOption}
-                    onPress={createNewChat}
-                  >
-                    <MaterialIcons name="add" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </Animated.View>
-
-                <Animated.View
-                  style={[
-                    styles.menuItem,
-                    {
-                      transform: [
-                        {
-                          translateY: menuAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -140], // Increased spacing
-                          }),
-                        },
-                      ],
-                      opacity: menuAnimation,
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.menuOption}
-                    onPress={viewChatHistory}
-                  >
-                    <MaterialIcons name="history" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-            </>
-          )}
-        </View>
+        </Animated.View>
+        <ChatInput 
+          inputText={inputText}
+          setInputText={setInputText}
+          onSend={sendMessage}
+          onMenuPress={toggleMenu}
+          isMenuOpen={isMenuOpen}
+          menuAnimation={menuAnimation}
+          onHistoryPress={handleHistoryPress}
+          onNewChatPress={handleNewChatPress}
+          onDeleteChat={handleDeleteCurrentChat}
+          canDelete={canDeleteChat}
+        />
       </KeyboardAvoidingView>
       <BottomNavBar />
     </>
@@ -411,61 +641,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFF5F5",
+    position: 'relative', // Add this to handle absolute positioned Banner
   },
   chatContainer: {
     flex: 1,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: "#FFF5F5",
-  },
-  input: {
-    flex: 1,
-    backgroundColor: "#F2D4D4",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: "#333333",
-  },
-  sendButton: {
-    backgroundColor: "#FF6B6B",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginLeft: 12,
-  },
-  menuContainer: {
-    position: "relative",
-    width: 40,
-    height: 40,
-    marginRight: 10,
-    marginLeft: 12,
-  },
-
-  menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FF6B6B",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  menuItem: {
-    position: "absolute",
-    right: 0,
-    backgroundColor: "#FF6B6B",
-    borderRadius: 20,
-    padding: 10,
-    marginTop: 10,
-  },
-  menuOption: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   historyOverlay: {
     position: "absolute",
@@ -527,6 +706,31 @@ const styles = StyleSheet.create({
   },
   historyContent: {
     flex: 1,
+  },
+  copyNotification: {
+    position: 'absolute',
+    top: 120, // Below header
+    transform: [{ translateX: -75 }], // Half of the width
+    backgroundColor: '#333',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 150,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    alignSelf: 'center',
+  },
+  copyNotificationText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
 

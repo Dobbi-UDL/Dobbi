@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const Button = ({ onPress, title, variant = 'primary', size = 'md', style }) => {
+export const Button = ({ onPress, title, variant = 'primary', size = 'md', style }) => {
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -61,5 +61,3 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 });
-
-export default Button;

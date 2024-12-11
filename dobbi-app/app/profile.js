@@ -36,7 +36,7 @@ const HomeScreen = () => {
 
   return (
     <>
-      <Header />
+      <Header title="Profile" />
       <View style={styles.container}>
         <ScrollView style={styles.contentContainer}>
           <ProfileContent username={username} />
