@@ -16,33 +16,17 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid"; // Optional: For generating unique conversation IDs
-import ChatBubble, { TypingIndicator } from "../assets/components/ChatbotScreen/ChatBubble";
+import ChatBubble, { TypingIndicator, Banner } from "../assets/components/ChatbotScreen/ChatBubble";
 import Header from "../assets/components/Header/Header";
 import { getOpenAIResponse, getSystemPrompt } from "../services/openaiService";
 import { BottomNavBar } from "../assets/components/Navigation/BottomNavBar";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
 import { chatStorageService } from "../services/chatStorageService";
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
-const MessageAnimation = ({ index, children }) => {
-  const bubbleAnimation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    // Increased delay to allow avatar to fade in first
-    setTimeout(() => {
-      Animated.spring(bubbleAnimation, {
-        toValue: 1,
-        tension: 50,
-        friction: 12,
-        useNativeDriver: true,
-      }).start();
-    }, 600); // Increased from 300 to 600 to wait for avatar fade-in
-  }, []);
-
-  return React.cloneElement(children, { bubbleAnimation });
-};
 
 const ChatbotScreen = () => {
   const [messages, setMessages] = useState([]);
@@ -58,6 +42,8 @@ const ChatbotScreen = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);  // Add this state
   const [activeTyping, setActiveTyping] = useState(null); // Add this state
+  const flatListRef = useRef(null);
+  const messageRefs = useRef(new Map()).current;  // Add this to store message refs
 
   // Add this helper function
   const showAssistantResponse = async (isWelcome = false) => {
@@ -274,55 +260,71 @@ const ChatbotScreen = () => {
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
 
+    // Add messages to the start of the array to work with inverted FlatList
     const userMessage = { 
       id: uuidv4(),
       text: inputText, 
-      isUser: true 
+      isUser: true,
+      timestamp: Date.now() // Add timestamp for proper animation ordering
     };
     setInputText("");
-    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+    setMessages(prevMessages => [userMessage, ...prevMessages]);
 
     const typingCompleted = await showAssistantResponse(false);
     
-    // Only show response if typing wasn't interrupted
     if (typingCompleted) {
-      const mockResponse = { 
+      const botMessage = { 
         id: uuidv4(),
         text: "This is a test response to: " + inputText, 
-        isUser: false 
+        isUser: false,
+        timestamp: Date.now() // Add timestamp for proper animation ordering
       };
       
       setShowAvatar(false);
       setIsTyping(false);
-      setMessages(prevMessages => [mockResponse, ...prevMessages]);
+      setMessages(prevMessages => [botMessage, ...prevMessages]);
 
-      const updatedMessages = [mockResponse, userMessage, ...messages];
+      const updatedMessages = [botMessage, userMessage, ...messages];
       await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
       loadChatHistory();
     }
   }, [inputText, conversationId, messages]);
 
-  const handleBubblePress = (messageId) => {
-    if (isTransitioning) return;  // Ignore touches during transition
-    setSelectedMessage(currentSelected => 
-      currentSelected === messageId ? null : messageId
-    );
-  };
+  const handleBubblePress = useCallback((messageId) => {
+    if (isTransitioning) return;
+    setSelectedMessage(currentSelected => {
+      if (currentSelected === messageId) {
+        return null;
+      }
+      return messageId;
+    });
+  }, [isTransitioning]);
+
+  // Add this function to find selected message data
+  const getSelectedMessageData = useCallback(() => {
+    if (!selectedMessage) return null;
+    return messages.find(msg => msg.id === selectedMessage);
+  }, [selectedMessage, messages]);
 
   const renderItem = useCallback(
-    ({ item, index }) => (
-      <MessageAnimation index={index}>
-        <ChatBubble 
-          text={item.text} 
-          isUser={item.isUser} 
-          onPress={handleBubblePress}
-          isSelected={selectedMessage === item.id}  // Compare by id instead of text
-          messageId={item.id}  // Pass the id to ChatBubble
-          disabled={isTransitioning}  // Pass disabled state to ChatBubble
-        />
-      </MessageAnimation>
+    ({ item }) => (
+      <ChatBubble 
+        ref={ref => {
+          if (ref) {
+            messageRefs.set(item.id, ref);
+          } else {
+            messageRefs.delete(item.id);
+          }
+        }}
+        text={item.text} 
+        isUser={item.isUser} 
+        onPress={handleBubblePress}
+        isSelected={selectedMessage === item.id}
+        messageId={item.id}
+        onClose={() => setSelectedMessage(null)}
+      />
     ),
-    [selectedMessage, isTransitioning]  // Add isTransitioning to dependencies
+    [selectedMessage]
   );
 
   // Update keyExtractor to use message ID
@@ -419,6 +421,31 @@ const ChatbotScreen = () => {
       >
         <Header title="Chatbot" />
 
+        {/* Move the Banner component here */}
+        <Banner 
+          isVisible={!!selectedMessage}
+          message={getSelectedMessageData()}
+          onClose={() => setSelectedMessage(null)}
+          onCopy={async (text) => {
+            await Clipboard.setStringAsync(text);
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            setSelectedMessage(null);
+          }}
+          onShare={() => {
+            // Implement share
+            setSelectedMessage(null);
+          }}
+          onReport={() => {
+            // Implement report
+            setSelectedMessage(null);
+          }}
+          onDelete={() => {
+            // Implement delete
+            setSelectedMessage(null);
+          }}
+          // Remove the style prop or adjust it if necessary
+        />
+
         {/* Chat History Modal */}
         {showHistory && (
           <View style={styles.historyOverlay}>
@@ -469,15 +496,14 @@ const ChatbotScreen = () => {
 
         <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
           <AnimatedFlatList
+            ref={flatListRef}
             style={styles.chatContainer}
             data={messages}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             inverted
+            removeClippedSubviews={false}
             showsVerticalScrollIndicator={false}
-            // Add smooth scroll behavior
-            onScrollBeginDrag={() => setSelectedMessage(null)}
-            scrollEventThrottle={16}
             ListHeaderComponent={isTyping ? <TypingIndicator /> : null}
           />
         </Animated.View>

@@ -130,50 +130,77 @@ const MessageAnimation = ({ index, children, isUser }) => {
   );
 };
 
-const ActionPanel = ({ isVisible, isUser, onCopy, onShare, onReport, onDelete }) => {
-  const translateY = useRef(new Animated.Value(100)).current;
+const Banner = ({ isVisible, message, onClose, onCopy, onShare, onReport, onDelete, style }) => {
+  const bannerAnim = useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
-    Animated.spring(translateY, {
-      toValue: isVisible ? 0 : 100,
-      friction: 8,
-      tension: 60,
+    Animated.spring(bannerAnim, {
+      toValue: isVisible ? 0 : -100,
+      tension: 80,
+      friction: 10,
       useNativeDriver: true,
     }).start();
   }, [isVisible]);
 
-  if (!isVisible) return null;  // Only render when visible
+  if (!message) return null;
 
   return (
-    <Animated.View style={[styles.actionPanel, { transform: [{ translateY }] }]}>
-      <TouchableOpacity key="copy" style={styles.actionButton} onPress={onCopy}>
-        <MaterialIcons name="content-copy" size={24} color="#555" />
-        <Text style={styles.actionText}>Copy</Text>
-      </TouchableOpacity>
-      <TouchableOpacity key="share" style={styles.actionButton} onPress={onShare}>
-        <MaterialIcons name="share" size={24} color="#555" />
-        <Text style={styles.actionText}>Share</Text>
-      </TouchableOpacity>
-      {isUser ? (
-        <TouchableOpacity key="delete" style={styles.actionButton} onPress={onDelete}>
-          <MaterialIcons name="delete" size={24} color="#ff4444" />
-          <Text style={[styles.actionText, { color: '#ff4444' }]}>Delete</Text>
+    <Animated.View
+      style={[
+        styles.banner,
+        {
+          transform: [{ translateY: bannerAnim }],
+        },
+        style,
+      ]}
+    >
+      <View style={styles.bannerContent}>
+        <TouchableOpacity 
+          style={styles.bannerButton} 
+          onPress={() => onCopy(message.text)}  // Ensure message.text is passed
+        >
+          <MaterialIcons name="content-copy" size={20} color="#333" />
+          <Text style={styles.bannerText}>Copy</Text>
         </TouchableOpacity>
-      ) : (
-        <TouchableOpacity key="report" style={styles.actionButton} onPress={onReport}>
-          <MaterialIcons name="flag" size={24} color="#555" />
-          <Text style={styles.actionText}>Report</Text>
+        <TouchableOpacity style={styles.bannerButton} onPress={onShare}>
+          <MaterialIcons name="share" size={20} color="#333" />
+          <Text style={styles.bannerText}>Share</Text>
         </TouchableOpacity>
-      )}
+        {message.isUser ? (
+          <TouchableOpacity style={styles.bannerButton} onPress={onDelete}>
+            <MaterialIcons name="delete" size={20} color="#FF3B30" />
+            <Text style={[styles.bannerText, { color: '#FF3B30' }]}>Delete</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.bannerButton} onPress={onReport}>
+            <MaterialIcons name="flag" size={20} color="#333" />
+            <Text style={styles.bannerText}>Report</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+        <MaterialIcons name="close" size={24} color="#666" />
+      </TouchableOpacity>
     </Animated.View>
   );
 };
 
-const ChatBubble = ({ text, isUser, onPress, isSelected, messageId, disabled }) => {
+const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messageId, disabled }, ref) => {
   const [localSelected, setLocalSelected] = useState(false);
+  const [bubbleHeight, setBubbleHeight] = useState(0);
+  const bubbleRef = useRef(null);
 
   useEffect(() => {
     setLocalSelected(isSelected);
+  }, [isSelected]);
+
+  // Measure bubble height when selected changes
+  useEffect(() => {
+    if (isSelected && bubbleRef.current) {
+      bubbleRef.current.measure((x, y, width, height) => {
+        setBubbleHeight(height);
+      });
+    }
   }, [isSelected]);
 
   const handleLongPress = async (event) => {
@@ -196,8 +223,15 @@ const ChatBubble = ({ text, isUser, onPress, isSelected, messageId, disabled }) 
   };
 
   return (
-    <View style={styles.bubbleContainer}>
+    <View 
+      ref={ref}
+      style={styles.bubbleContainer}
+    >
       <TouchableOpacity
+        ref={bubbleRef}
+        onLayout={(event) => {
+          setBubbleHeight(event.nativeEvent.layout.height);
+        }}
         onLongPress={handleLongPress}
         onPress={handlePress}
         delayLongPress={200}
@@ -240,25 +274,16 @@ const ChatBubble = ({ text, isUser, onPress, isSelected, messageId, disabled }) 
           </View>
         </View>
       </TouchableOpacity>
-      {localSelected && !disabled && (  // Don't show action panel when disabled
-        <ActionPanel 
-          isVisible={localSelected}
-          isUser={isUser}
-          onCopy={handleCopy}
-          onShare={() => {/* implement share */}}
-          onReport={() => {/* implement report */}}
-          onDelete={() => {/* implement delete */}}
-        />
-      )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   touchableWrapper: {
     width: '100%',
     paddingHorizontal: 16,
     position: 'relative',
+    overflow: 'hidden', // Important for ripple effect
   },
   fullWidthOverlay: {
     position: 'absolute',
@@ -266,7 +291,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(238, 101, 103, 0.15)',
+    backgroundColor: 'rgba(238, 101, 103, 0.2)',
     zIndex: 10,
     paddingVertical: 6,
   },
@@ -350,42 +375,37 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
-  actionPanel: {
-    position: 'absolute',
-    bottom: -60, // Adjust this value to position the panel properly
-    left: 16,
-    right: 16,
-    backgroundColor: '#FFF',
+  banner: {
+    // Removed absolute positioning
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#EEE',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  actionButton: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    // ...existing code...
   },
-  actionText: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#555',
+  bannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
-  bubbleContainer: {
-    width: '100%',
-    position: 'relative',
+  bannerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
-  disabledWrapper: {
-    opacity: 1,  // Ensure full opacity when disabled
-    transform: [{ scale: 1 }],  // Prevent any transform effects
-    backgroundColor: 'transparent',  // Prevent any background color changes
+  bannerText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+  },
+  closeButton: {
+    padding: 4,
   },
   typingContainer: {
     paddingVertical: 12,
@@ -415,4 +435,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChatBubble;
-export { TypingIndicator };
+export { TypingIndicator, Banner };
