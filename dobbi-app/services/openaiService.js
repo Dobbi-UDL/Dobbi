@@ -51,7 +51,7 @@ const USER_PROFILES = {
   }
 };
 
-const currentUserType = USER_TYPE.REGULAR_WORKER;
+const currentUserType = USER_TYPE.STUDENT;
 const profile = USER_PROFILES[currentUserType];
 
 const SYSTEM_PROMPT = `You are Dobbi, a financial AI assistant for a ${currentUserType.toLowerCase()}.
@@ -65,42 +65,12 @@ Split output into natural chat messages, MAX 5. mark split with --
 Only discuss financial topics decline others
 Don't recommend other apps except Dobbi itself`;
 
-const USE_AI = false; // Toggle for AI responses
+const USE_AI = true; // Toggle for AI responses
 
 const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
   await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-
-  return `
-Hey there! Investing can be cool, but as a student, let's think about priorities first. 📚
-
---
-
-Make sure you've got an emergency fund for those "oh no" moments, like replacing a broken laptop. Aim for a couple months' worth of expenses. 💸
-
---
-
-If you've got that covered, investing can be next. But remember, it's for long-term goals, not for buying next week's pizza. 🍕
-
---
-
-Start small with what you can spare. Even $10 a month can grow if you invest wisely. Think of it like planting a seed for your future. 🌱
-
---
-
-Stick to simple investments like ETFs or index funds; they're like getting a piece of the whole market without the stress of picking single stocks. 📊
-
---
-
-Use Dobbi to keep track of your small investments and celebrate those little victories as they grow! 🎉
-
---
-
-So, should you? If you're stable and understand the basics, yes. But always keep learning and be patient. 
-
---
-
-Let me know if you want more on this!`;
+  return `mock`;
 };
 
 /**
@@ -108,9 +78,15 @@ Let me know if you want more on this!`;
  * @param {string} userQuestion - La pregunta del usuario.
  * @returns {Promise<string>} - La respuesta generada por el modelo.
  */
-export async function getOpenAIResponse(userQuestion) {
+export async function getOpenAIResponse(userQuestion, financialData = null, username = null) {
+  const userContext = username ? `\nUser: ${username}` : '';
+  const financialContext = financialData ? formatFinancialMetrics(financialData) : '';
+  const contextualPrompt = `${SYSTEM_PROMPT}${userContext}\n\n${financialContext}`;
+  
   try {
     if (!USE_AI) {
+      console.log('-----------------PROMPT-----------------');
+      console.log(contextualPrompt);
       return getMockResponse(userQuestion);
     }
 
@@ -119,7 +95,7 @@ export async function getOpenAIResponse(userQuestion) {
       messages: [
         {
           role: "system",
-          content: SYSTEM_PROMPT,
+          content: contextualPrompt,
         },
         {
           role: "user",
@@ -142,7 +118,21 @@ export async function getOpenAIResponse(userQuestion) {
   }
 }
 
-// Add this new function
-export function getSystemPrompt() {
-  return SYSTEM_PROMPT;
-}
+const formatFinancialMetrics = (data) => {
+  const { monthlyTrend = [], expenseCategories = [], incomeCategories = [] } = data;
+
+  return `Monthly Trend:
+${monthlyTrend.map(t => 
+    `${t.month_year}:+${t.total_income}-${t.total_expenses}`
+  ).join('\n')}
+
+Top 5 Expenses:
+${expenseCategories.slice(0,5).map(e => 
+    `${e.category_name}:${e.percentage.toFixed(1)}%`
+  ).join('\n')}
+
+Top 5 Income:
+ ${incomeCategories.slice(0,5).map(i => 
+    `${i.category_name}:${i.percentage.toFixed(1)}%`
+  ).join('\n')}`;
+};

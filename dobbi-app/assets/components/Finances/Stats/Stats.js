@@ -14,6 +14,144 @@ import { PeriodSelector } from './PeriodSelector';
 import { ExportButton } from '../Export/ExportButton';
 import { calculateMetrics } from './MetricsUtility';
 
+export async function getFinancialContextData(userId) {
+    // Get financial data for OpenAI context
+    const dates = getPeriodDates('last6Months');
+    
+    try {
+        const [categoryData, trendData] = await Promise.all([
+            fetchCategoryDistribution(userId, dates.startDate, dates.endDate),
+            fetchMonthlyIncomeExpensesTrend(userId, dates.startDate, dates.endDate)
+        ]);
+        console.log(trendData);
+        console.log(categoryData);
+        return {
+            monthlyTrend: trendData,
+            expenseCategories: categoryData.expenseData,
+            incomeCategories: categoryData.incomeData
+        };
+    } catch (error) {
+        console.error('Error fetching financial context:', error);
+        return {
+            monthlyTrend: [],
+            expenseCategories: [],
+            incomeCategories: []
+        };
+    }
+}
+
+const getPeriodDates = (periodId) => {
+    const now = new Date();
+    let startDate, endDate;
+
+    switch (periodId) {
+        case 'thisMonth':
+            // Shows data for the current month up to the current date
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = now;
+            break;
+        case 'lastMonth':
+            // Shows data for the previous month
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of previous month
+            break;
+        case 'last3Months':
+            // Shows data for the last 3 months. Not including the current month
+            startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+            break;
+        case 'last6Months':
+            // Shows data for the last 6 months. Not including the current month
+            startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+            break;
+        case 'yearToDate':
+            // Shows data from January 1st to the current date
+            startDate = new Date(now.getFullYear(), 0, 1); // January 1st
+            endDate = now;
+            break;
+        case 'lastYear':
+            // Shows data for the previous year
+            startDate = new Date(now.getFullYear() - 1, 0, 1); // January 1st of previous year
+            endDate = new Date(now.getFullYear() - 1, 11, 31); // December 31st of previous year
+            break;
+        case 'customRange':
+            // This would need additional UI and logic to handle custom date selection
+            // Choose random dates for now 24/09/15 - 24/11/08
+            startDate = new Date(2024, 11, 2);
+            endDate = new Date(2024, 11, 8);
+            break;
+        default:
+            console.error('Invalid periodId:', periodId);
+            return null;
+    }
+
+    // Set time to noon to avoid timezone issues
+    startDate.setHours(12, 0, 0, 0);
+    endDate.setHours(12, 0, 0, 0);
+
+    return {
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+    };
+};
+
+const getPreviousPeriodDates = (periodId, currentStartDate = null, currentEndDate = null) => {
+    const now = new Date();
+    let startDate, endDate;
+
+    switch (periodId) {
+        case 'thisMonth':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            break;
+        case 'lastMonth':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+            break;
+        case 'last3Months':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() - 3, 0);
+            break;
+        case 'last6Months':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() - 6, 0);
+            break;
+        case 'yearToDate':
+            startDate = new Date(now.getFullYear() - 1, 0, 1);
+            endDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            break;
+        case 'lastYear':
+            startDate = new Date(now.getFullYear() - 2, 0, 1);
+            endDate = new Date(now.getFullYear() - 2, 11, 31);
+            break;
+        case 'customRange':
+            if (currentStartDate && currentEndDate) {
+                const currentStart = new Date(currentStartDate);
+                const currentEnd = new Date(currentEndDate);
+
+                const duration = (currentEnd - currentStart) + (24 * 60 * 60 * 1000); // Include end day
+
+                startDate = new Date(currentStart.getTime() - duration);
+                endDate = new Date(currentStart.getTime() - (24 * 60 * 60 * 1000)); // One day before current start
+            } else {
+                console.error('Custom range requires currentStartDate and currentEndDate');
+                return null;
+            }
+            break;
+        default:
+            console.error('Invalid periodId:', periodId);
+            return null;
+    }
+
+    startDate.setHours(12, 0, 0, 0);
+    endDate.setHours(12, 0, 0, 0);
+    return {
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+    };
+};
+
 export default function Stats() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -42,117 +180,7 @@ export default function Stats() {
     // Data for monthly income vs expenses trend card
     const [monthlyTrend, setMonthlyTrend] = useState([]);
 
-    const getPeriodDates = (periodId) => {
-        const now = new Date();
-        let startDate, endDate;
-
-        switch (periodId) {
-            case 'thisMonth':
-                // Shows data for the current month up to the current date
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                endDate = now;
-                break;
-            case 'lastMonth':
-                // Shows data for the previous month
-                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of previous month
-                break;
-            case 'last3Months':
-                // Shows data for the last 3 months. Not including the current month
-                startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), 0); 
-                break;
-            case 'last6Months':
-                // Shows data for the last 6 months. Not including the current month
-                startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
-                break;
-            case 'yearToDate':
-                // Shows data from January 1st to the current date
-                startDate = new Date(now.getFullYear(), 0, 1); // January 1st
-                endDate = now;
-                break;
-            case 'lastYear':
-                // Shows data for the previous year
-                startDate = new Date(now.getFullYear() - 1, 0, 1); // January 1st of previous year
-                endDate = new Date(now.getFullYear() - 1, 11, 31); // December 31st of previous year
-                break;
-            case 'customRange':
-                // This would need additional UI and logic to handle custom date selection
-                // Choose random dates for now 24/09/15 - 24/11/08
-                startDate = new Date(2024, 11, 2);
-                endDate = new Date(2024, 11, 8);
-                break;
-            default:
-                console.error('Invalid periodId:', periodId);
-                return null;
-        }
-
-        // Set time to noon to avoid timezone issues
-        startDate.setHours(12, 0, 0, 0); 
-        endDate.setHours(12, 0, 0, 0); 
-
-        return {
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0]
-        };
-    };
-
-    const getPreviousPeriodDates = (periodId, currentStartDate = null, currentEndDate = null) => {
-        const now = new Date();
-        let startDate, endDate;
-
-        switch (periodId) {
-            case 'thisMonth':
-                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                break;
-            case 'lastMonth':
-                startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() - 1, 0);
-                break;
-            case 'last3Months':
-                startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() - 3, 0);
-                break;
-            case 'last6Months':
-                startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth() - 6, 0);
-                break;
-            case 'yearToDate':
-                startDate = new Date(now.getFullYear() - 1, 0, 1);
-                endDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                break;
-            case 'lastYear':
-                startDate = new Date(now.getFullYear() - 2, 0, 1);
-                endDate = new Date(now.getFullYear() - 2, 11, 31);
-                break;
-            case 'customRange':
-                if (currentStartDate && currentEndDate) {
-                    const currentStart = new Date(currentStartDate);
-                    const currentEnd = new Date(currentEndDate);
-
-                    const duration = (currentEnd - currentStart) + (24 * 60 * 60 * 1000); // Include end day
-                    
-                    startDate = new Date(currentStart.getTime() - duration);
-                    endDate = new Date(currentStart.getTime() - (24 * 60 * 60 * 1000)); // One day before current start
-                } else {
-                    console.error('Custom range requires currentStartDate and currentEndDate');
-                    return null;
-                }
-                break;
-            default:
-                console.error('Invalid periodId:', periodId);
-                return null;
-        }
-
-        startDate.setHours(12, 0, 0, 0);
-        endDate.setHours(12, 0, 0, 0);
-        return {
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0]
-        };
-    };
+    
 
     useEffect(() => {
         if (user) {

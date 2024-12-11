@@ -26,10 +26,14 @@ import ChatInput from "../assets/components/ChatbotScreen/ChatInput";
 import { chatStorageService } from "../services/chatStorageService";
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
+import { useAuth } from '../contexts/AuthContext';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ChatbotScreen = () => {
+  const { user } = useAuth();
+
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [conversationId, setConversationId] = useState("");
@@ -312,8 +316,9 @@ const ChatbotScreen = () => {
       // Start typing immediately after user message
       let typingCompleted = await showAssistantResponse(false);
       
+      const financialData = await getFinancialContextData(user.id);
       // Get AI response while showing typing indicator
-      const aiResponse = await getOpenAIResponse(inputText);
+      const aiResponse = await getOpenAIResponse(inputText, financialData, user.username);
       console.log('🤖 Dobbi:', aiResponse);
       
       const responseChunks = splitResponse(aiResponse);
@@ -364,8 +369,7 @@ const ChatbotScreen = () => {
       setShowAvatar(false);
       setIsTyping(false);
     }
-  }, [inputText, conversationId, messages]);
-  
+  }, [inputText, conversationId, messages, user?.id]);
 
   const handleBubblePress = useCallback((messageId) => {
     console.log('Message selected:', messageId); // Add debug logging
