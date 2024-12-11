@@ -37,33 +37,34 @@ export const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   profileSection: {
-    flexDirection: "row",
-    alignItems: "center",
     flex: 1,
+    flexDirection: "column",
   },
   profileAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ccc", // Placeholder background color
+    backgroundColor: "#ff6b6b",
   },
   avatarPlaceholder: {
     backgroundColor: "#ccc", // Placeholder background color
   },
   avatarText: {
-    color: "#fff", // Text color
-    fontSize: 24, // Adjust font size as needed
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "600",
   },
   profileInfo: {
     marginLeft: 16,
     flex: 1,
   },
   profileName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#333",
+    marginLeft: 16,
   },
   editProfileLink: {
     color: "#ff6b6b",
@@ -125,5 +126,88 @@ export const styles = StyleSheet.create({
     lineHeight: 24,
     color: "#333333",
     marginBottom: 16,
+  },
+  // Add to styles/profile.js
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#333333",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#E5E5E5",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: "#ff6b6b",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  levelContainer: {
+    marginTop: 4,
+  },
+  levelText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#666",
+    marginBottom: 4,
+  },
+  progressBarContainer: {
+    height: 6,
+    backgroundColor: "#F0F0F0",
+    borderRadius: 3,
+    width: "100%",
+    overflow: "hidden",
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#ff6b6b",
+    borderRadius: 3,
+  },
+  experienceText: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 4,
+  },
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  levelSystemContainer: {
+    width: "100%",
+    paddingHorizontal: 8,
+    marginTop: 16,
+  },
+  levelHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  levelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  expBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  expText: {
+    fontSize: 13,
+    color: "#666",
+    marginLeft: 4,
   },
 });

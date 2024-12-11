@@ -19,6 +19,10 @@ import { supabase } from "../../../config/supabaseClient.js";
 import { PrivacyModal } from "./Modals/PrivacyModal.js";
 import { TermsModal } from "./Modals/TermsModal.js";
 import { EditProfileModal } from "./Modals/EditProfileModal.js";
+import {
+  calculateXPForLevel,
+  calculateProgressPercentage,
+} from "../../../utils/experienceSystem";
 
 export const ProfileSection = ({ userData, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -40,13 +44,12 @@ export const ProfileSection = ({ userData, onClose }) => {
   };
 
   const handleEditProfile = () => {
-    onClose();
-    router.push("/profile");
+    setIsEditProfileModalVisible(true);
   };
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      signOut;
       if (error) throw error;
     } catch (err) {
       console.error("Error during signOut:", err);
@@ -91,25 +94,51 @@ export const ProfileSection = ({ userData, onClose }) => {
     <View style={[styles.settingsContainer, { paddingTop: insets.top }]}>
       <View style={styles.settingsHeader}>
         <View style={styles.profileSection}>
-          <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
-            <Text style={styles.avatarText}>
-              {getInitials(userData?.username)}
-            </Text>
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>
-              {userData?.username || "User"}
-            </Text>
+          <View style={styles.profileRow}>
             <TouchableOpacity onPress={handleEditProfile}>
-              <Text style={styles.editProfileLink}>
-                {i18n.t("editProfile")}
-              </Text>
+              <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
+                <Text style={styles.avatarText}>
+                  {getInitials(userData?.username)}
+                </Text>
+              </View>
             </TouchableOpacity>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>
+                {userData?.username || "User"}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.levelSystemContainer}>
+            <View style={styles.levelHeader}>
+              <View style={styles.levelBadge}>
+                <Icon name="star" size={16} color="#FFD700" />
+                <Text style={styles.levelText}>
+                  Level {userData?.current_level || 1}
+                </Text>
+              </View>
+              <View style={styles.expBadge}>
+                <Icon name="lightning-bolt" size={14} color="#FF6B6B" />
+                <Text style={styles.expText}>
+                  {userData?.current_xp || 0}/
+                  {calculateXPForLevel(userData?.current_level || 1)} XP
+                </Text>
+              </View>
+            </View>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBar,
+                  {
+                    width: `${calculateProgressPercentage(
+                      userData?.current_xp || 0,
+                      userData?.current_level || 1
+                    )}%`,
+                  },
+                ]}
+              />
+            </View>
           </View>
         </View>
-        <TouchableOpacity onPress={onClose}>
-          <Icon name="close" size={24} color="#000" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.menuContainer}>
