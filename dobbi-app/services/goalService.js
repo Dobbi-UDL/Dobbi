@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 export const assignGoal = async (goalId, userId) => {
   try {
-    // Primero, recuperamos la información del objetivo de saving_goals
+    // Recuperar información del objetivo desde saving_goals
     const { data: goalData, error: goalError } = await supabase
       .from('saving_goals')
       .select('monthly_saving, target_amount')
@@ -21,11 +21,10 @@ export const assignGoal = async (goalId, userId) => {
 
     if (financialError) throw financialError;
 
-    // Calcular la fecha de finalización
+    // Calcular la fecha de inicio y finalización
     const startDate = new Date();
     let endDate = new Date();
 
-    // Si ya ha pasado el día 10 del mes, el objetivo se completa el mes siguiente
     if (startDate.getDate() > 10) {
       endDate.setMonth(endDate.getMonth() + 2);
       endDate.setDate(1);
@@ -34,22 +33,25 @@ export const assignGoal = async (goalId, userId) => {
       endDate.setDate(1);
     }
 
-    // Verificar si puede ahorrar (ingresos mayores que gastos + ahorro mensual)
+    // Verificar si el usuario puede ahorrar
     const canSave = financialData.total_income > 
       (financialData.total_expense + goalData.monthly_saving);
+
+    // Determinar el estado inicial del objetivo
+    const goalStatus = canSave ? 'working' : 'pending';
 
     // Preparar los datos para insertar en goal_tracking
     const goalTrackingData = {
       user_id: userId,
       goal_id: goalId,
-      current_amount: canSave ? goalData.monthly_saving : 0,
-      completed: false, // Cambia de `false` a un array vacío
+      current_amount: goalStatus === 'working' ? goalData.monthly_saving : 0,
+      completed: false,
       start_date: startDate.toISOString(),
       end_date: endDate.toISOString(),
       monthly_saving: goalData.monthly_saving,
       target_amount: goalData.target_amount,
+      goal_status: goalStatus, // Estado inicial del objetivo
     };
-    
 
     // Insertar en goal_tracking
     const { data: insertedGoal, error: insertError } = await supabase
@@ -63,7 +65,7 @@ export const assignGoal = async (goalId, userId) => {
     // Notificar éxito
     Alert.alert(
       'Objetivo Asignado', 
-      canSave 
+      goalStatus === 'working' 
         ? 'Has asignado el objetivo exitosamente.' 
         : 'Objetivo asignado, pero no podrás ahorrar este mes debido a tu situación financiera.'
     );

@@ -4,11 +4,13 @@ import { supabase } from '../../../config/supabaseClient';
 import { MyGoalsCard } from './MyGoalsCard';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../../styles/marketplace';
+import { SavingGoalsPopup } from './AddGoalForm'; // Import the new popup component
 
-const MyGoalsView = ({ userId }) => {
+const AssignedGoalsView = ({ userId }) => {
     const [personalGoals, setPersonalGoals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
 
     useEffect(() => {
         if (userId) {
@@ -33,7 +35,16 @@ const MyGoalsView = ({ userId }) => {
     };
 
     const openCreateChallengePopup = () => {
-        console.log('Open create challenge popup');
+        setIsPopupVisible(true);
+    };
+
+    const closePopup = () => {
+        setIsPopupVisible(false);
+    };
+
+    const handleGoalCreated = () => {
+        // Refresh goals after creating a new one
+        fetchPersonalGoals(userId);
     };
 
     if (loading) {
@@ -59,8 +70,16 @@ const MyGoalsView = ({ userId }) => {
             >
                 <Ionicons name="add" size={24} color="#FFFFFF" />
             </TouchableOpacity>
+
+            {/* Saving Goals Popup */}
+            <SavingGoalsPopup
+                visible={isPopupVisible}
+                onClose={closePopup}
+                userId={userId}
+                onGoalCreated={handleGoalCreated}
+            />
         </View>
     );
 };
 
-export default MyGoalsView;
+export default AssignedGoalsView;

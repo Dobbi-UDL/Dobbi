@@ -1,5 +1,5 @@
 import React from 'react';
-import MyGoalsView from '../assets/components/ChallengesScreen/MyGoalsView';
+import AssignedGoalsView from '../assets/components/ChallengesScreen/AssignedGoalsView';
 import SponsoredGoalsView from '../assets/components/ChallengesScreen/SponsoredGoalsView';
 import TabView from '../assets/components/common/TabView';
 import Header from '../assets/components/Header/Header';
@@ -9,13 +9,13 @@ import { useAuth } from '../contexts/AuthContext';
 
 const ChallengesScreen = () => {
     const { user } = useAuth();
-    const tabs = ['My Goals', 'Sponsored Goals'];
+    const tabs = ['Assigned Goals', 'Sponsored Goals'];
 
     return (
         <>
             <Header />
             <TabView tabs={tabs}>
-                <MyGoalsView userId={user?.id} />
+                <AssignedGoalsView userId={user?.id} />
                 <SponsoredGoalsView userId={user?.id} />
             </TabView>
             <BottomNavBar />
