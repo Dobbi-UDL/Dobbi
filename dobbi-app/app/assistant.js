@@ -257,38 +257,78 @@ const ChatbotScreen = () => {
     loadLastChat();
   }, []);
 
+  const splitResponse = (response) => {
+    // Split by -- markers and filter out empty chunks
+    const chunks = response
+      .split('--')
+      .map(chunk => chunk.trim())
+      .filter(Boolean);
+    
+    chunks.forEach((chunk, index) => {
+      console.log(`📝 Split Message (${index + 1}/${chunks.length}):`, chunk);
+    });
+    
+    console.log('📚 Total Chunks:', chunks.length);
+    return chunks;
+  };
+
   const sendMessage = useCallback(async () => {
     if (inputText.trim() === "") return;
-
-    // Add messages to the start of the array to work with inverted FlatList
+  
     const userMessage = { 
       id: uuidv4(),
       text: inputText, 
       isUser: true,
-      timestamp: Date.now() // Add timestamp for proper animation ordering
+      timestamp: Date.now()
     };
+    
+    console.log('\n🧑 User:', inputText);
+    
     setInputText("");
     setMessages(prevMessages => [userMessage, ...prevMessages]);
-
+  
     const typingCompleted = await showAssistantResponse(false);
     
     if (typingCompleted) {
-      const botMessage = { 
-        id: uuidv4(),
-        text: "This is a test response to: " + inputText, 
-        isUser: false,
-        timestamp: Date.now() // Add timestamp for proper animation ordering
-      };
-      
-      setShowAvatar(false);
-      setIsTyping(false);
-      setMessages(prevMessages => [botMessage, ...prevMessages]);
-
-      const updatedMessages = [botMessage, userMessage, ...messages];
-      await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
-      loadChatHistory();
+      try {
+        const aiResponse = await getOpenAIResponse(inputText);
+        console.log('🤖 Dobbi:', aiResponse);
+        
+        // Split response into chunks
+        const responseChunks = splitResponse(aiResponse);
+        const botMessages = [];
+        
+        // Create message for each chunk with small delays between
+        for (const [index, chunk] of responseChunks.entries()) {
+          const botMessage = { 
+            id: uuidv4(),
+            text: chunk,
+            isUser: false,
+            timestamp: Date.now() + index
+          };
+          
+          botMessages.push(botMessage);
+          
+          // Add each message with a small delay
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setMessages(prevMessages => [botMessage, ...prevMessages]);
+        }
+        
+        setShowAvatar(false);
+        setIsTyping(false);
+  
+        // Save all messages including the split responses
+        const updatedMessages = [...botMessages, userMessage, ...messages];
+        await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
+        loadChatHistory();
+      } catch (error) {
+        console.error("❌ Error getting AI response:", error);
+        setShowAvatar(false);
+        setIsTyping(false);
+      }
     }
   }, [inputText, conversationId, messages]);
+  
 
   const handleBubblePress = useCallback((messageId) => {
     if (isTransitioning) return;

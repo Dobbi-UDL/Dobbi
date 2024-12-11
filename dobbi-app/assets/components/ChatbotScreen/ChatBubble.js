@@ -157,29 +157,43 @@ const Banner = ({ isVisible, message, onClose, onCopy, onShare, onReport, onDele
       <View style={styles.bannerContent}>
         <TouchableOpacity 
           style={styles.bannerButton} 
-          onPress={() => onCopy(message.text)}  // Ensure message.text is passed
+          onPress={() => onCopy(message.text)}
         >
-          <MaterialIcons name="content-copy" size={20} color="#333" />
-          <Text style={styles.bannerText}>Copy</Text>
+          <View style={styles.buttonInner}>
+            <MaterialIcons name="content-copy" size={20} color="#EE6567" />
+            <Text style={[styles.bannerText, styles.primaryAction]}>Copy</Text>
+          </View>
         </TouchableOpacity>
+        <View style={styles.divider} />
         <TouchableOpacity style={styles.bannerButton} onPress={onShare}>
-          <MaterialIcons name="share" size={20} color="#333" />
-          <Text style={styles.bannerText}>Share</Text>
+          <View style={styles.buttonInner}>
+            <MaterialIcons name="share" size={20} color="#666" />
+            <Text style={styles.bannerText}>Share</Text>
+          </View>
         </TouchableOpacity>
+        <View style={styles.divider} />
         {message.isUser ? (
           <TouchableOpacity style={styles.bannerButton} onPress={onDelete}>
-            <MaterialIcons name="delete" size={20} color="#FF3B30" />
-            <Text style={[styles.bannerText, { color: '#FF3B30' }]}>Delete</Text>
+            <View style={styles.buttonInner}>
+              <MaterialIcons name="delete" size={20} color="#FF3B30" />
+              <Text style={[styles.bannerText, styles.destructiveAction]}>Delete</Text>
+            </View>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.bannerButton} onPress={onReport}>
-            <MaterialIcons name="flag" size={20} color="#333" />
-            <Text style={styles.bannerText}>Report</Text>
+            <View style={styles.buttonInner}>
+              <MaterialIcons name="flag" size={20} color="#666" />
+              <Text style={styles.bannerText}>Report</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>
-      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <MaterialIcons name="close" size={24} color="#666" />
+      <TouchableOpacity 
+        style={styles.closeButton} 
+        onPress={onClose}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <MaterialIcons name="close" size={20} color="#999" />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -320,7 +334,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-
   },
   userBubble: {
     backgroundColor: "#f66c72",
@@ -335,10 +348,12 @@ const styles = StyleSheet.create({
   markdownBody: {
     margin: 0,
     padding: 0,
+    flex: 1, // Added to ensure proper text wrapping
   },
   text: {
     fontSize: 15,
-    lineHeight: 20,
+    lineHeight: 22, // Increased line height
+    flexWrap: 'wrap', // Ensure text wraps properly
   },
   userText: {
     color: "#FFFFFF",
@@ -361,7 +376,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   paragraph: {
-    margin: 0,
+    margin: 4, // Added margin between paragraphs
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -376,36 +391,65 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   banner: {
-    // Removed absolute positioning
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    // ...existing code...
+    paddingLeft: 8,
+    paddingRight: 4,
+    paddingVertical: 4, // Reduced from 8
+    shadowColor: '#AA6667',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    zIndex: 10,
+    height: 40, // Fixed height for compactness
+    zIndex: 10,
   },
   bannerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    flex: 1,
+    height: '100%',
   },
   bannerButton: {
+    flex: 1,
+    paddingVertical: 4, // Reduced from 8
+    paddingHorizontal: 8, // Reduced from 12
+    borderRadius: 6,
+    height: '100%',
+    justifyContent: 'center',
+  },
+  buttonInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    justifyContent: 'center',
+    gap: 4, // Reduced from 6
   },
   bannerText: {
-    fontSize: 14,
+    fontSize: 13, // Reduced from 15
     fontWeight: '500',
-    color: '#333',
+    color: '#666',
+  },
+  primaryAction: {
+    color: '#EE6567',
+  },
+  destructiveAction: {
+    color: '#FF3B30',
   },
   closeButton: {
-    padding: 4,
+    padding: 6, // Reduced from 8
+    borderRadius: 16,
+    marginLeft: 2, // Reduced from 4
+    height: '100%',
+    justifyContent: 'center',
+  },
+  divider: {
+    width: 1,
+    height: 20, // Reduced from 24
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginHorizontal: 2, // Reduced from 4
   },
   typingContainer: {
     paddingVertical: 12,
