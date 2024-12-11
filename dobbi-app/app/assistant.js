@@ -1,3 +1,4 @@
+// NEW VERSION
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
@@ -44,6 +45,26 @@ const ChatbotScreen = () => {
   const [activeTyping, setActiveTyping] = useState(null); // Add this state
   const flatListRef = useRef(null);
   const messageRefs = useRef(new Map()).current;  // Add this to store message refs
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
+  const copyNotificationAnim = useRef(new Animated.Value(0)).current;
+
+  const showCopySuccess = () => {
+    setShowCopyNotification(true);
+    Animated.sequence([
+      Animated.spring(copyNotificationAnim, {
+        toValue: 1,
+        tension: 80,
+        friction: 8,
+        useNativeDriver: true
+      }),
+      Animated.delay(1500),
+      Animated.timing(copyNotificationAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true
+      })
+    ]).start(() => setShowCopyNotification(false));
+  };
 
   // Add this helper function
   const showAssistantResponse = async (isWelcome = false) => {
@@ -54,7 +75,7 @@ const ChatbotScreen = () => {
     try {
       // Natural delay before showing avatar typing
       await new Promise((resolve, reject) => {
-        const timer = setTimeout(resolve, isWelcome ? 200 : 1000);
+        const timer = setTimeout(resolve, isWelcome ? 150 : 300 + Math.random() * 150);
         typingSession.signal.addEventListener('abort', () => {
           clearTimeout(timer);
           reject(new Error('Typing cancelled'));
@@ -66,7 +87,7 @@ const ChatbotScreen = () => {
 
       // Typing delay with indicator
       await new Promise((resolve, reject) => {
-        const timer = setTimeout(resolve, 1500 + Math.random() * 1000);
+        const timer = setTimeout(resolve, isWelcome ? 1500 : 0);
         typingSession.signal.addEventListener('abort', () => {
           clearTimeout(timer);
           reject(new Error('Typing cancelled'));
@@ -287,58 +308,78 @@ const ChatbotScreen = () => {
     setInputText("");
     setMessages(prevMessages => [userMessage, ...prevMessages]);
   
-    const typingCompleted = await showAssistantResponse(false);
-    
-    if (typingCompleted) {
-      try {
-        const aiResponse = await getOpenAIResponse(inputText);
-        console.log('🤖 Dobbi:', aiResponse);
-        
-        // Split response into chunks
-        const responseChunks = splitResponse(aiResponse);
-        const botMessages = [];
-        
-        // Create message for each chunk with small delays between
-        for (const [index, chunk] of responseChunks.entries()) {
-          const botMessage = { 
-            id: uuidv4(),
-            text: chunk,
-            isUser: false,
-            timestamp: Date.now() + index
-          };
-          
-          botMessages.push(botMessage);
-          
-          // Add each message with a small delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setMessages(prevMessages => [botMessage, ...prevMessages]);
+    try {
+      // Start typing immediately after user message
+      let typingCompleted = await showAssistantResponse(false);
+      
+      // Get AI response while showing typing indicator
+      const aiResponse = await getOpenAIResponse(inputText);
+      console.log('🤖 Dobbi:', aiResponse);
+      
+      const responseChunks = splitResponse(aiResponse);
+      const botMessages = [];
+      
+      for (const [index, chunk] of responseChunks.entries()) {
+        // Make sure we're still typing
+        if (!typingCompleted) {
+          typingCompleted = await showAssistantResponse(false);
         }
-        
-        setShowAvatar(false);
-        setIsTyping(false);
   
-        // Save all messages including the split responses
-        const updatedMessages = [...botMessages, userMessage, ...messages];
-        await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
-        loadChatHistory();
-      } catch (error) {
-        console.error("❌ Error getting AI response:", error);
-        setShowAvatar(false);
-        setIsTyping(false);
+        const botMessage = { 
+          id: uuidv4(),
+          text: chunk,
+          isUser: false,
+          timestamp: Date.now() + index
+        };
+        
+        botMessages.push(botMessage);
+        setMessages(prevMessages => [botMessage, ...prevMessages]);
+        
+        if (index < responseChunks.length - 1) {
+          // Brief pause in typing (150-300ms)
+          setShowAvatar(false);
+          setIsTyping(false);
+          
+          // Start typing again for next message
+          typingCompleted = await showAssistantResponse(false);
+          
+          // Reading delay while typing next message
+          const wordCount = chunk.split(' ').length;
+          const readingDelay = Math.min(Math.max(wordCount * 150, 300), 4500);
+          await new Promise(resolve => setTimeout(resolve, readingDelay));
+        }
       }
+      
+      // Finally stop typing after last message
+      setShowAvatar(false);
+      setIsTyping(false);
+      
+      // Save all messages
+      const updatedMessages = [...botMessages, userMessage, ...messages];
+      await chatStorageService.saveChat(conversationId || uuidv4(), updatedMessages);
+      loadChatHistory();
+      
+    } catch (error) {
+      console.error("❌ Error getting AI response:", error);
+      setShowAvatar(false);
+      setIsTyping(false);
     }
   }, [inputText, conversationId, messages]);
   
 
   const handleBubblePress = useCallback((messageId) => {
-    if (isTransitioning) return;
-    setSelectedMessage(currentSelected => {
-      if (currentSelected === messageId) {
-        return null;
-      }
-      return messageId;
+    console.log('Message selected:', messageId); // Add debug logging
+    setSelectedMessage(prevSelected => {
+      const newSelected = prevSelected === messageId ? null : messageId;
+      console.log('New selected state:', newSelected); // Add debug logging
+      return newSelected;
     });
-  }, [isTransitioning]);
+  }, []);
+
+  // Add this useEffect to debug selection changes
+  useEffect(() => {
+    console.log('Selected message changed:', selectedMessage);
+  }, [selectedMessage]);
 
   // Add this function to find selected message data
   const getSelectedMessageData = useCallback(() => {
@@ -346,25 +387,33 @@ const ChatbotScreen = () => {
     return messages.find(msg => msg.id === selectedMessage);
   }, [selectedMessage, messages]);
 
+  // Update renderItem to disable bubble interaction during transitions
   const renderItem = useCallback(
-    ({ item }) => (
-      <ChatBubble 
-        ref={ref => {
-          if (ref) {
-            messageRefs.set(item.id, ref);
-          } else {
-            messageRefs.delete(item.id);
-          }
-        }}
-        text={item.text} 
-        isUser={item.isUser} 
-        onPress={handleBubblePress}
-        isSelected={selectedMessage === item.id}
-        messageId={item.id}
-        onClose={() => setSelectedMessage(null)}
-      />
-    ),
-    [selectedMessage]
+    ({ item, index }) => {
+      // Check if previous message was from bot
+      const previousMessageIsBot = index < messages.length - 1 && 
+        !messages[index + 1].isUser;  // Remember FlatList is inverted
+  
+      return (
+        <ChatBubble 
+          ref={ref => {
+            if (ref) {
+              messageRefs.set(item.id, ref);
+            } else {
+              messageRefs.delete(item.id);
+            }
+          }}
+          text={item.text} 
+          isUser={item.isUser} 
+          onPress={handleBubblePress}
+          isSelected={selectedMessage === item.id}
+          messageId={item.id}
+          disabled={isTransitioning}
+          previousMessageIsBot={previousMessageIsBot}
+        />
+      );
+    },
+    [selectedMessage, messages, isTransitioning, handleBubblePress]
   );
 
   // Update keyExtractor to use message ID
@@ -427,7 +476,7 @@ const ChatbotScreen = () => {
     // Clear current messages
     setMessages([]);
 
-   // wait 1s for nothing
+   // wait
     await new Promise(resolve => setTimeout(resolve, 300));
 
     // Set new messages while invisible
@@ -469,6 +518,7 @@ const ChatbotScreen = () => {
           onCopy={async (text) => {
             await Clipboard.setStringAsync(text);
             await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            showCopySuccess(); // Add this line
             setSelectedMessage(null);
           }}
           onShare={() => {
@@ -485,6 +535,24 @@ const ChatbotScreen = () => {
           }}
           // Remove the style prop or adjust it if necessary
         />
+
+        {showCopyNotification && (
+          <Animated.View style={[
+            styles.copyNotification,
+            {
+              opacity: copyNotificationAnim,
+              transform: [{
+                translateY: copyNotificationAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-20, 0]
+                })
+              }]
+            }
+          ]}>
+            <MaterialIcons name="check-circle" size={16} color="#fff" style={{ marginRight: 4 }} />
+            <Text style={styles.copyNotificationText}>Copied to clipboard</Text>
+          </Animated.View>
+        )}
 
         {/* Chat History Modal */}
         {showHistory && (
@@ -569,6 +637,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFF5F5",
+    position: 'relative', // Add this to handle absolute positioned Banner
   },
   chatContainer: {
     flex: 1,
@@ -633,6 +702,31 @@ const styles = StyleSheet.create({
   },
   historyContent: {
     flex: 1,
+  },
+  copyNotification: {
+    position: 'absolute',
+    top: 120, // Below header
+    transform: [{ translateX: -75 }], // Half of the width
+    backgroundColor: '#333',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 150,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    alignSelf: 'center',
+  },
+  copyNotificationText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
 

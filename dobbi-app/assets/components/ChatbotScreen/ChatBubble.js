@@ -1,5 +1,6 @@
+// NEW VERSION
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Vibration, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from "react-native";
 import Markdown from 'react-native-markdown-display';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import * as Clipboard from 'expo-clipboard';
@@ -33,12 +34,12 @@ const TypingIndicator = () => {
             useNativeDriver: true
           })
         )),
-        // Animate each dot in sequence
+        // Animate each dot in sequence with faster timing
         ...dotAnims.map((anim, i) =>
           Animated.timing(anim, {
             toValue: 1,
-            duration: 300,
-            delay: i * 200,
+            duration: 150, // Reduced from 300
+            delay: i * 100, // Reduced from 200
             useNativeDriver: true
           })
         )
@@ -199,7 +200,7 @@ const Banner = ({ isVisible, message, onClose, onCopy, onShare, onReport, onDele
   );
 };
 
-const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messageId, disabled }, ref) => {
+const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messageId, disabled, previousMessageIsBot }, ref) => {
   const [localSelected, setLocalSelected] = useState(false);
   const [bubbleHeight, setBubbleHeight] = useState(0);
   const bubbleRef = useRef(null);
@@ -218,16 +219,16 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
   }, [isSelected]);
 
   const handleLongPress = async (event) => {
-    if (!isSelected) {
+    if (!isSelected) {  
       event.stopPropagation();
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      onPress?.(messageId);  // Pass messageId instead of text
+      onPress?.(messageId);
     }
   };
 
   const handlePress = () => {
     if (isSelected) {
-      onPress?.(null);
+      onPress?.(null);  // Deselect if already selected
     }
   };
 
@@ -252,15 +253,22 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
         activeOpacity={disabled ? 1 : 0.9}  
         style={[
           styles.touchableWrapper,
-          disabled && styles.disabledWrapper,
-          { pointerEvents: disabled ? 'none' : 'auto' }  // Completely disable touch events
+          isSelected && styles.selectedWrapper,  // Add this line
+          disabled && styles.disabledWrapper
         ]}
         delayPressOut={0}
         disabled={disabled}  // Disable touch during transitions
       >
+        {isSelected && (
+          <View style={[
+            styles.fullWidthOverlay,
+            { opacity: 0.2 }  // Make overlay more visible
+          ]} />
+        )}
         {isSelected && <View style={styles.fullWidthOverlay} />}
         <View style={[styles.wrapper, isUser ? styles.userWrapper : styles.botWrapper]}>
-          {!isUser && (
+          {/* Only show avatar if it's a bot message AND previous message wasn't from bot */}
+          {!isUser && !previousMessageIsBot && (
             <View style={styles.avatarContainer}>
               <Image
                 source={require("../../images/dobbi-avatar.png")}
@@ -268,9 +276,11 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
               />
             </View>
           )}
+          {/* Add left padding to align messages when no avatar */}
           <View style={[
             styles.container,
             isUser ? styles.userBubble : styles.botBubble,
+            !isUser && previousMessageIsBot && styles.botBubbleNoAvatar,
           ]}>
             <Markdown 
               style={{
@@ -302,6 +312,18 @@ const styles = StyleSheet.create({
   fullWidthOverlay: {
     position: 'absolute',
     top: 0,
+    left: -16,  // Extend overlay to full width
+    right: -16,
+    bottom: 0,
+    backgroundColor: '#EE6567',
+    zIndex: 1,
+  },
+  selectedWrapper: {
+    backgroundColor: 'rgba(238, 101, 103, 0.1)',  // Add this style
+  },
+  fullWidthOverlay: {
+    position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
@@ -311,7 +333,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "flex-start", // Changed from flex-end to flex-start
     marginVertical: 6,
     zIndex: 2,
   },
@@ -323,6 +345,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginRight: 8,
+    marginTop: 4, // Added to give slight offset from top
   },
   container: {
     maxWidth: "80%",
@@ -362,6 +385,7 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   logo: {
+    // 808 x 700
     width: 36,
     height: 31,
   },
@@ -475,7 +499,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 16,
     marginVertical: 2,
-  }
+  },
+  botBubbleNoAvatar: {
+    marginLeft: 44, // Width of avatar (36) + marginRight (8)
+  },
 });
 
 export default ChatBubble;

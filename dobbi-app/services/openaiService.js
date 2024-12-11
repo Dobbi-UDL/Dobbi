@@ -51,7 +51,7 @@ const USER_PROFILES = {
   }
 };
 
-const currentUserType = USER_TYPE.STUDENT;
+const currentUserType = USER_TYPE.REGULAR_WORKER;
 const profile = USER_PROFILES[currentUserType];
 
 const SYSTEM_PROMPT = `You are Dobbi, a financial AI assistant for a ${currentUserType.toLowerCase()}.
@@ -60,11 +60,48 @@ ${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
 Focus on ${profile.context}. 
 Approach: ${profile.approach}.
 
-For responses:
-1. Keep them short
-2. Stay positive
-3. Maintain appropriate tone
-4. Only discuss financial topics. Decline others.`;
+Short helpful answers
+Split output into natural chat messages, MAX 5. mark split with --
+Only discuss financial topics decline others
+Don't recommend other apps except Dobbi itself`;
+
+const USE_AI = false; // Toggle for AI responses
+
+const getMockResponse = async () => {
+  // Simulate reasonable API delay (500-1500ms)
+  await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
+
+  return `
+Hey there! Investing can be cool, but as a student, let's think about priorities first. 📚
+
+--
+
+Make sure you've got an emergency fund for those "oh no" moments, like replacing a broken laptop. Aim for a couple months' worth of expenses. 💸
+
+--
+
+If you've got that covered, investing can be next. But remember, it's for long-term goals, not for buying next week's pizza. 🍕
+
+--
+
+Start small with what you can spare. Even $10 a month can grow if you invest wisely. Think of it like planting a seed for your future. 🌱
+
+--
+
+Stick to simple investments like ETFs or index funds; they're like getting a piece of the whole market without the stress of picking single stocks. 📊
+
+--
+
+Use Dobbi to keep track of your small investments and celebrate those little victories as they grow! 🎉
+
+--
+
+So, should you? If you're stable and understand the basics, yes. But always keep learning and be patient. 
+
+--
+
+Let me know if you want more on this!`;
+};
 
 /**
  * Obtiene una respuesta del modelo de OpenAI usando un prompt fijo.
@@ -73,8 +110,12 @@ For responses:
  */
 export async function getOpenAIResponse(userQuestion) {
   try {
+    if (!USE_AI) {
+      return getMockResponse(userQuestion);
+    }
+
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Use GPT-3.5 Turbo model
+      model: "grok-beta",
       messages: [
         {
           role: "system",
@@ -85,8 +126,8 @@ export async function getOpenAIResponse(userQuestion) {
           content: userQuestion,
         },
       ],
-      temperature: 0.8,
-      max_tokens: 100,
+      temperature: 0.7, // Slightly reduced for more focused responses
+      max_tokens: 500, // Increased significantly
       frequency_penalty: 0.2,
       presence_penalty: 0.1,
     });
@@ -97,7 +138,7 @@ export async function getOpenAIResponse(userQuestion) {
       "Error calling OpenAI API:",
       error.response ? error.response.data : error.message
     );
-    throw error;
+    return getMockResponse(userQuestion); // Fallback to mock response on error
   }
 }
 
