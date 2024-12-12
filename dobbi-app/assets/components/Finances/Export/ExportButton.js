@@ -8,6 +8,7 @@ import * as Print from 'expo-print';
 import * as Linking from 'expo-linking';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Application from 'expo-application';
+import * as Sharing from 'expo-sharing';  // Add this import
 import { generatePDF } from './generators/generatePDF';
 import { generateCSV } from './generators/generateCSV';
 
@@ -113,18 +114,27 @@ export const ExportButton = ({ data }) => {
                 const fileExtension = filename?.split('.').pop()?.toLowerCase();
                 const mimeType = fileExtension === 'pdf' ? 'application/pdf' : 'text/csv';
                 
-                // Use IntentLauncher for both PDF and CSV files
                 await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
                     data: savedFileUri,
                     flags: 1,
                     type: mimeType
                 });
             } else if (Platform.OS === 'ios' && filename) {
-                // iOS implementation remains the same
                 const fileUri = `${FileSystem.documentDirectory}${filename}`;
                 const fileInfo = await FileSystem.getInfoAsync(fileUri);
+                
                 if (fileInfo.exists) {
-                    await Linking.openURL(fileUri);
+                    // Use Sharing API for iOS
+                    const canShare = await Sharing.isAvailableAsync();
+                    if (canShare) {
+                        await Sharing.shareAsync(fileUri, {
+                            mimeType: filename.endsWith('pdf') ? 'application/pdf' : 'text/csv',
+                            dialogTitle: 'Open File',
+                            UTI: filename.endsWith('pdf') ? 'com.adobe.pdf' : 'public.comma-separated-values-text'
+                        });
+                    } else {
+                        Alert.alert('Error', 'Sharing is not available on this device');
+                    }
                 } else {
                     Alert.alert('Error', 'File not found');
                 }

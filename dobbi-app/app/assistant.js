@@ -28,6 +28,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
 import { useAuth } from '../contexts/AuthContext';
+import { getAllUnredeemedOffers } from "../services/marketplaceService";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -317,8 +318,10 @@ const ChatbotScreen = () => {
       let typingCompleted = await showAssistantResponse(false);
       
       const financialData = await getFinancialContextData(user.id);
+      const offersData = await getAllUnredeemedOffers(user.id);
+
       // Get AI response while showing typing indicator
-      const aiResponse = await getOpenAIResponse(inputText, financialData, user.username);
+      const aiResponse = await getOpenAIResponse(inputText, user.username, financialData, offersData);
       console.log('🤖 Dobbi:', aiResponse);
       
       const responseChunks = splitResponse(aiResponse);
@@ -422,12 +425,6 @@ const ChatbotScreen = () => {
 
   // Update keyExtractor to use message ID
   const keyExtractor = useCallback((item) => item.id, []);
-
-  useEffect(() => {
-    console.log('Current System Prompt:');
-    console.log('===================');
-    console.log('===================');
-  }, []);
 
   const handleHistoryPress = useCallback(async () => {
     await loadChatHistory();

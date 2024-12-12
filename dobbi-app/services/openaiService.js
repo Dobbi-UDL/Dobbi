@@ -60,12 +60,16 @@ ${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
 Focus on ${profile.context}. 
 Approach: ${profile.approach}.
 
-Short helpful answers
+Reply with short, clear, helpful answers.
 Split output into natural chat messages, MAX 5. mark split with --
 Only discuss financial topics decline others
-Don't recommend other apps except Dobbi itself`;
+Don't recommend other apps except Dobbi itself
 
-const USE_AI = true; // Toggle for AI responses
+Dobbi is a financial advisor app that let's you track your finances, set saving goals, and redeem offers from partner companies using points earned using the app.
+
+If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.`;
+
+const USE_AI = false; // Toggle for AI responses
 
 const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
@@ -78,10 +82,13 @@ const getMockResponse = async () => {
  * @param {string} userQuestion - La pregunta del usuario.
  * @returns {Promise<string>} - La respuesta generada por el modelo.
  */
-export async function getOpenAIResponse(userQuestion, financialData = null, username = null) {
+export async function getOpenAIResponse(userQuestion, username = null, financialData = null, offersData = null) {
   const userContext = username ? `\nUser: ${username}` : '';
+  const today = `Today: ${new Date().toLocaleDateString()}`; // Add current date to context
   const financialContext = financialData ? formatFinancialMetrics(financialData) : '';
-  const contextualPrompt = `${SYSTEM_PROMPT}${userContext}\n\n${financialContext}`;
+  const offersContext = offersData ? formatOffers(offersData) : '';
+
+  const contextualPrompt = `${SYSTEM_PROMPT}\n\n${userContext}\n\n${today}\n${financialContext}\n\n${offersContext}`;
   
   try {
     if (!USE_AI) {
@@ -134,5 +141,17 @@ ${expenseCategories.slice(0,5).map(e =>
 Top 5 Income:
  ${incomeCategories.slice(0,5).map(i => 
     `${i.category_name}:${i.percentage.toFixed(1)}%`
+  ).join('\n')}`;
+};
+
+const formatOffers = (data) => {
+  if (!data || data.length === 0) return '';
+
+  return `Available Offers:
+${data.map(cat =>
+    `${cat.category_name}
+${cat.offers.map(o =>
+      `  ${o.title}, ${o.points_required}pts, exp ${new Date(o.end_date).toLocaleDateString()}`
+    ).join('\n')}`
   ).join('\n')}`;
 };

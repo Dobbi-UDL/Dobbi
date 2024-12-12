@@ -1,7 +1,62 @@
+import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import { DOBBI_LOGO_BASE64 } from '../../../../images/dobbiLogo';
 import { DOBBI_BRAND_BASE64 } from '../../../../images/dobbiBrand';
 import { formatCurrency, formatPercentage } from '../../../../../utils/numberHelpers';
+
+const generateAndroidPDF = async (data, htmlContent) => {
+    const printOptions = {
+        html: htmlContent,
+        base64: false,
+        width: 595.28,
+        height: 841.89,
+        margins: {
+            top: 71,
+            right: 57,
+            bottom: 71,
+            left: 57
+        }
+    };
+    
+    const { uri } = await Print.printToFileAsync(printOptions);
+    return uri;
+};
+
+const generateIOSPDF = async (data, baseHtmlContent) => {
+    // Modify the HTML content to use padding instead of @page margins
+    const iosHtmlContent = baseHtmlContent.replace(
+        '<style>',
+        `<style>
+            /* Remove @page rules for iOS */
+            body {
+                padding: 20mm 20mm 15mm 20mm !important;
+                box-sizing: border-box;
+            }
+            .report-page:first-of-type {
+                padding-top: 0 !important;
+            }
+            .report-page {
+                padding: 20mm 20mm 15mm 20mm !important;
+                box-sizing: border-box;
+            }
+            /* Add specific iOS adjustments */
+            @media print {
+                body {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+        `
+    );
+
+    const printOptions = {
+        html: iosHtmlContent,
+        base64: false
+    };
+    
+    const { uri } = await Print.printToFileAsync(printOptions);
+    return uri;
+};
 
 export const generatePDF = async (data) => {
     try {
@@ -120,6 +175,7 @@ export const generatePDF = async (data) => {
             <head>
                 <meta charset="utf-8">
                 <style>
+                    ${Platform.OS === 'android' ? `
                     @page {
                         margin-top: 20mm;
                         margin-bottom: 15mm;
@@ -138,7 +194,7 @@ export const generatePDF = async (data) => {
                         margin-bottom: 25mm;
                         margin-left: 0mm;
                         margin-right: 0mm;
-                    }
+                    }` : ''}
                     body {
                         font-family: 'Helvetica', sans-serif;
                         margin: 0;
@@ -742,7 +798,6 @@ export const generatePDF = async (data) => {
                     ? `<br>1. <strong>${expenseCategories[0].category_name} (${formatPercentage(expenseCategories[0].percentage.toFixed(2))})</strong>`
                     : 'This period has no expense data'
             }
-                                                </li>
                                                 <li>Top Income:
                                                     ${incomeCategories.length >= 2
                 ? `<br>
@@ -1297,23 +1352,15 @@ export const generatePDF = async (data) => {
             </html>
         `;
 
-        // Print to file
+        // Print to file based on platform
         console.log('Generating PDF file...');
-        const { uri } = await Print.printToFileAsync({
-            html: htmlContent,
-            base64: false,
-            width: 595.28, // A4 width in points (72 dpi)
-            height: 841.89, // A4 height in points (72 dpi)
-            margins: {
-                top: 71, // 25mm in points
-                right: 57, // 20mm in points
-                bottom: 71, // 25mm in points
-                left: 57 // 20mm in points
-            }
-        });
-        console.log('PDF generated successfully at:', uri);
+        const uri = Platform.OS === 'android' 
+            ? await generateAndroidPDF(data, htmlContent)
+            : await generateIOSPDF(data, htmlContent);
 
+        console.log('PDF generated successfully at:', uri);
         return uri;
+
     } catch (error) {
         console.error('PDF generation error:', error);
         throw new Error(`PDF generation failed: ${error.message}`);
