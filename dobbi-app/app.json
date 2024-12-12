@@ -2,7 +2,7 @@
   "expo": {
     "name": "dobbi-app",
     "slug": "dobbi-app",
-    "owner": "eeriiclopeezz",
+    "owner": "elsegui",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/dobbi-logo.png",  
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/images/dobbi-logo.png",  
         "backgroundColor": "#ffffff"
       },
-      "package": "com.eeriiclopeezz.dobbiapp",
+      "package": "com.elsegui.dobbiapp",
       "newArchEnabled": true,
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",

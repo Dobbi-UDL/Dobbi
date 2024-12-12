@@ -65,7 +65,7 @@ export const AddGoalForm = ({
                     monthly_saving: parseFloat(monthlySaving),
                     target_amount: parseFloat(targetAmount),
                     completed: false,
-                    goal_status: 'active'
+                    goal_status: 'working'
                 });
 
             if (trackingError) throw trackingError;

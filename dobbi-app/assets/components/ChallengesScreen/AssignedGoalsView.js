@@ -4,7 +4,7 @@ import { supabase } from '../../../config/supabaseClient';
 import { MyGoalsCard } from './MyGoalsCard';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../../styles/marketplace';
-import { SavingGoalsPopup } from './AddGoalForm'; // Import the new popup component
+import { AddGoalForm }  from './AddGoalForm';
 
 const AssignedGoalsView = ({ userId }) => {
     const [personalGoals, setPersonalGoals] = useState([]);
@@ -72,7 +72,7 @@ const AssignedGoalsView = ({ userId }) => {
             </TouchableOpacity>
 
             {/* Saving Goals Popup */}
-            <SavingGoalsPopup
+            <AddGoalForm
                 visible={isPopupVisible}
                 onClose={closePopup}
                 userId={userId}
