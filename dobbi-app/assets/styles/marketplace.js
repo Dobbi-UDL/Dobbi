@@ -324,4 +324,8 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  cardContainer: {
+    borderRadius: 12,
+    marginBottom: 12,
+  },
 });

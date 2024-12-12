@@ -1,5 +1,6 @@
-// services/openaiService.js
 import { openai } from "../config/openaiClient.js";
+
+const USE_AI = false; // Toggle for AI responses
 
 const USER_TYPE = {
   STUDENT: 'STUDENT',
@@ -51,7 +52,7 @@ const USER_PROFILES = {
   }
 };
 
-const currentUserType = USER_TYPE.STUDENT;
+const currentUserType = USER_TYPE.REGULAR_WORKER;
 const profile = USER_PROFILES[currentUserType];
 
 const SYSTEM_PROMPT = `You are Dobbi, a financial AI assistant for a ${currentUserType.toLowerCase()}.
@@ -60,21 +61,24 @@ ${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
 Focus on ${profile.context}. 
 Approach: ${profile.approach}.
 
-Reply with short, clear, helpful answers.
-Split output into natural chat messages, MAX 5. mark split with --
+SHORT TOTAL OUTPUT.
+!!!Split into short natural length chat messages. mark split with -- 
+Don't want long unnatural chat bubbles.
+Be helpful and positive
 Only discuss financial topics decline others
-Don't recommend other apps except Dobbi itself
+Don't recommend other apps except Dobbi app yourself
 
 Dobbi is a financial advisor app that let's you track your finances, set saving goals, and redeem offers from partner companies using points earned using the app.
 
-If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.`;
+If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.
 
-const USE_AI = false; // Toggle for AI responses
+Show offers with the following format: [**Title** for x points], expiring on mm-dd-yyyy.`;
+
 
 const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
   await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-  return `mock`;
+  return `[**IKEO - $50 off $200 Purchase** for 2500 points]`;
 };
 
 /**
@@ -109,8 +113,8 @@ export async function getOpenAIResponse(userQuestion, username = null, financial
           content: userQuestion,
         },
       ],
-      temperature: 0.7, // Slightly reduced for more focused responses
-      max_tokens: 500, // Increased significantly
+      temperature: 0.7,
+      max_tokens: 500, 
       frequency_penalty: 0.2,
       presence_penalty: 0.1,
     });

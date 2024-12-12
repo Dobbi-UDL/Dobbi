@@ -1,10 +1,10 @@
-// NEW VERSION
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from "react-native";
 import Markdown from 'react-native-markdown-display';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 
 const TypingIndicator = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -204,6 +204,7 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
   const [localSelected, setLocalSelected] = useState(false);
   const [bubbleHeight, setBubbleHeight] = useState(0);
   const bubbleRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     setLocalSelected(isSelected);
@@ -235,6 +236,90 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
   const handleCopy = async () => {
     await Clipboard.setStringAsync(text);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
+  const parseMessage = (text) => {
+    // Match pattern: [**Title** for x points]
+    const offerPattern = /\[(\*\*.*?\*\*)\s+for\s+(\d+)\s+points\]/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = offerPattern.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: text.slice(lastIndex, match.index)
+        });
+      }
+
+      // Add the offer link
+      parts.push({
+        type: 'offer',
+        content: match[1].replace(/\*\*/g, ''), // Remove ** from title
+        points: match[2]
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push({
+        type: 'text',
+        content: text.slice(lastIndex)
+      });
+    }
+
+    return parts;
+  };
+
+  const handleOfferPress = async (offerTitle) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push({
+      pathname: '/offers',
+      params: { highlightOffer: offerTitle }
+    });
+  };
+
+  const renderContent = () => {
+    const parts = parseMessage(text);
+    
+    return parts.map((part, index) => {
+      if (part.type === 'offer') {
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleOfferPress(part.content)}
+            style={styles.offerLink}
+          >
+            <Text style={[
+              styles.text,
+              isUser ? styles.userText : styles.botText,
+              styles.offerLinkText
+            ]}>
+              {part.content} ({part.points} points)
+            </Text>
+          </TouchableOpacity>
+        );
+      }
+      return (
+        <Markdown
+          key={index}
+          style={{
+            body: styles.markdownBody,
+            text: [styles.text, isUser ? styles.userText : styles.botText],
+            strong: styles.boldText,
+            link: styles.linkText,
+            bullet_list: styles.bulletList,
+            paragraph: styles.paragraph,
+          }}
+        >
+          {part.content}
+        </Markdown>
+      );
+    });
   };
 
   return (
@@ -282,19 +367,7 @@ const ChatBubble = React.forwardRef(({ text, isUser, onPress, isSelected, messag
             isUser ? styles.userBubble : styles.botBubble,
             !isUser && previousMessageIsBot && styles.botBubbleNoAvatar,
           ]}>
-            <Markdown 
-              style={{
-                body: styles.markdownBody,
-                text: [styles.text, isUser ? styles.userText : styles.botText],
-                strong: styles.boldText,
-                link: styles.linkText,
-                bullet_list: styles.bulletList,
-                paragraph: styles.paragraph,
-              }}
-              selectable={true}
-            >
-              {text}
-            </Markdown>
+            {renderContent()}
           </View>
         </View>
       </TouchableOpacity>
@@ -502,6 +575,14 @@ const styles = StyleSheet.create({
   },
   botBubbleNoAvatar: {
     marginLeft: 44, // Width of avatar (36) + marginRight (8)
+  },
+  offerLink: {
+    padding: 4,
+    marginVertical: 2,
+  },
+  offerLinkText: {
+    textDecorationLine: 'underline',
+    color: '#0066CC',
   },
 });
 
