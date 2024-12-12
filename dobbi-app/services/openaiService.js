@@ -79,7 +79,7 @@ const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
   await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
   return `Here's a link:
-  [**IKEO - $50 off $200 Purchase** for 2500 points]
+  [**MegaMarkt - 100€ en Electrónica** for 2500 points]
   After link.`;
 };
 

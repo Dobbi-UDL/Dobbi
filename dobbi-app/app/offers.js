@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { supabase } from '../config/supabaseClient';
 import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
@@ -8,9 +8,12 @@ import { CategoryFilter } from '../assets/components/OffersScreen/CategoryFilter
 import { UserPointsDisplay } from '../assets/components/OffersScreen/UserPointsDisplay';
 import Header from '../assets/components/Header/Header';
 import { useLanguage } from '@languagecontext';
+import { useLocalSearchParams } from 'expo-router';
 
 const OffersScreen = () => {
   const { locale } = useLanguage();
+  const { highlightOffer } = useLocalSearchParams();
+  const listRef = useRef(null);
   const [offers, setOffers] = useState([]);
   const [filteredOffers, setFilteredOffers] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
@@ -18,6 +21,13 @@ const OffersScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [expandedOfferId, setExpandedOfferId] = useState(null);
+  const CARD_HEIGHT = 250; // Update to match new card height
+  const HEADER_HEIGHT = 60;
+  const USER_POINTS_HEIGHT = 70;
+  const SEARCH_BAR_HEIGHT = 50;
+  const CATEGORY_FILTER_HEIGHT = 52;
+  const CARD_VERTICAL_SPACING = 12;
 
   useEffect(() => {
     fetchCategories();
@@ -149,6 +159,77 @@ const OffersScreen = () => {
     }
   };
 
+  const findOfferIndex = useCallback((title) => {
+    return filteredOffers.findIndex(offer => 
+      offer.title.toLowerCase() === title.toLowerCase()
+    );
+  }, [filteredOffers]);
+
+  useEffect(() => {
+    if (highlightOffer && listRef.current) {
+      const index = findOfferIndex(highlightOffer);
+      if (index !== -1) {
+        const LIST_PADDING_TOP = 8; // From styles.listContent
+        const cardOffset = (index + 1) * (CARD_HEIGHT + CARD_VERTICAL_SPACING) + LIST_PADDING_TOP;
+        
+        // Small delay to ensure layout is complete
+        setTimeout(() => {
+          listRef.current.scrollToOffset({
+            offset: cardOffset,
+            animated: true
+          });
+          setExpandedOfferId(null);
+        }, 100);
+      }
+    }
+  }, [highlightOffer, filteredOffers]);
+
+  useEffect(() => {
+    return () => setExpandedOfferId(null);
+  }, []);
+
+  const handleScrollToIndexFailed = (info) => {
+    const wait = new Promise(resolve => setTimeout(resolve, 500));
+    wait.then(() => {
+      if (listRef.current) {
+        const LIST_PADDING_TOP = 8;
+        const offset = (info.index * (CARD_HEIGHT + CARD_VERTICAL_SPACING)) + LIST_PADDING_TOP;
+        
+        listRef.current.scrollToOffset({
+          offset,
+          animated: true
+        });
+      }
+    });
+  };
+
+  // Move all callbacks to top level and memoize them
+  const handleRedeem = useCallback((offerId) => {
+    redeemOffer(offerId);
+  }, [redeemOffer]);
+
+  const handleToggleExpand = useCallback((id) => {
+    setExpandedOfferId(id);
+  }, []);
+
+  const renderItem = useCallback(({ item }) => (
+    <OfferCard 
+      offer={item}
+      userPoints={userPoints}
+      onRedeem={() => handleRedeem(item.id)}
+      isExpanded={expandedOfferId === item.id}
+      onToggleExpand={handleToggleExpand}
+    />
+  ), [userPoints, expandedOfferId, handleRedeem, handleToggleExpand]);
+
+  const keyExtractor = useCallback((item) => item.id.toString(), []);
+
+  const getItemLayout = useCallback((data, index) => ({
+    length: CARD_HEIGHT + CARD_VERTICAL_SPACING,
+    offset: (CARD_HEIGHT + CARD_VERTICAL_SPACING) * index,
+    index,
+  }), [CARD_HEIGHT, CARD_VERTICAL_SPACING]);
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -171,16 +252,16 @@ const OffersScreen = () => {
           onSelectCategories={handleCategorySelect} 
         />
         <FlatList
+          ref={listRef}
           data={filteredOffers}
-          renderItem={({ item }) => (
-            <OfferCard 
-              key={item.id}
-              offer={item}
-              userPoints={userPoints}
-              onRedeem={() => redeemOffer(item.id)}
-            />
-          )}
-          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          getItemLayout={getItemLayout}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          initialNumToRender={5}
+          onScrollToIndexFailed={handleScrollToIndexFailed}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
@@ -197,7 +278,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
   },
   listContent: {
     paddingTop: 8,

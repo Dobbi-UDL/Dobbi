@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   companyName: {
     fontSize: 14,
@@ -91,12 +91,30 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 8,
+    marginBottom: 10,
+    lineHeight: 24,
   },
   cardDescription: {
     fontSize: 14,
     color: '#666666',
-    marginBottom: 15,
+    marginBottom: 12,
+    lineHeight: 20,
+    maxHeight: 40, // Height for 2 lines
+  },
+  expandedDescription: {
+    maxHeight: 'none', // Remove height limit when expanded
+    marginBottom: 8,
+  },
+  seeMoreButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  seeMoreText: {
+    color: '#EE6567',
+    fontSize: 13,
+    fontWeight: '500',
   },
   challengeInfo: {
     flexDirection: 'row',
@@ -114,7 +132,8 @@ export const styles = StyleSheet.create({
   cardFooter: {
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-    paddingTop: 10,
+    paddingTop: 12,
+    marginTop: 12,
   },
   dateText: {
     fontSize: 12,
@@ -138,7 +157,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     padding: 15,
     borderRadius: 10,
-    marginVertical: 10,
+    marginVertical: 12,
   },
   codeLabel: {
     fontSize: 14,
@@ -153,10 +172,10 @@ export const styles = StyleSheet.create({
   },
   redeemButton: {
     backgroundColor: '#ff6b6b',
-    padding: 12,
+    padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 12,
   },
   redeemButtonDisabled: {
     backgroundColor: '#ffcdcd',
@@ -325,7 +344,49 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cardContainer: {
+    backgroundColor: 'white',
     borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 2,
     marginBottom: 12,
+    minHeight: 250, // Increased from 200
+    shadowColor: '#d76567',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 1.2,
+  },
+  expandedCard: {
+    minHeight: 320, // Minimum height for expanded state
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 12,
+    lineHeight: 20,
+    maxHeight: 40, // Height for 2 lines
+  },
+  expandedDescription: {
+    maxHeight: 'none', // Remove height limit when expanded
+    marginBottom: 8,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  actionsContainer: {
+    marginTop: 12,
+  },
+  cardFooter: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    paddingTop: 12,
+    marginTop: 12,
   },
 });
