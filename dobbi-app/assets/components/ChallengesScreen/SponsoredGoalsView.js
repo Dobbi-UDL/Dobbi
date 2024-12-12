@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { Text, ScrollView } from 'react-native';
 import { supabase } from '../../../config/supabaseClient';
 import { ChallengeCard } from './ChallengeCard';
 import { styles } from '../../styles/marketplace';

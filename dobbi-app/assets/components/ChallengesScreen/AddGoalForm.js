@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { CustomModal } from '../../common/Modal';
-import { Button } from '../../common/Button';
+import { CustomModal } from '../common/Modal';
+import { Button } from '../common/Button';
 import { supabase } from '../../../config/supabaseClient';
 
 export const AddGoalForm = ({ 
@@ -65,7 +65,7 @@ export const AddGoalForm = ({
                     monthly_saving: parseFloat(monthlySaving),
                     target_amount: parseFloat(targetAmount),
                     completed: false,
-                    goal_status: 'active'
+                    goal_status: 'working'
                 });
 
             if (trackingError) throw trackingError;

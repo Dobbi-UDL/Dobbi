@@ -53,7 +53,7 @@ export const ChallengeCard = ({ challenge }) => {
                 <View style={localStyles.headerContainer}>
                     <View style={localStyles.companySection}>
                         <Text style={localStyles.companyName} numberOfLines={1}>
-                            {challenge.company_name || 'Compañía no disponible'}
+                            {challenge.company_name || 'Nombre de la empresa'}
                         </Text>
                     </View>
                     <View style={localStyles.rewardBadge}>
