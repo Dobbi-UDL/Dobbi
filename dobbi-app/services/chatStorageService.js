@@ -7,18 +7,14 @@ const CHAT_KEYS = {
 
 export const chatStorageService = {
   async saveChat(chatId, messages) {
-    const chatData = {
-      id: chatId,
-      messages,
-      lastModified: new Date().toISOString(),
-      title: messages[0]?.text?.slice(0, 30) || 'New Chat'
-    };
-    
-    await AsyncStorage.setItem(
-      `${CHAT_KEYS.CHATS_PREFIX}${chatId}`, 
-      JSON.stringify(chatData)
-    );
-    return chatData;
+    try {
+      await AsyncStorage.setItem(`chat_${chatId}`, JSON.stringify({
+        messages,
+        lastModified: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Error saving chat:', error);
+    }
   },
 
   async getAllChats() {
@@ -46,6 +42,23 @@ export const chatStorageService = {
   },
 
   async setCurrentChat(chatId) {
-    await AsyncStorage.setItem(CHAT_KEYS.CURRENT_CHAT, chatId);
+    try {
+      await AsyncStorage.setItem('lastActiveChatId', chatId);
+    } catch (error) {
+      console.error('Error setting current chat:', error);
+    }
+  },
+
+  async getLastActiveChat() {
+    try {
+      const chatId = await AsyncStorage.getItem('lastActiveChatId');
+      if (!chatId) return null;
+
+      const chatData = await AsyncStorage.getItem(`chat_${chatId}`);
+      return chatData ? { id: chatId, ...JSON.parse(chatData) } : null;
+    } catch (error) {
+      console.error('Error getting last active chat:', error);
+      return null;
+    }
   }
 };
