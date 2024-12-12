@@ -43,17 +43,14 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 15,
-    margin: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#d76567',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 1.2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -191,16 +188,20 @@ export const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
-    marginBottom: 15,
-    paddingHorizontal: 16,
+    marginBottom: 16,
+    height: 50,
   },
   searchInput: {
     flex: 1,
     backgroundColor: 'white',
     borderRadius: 10,
     paddingHorizontal: 15,
-    height: 50,
     marginRight: 10,
+    shadowColor: '#d76567',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 1.2,
   },
   searchButton: {
     justifyContent: 'center',
@@ -209,49 +210,20 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF9E6',
     borderRadius: 10,
   },
-  categoryContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 4,
-    maxWidth: '100%', // Asegura que ocupe todo el ancho
-    width: '100%',
-    marginBottom: 15,
-    flexGrow: 0, // Impide que el ScrollView crezca
-    alignSelf: 'flex-start', // Mantiene el tamaño ajustado al contenido
-  },
-  categoryItem: {
-    backgroundColor: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 10,
-    marginHorizontal: 5,
-    marginVertical: 5,
-    marginBottom: 10,
-  },
-  selectedCategoryItem: {
-    backgroundColor: '#ff6b6b',
-  },
-  categoryText: {
-    color: '#666666',
-  },
-  selectedCategoryText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  categoryScrollContent: {
-    flexGrow: 1,
-    alignItems: 'center',
-    flexDirection: 'row', // Hace que los elementos se distribuyan horizontalmente
-    flexWrap: 'wrap', // Permite que los elementos pasen a la siguiente línea si no caben
-  },
   userPointsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFF9E6',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    marginBottom: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
+    borderRadius: 10,
+    shadowColor: '#d76567',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 1.2,
   },
   userPointsText: {
     fontSize: 16,
@@ -260,10 +232,6 @@ export const styles = StyleSheet.create({
   userPointsUsername: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
-  },
-  userPointsText: {
-    fontSize: 16,
     color: '#333333',
   },
   pointsHighlight: {
@@ -316,4 +284,44 @@ export const styles = StyleSheet.create({
         shadowRadius: 3.84,
         fontWeight: 'bold',
   },
-}); 
+  categoryFilterContainer: {
+    height: 52,
+    marginBottom: 16,
+  },
+  categoryScrollView: {
+    flex: 1,
+  },
+  categoryScrollContent: {
+    paddingRight: 16, // Add right padding for last item
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: '100%',
+  },
+  categoryChip: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 8,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#d76567',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 1.2,
+  },
+  selectedCategoryChip: {
+    backgroundColor: '#EE6567',
+  },
+  categoryChipText: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
+  selectedCategoryChipText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});

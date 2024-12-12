@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { supabase } from '../config/supabaseClient';
 import { OfferCard } from '../assets/components/OffersScreen/OfferCard';
 import { BottomNavBar } from '../assets/components/Navigation/BottomNavBar';
 import { SearchBar } from '../assets/components/OffersScreen/SearchBar';
 import { CategoryFilter } from '../assets/components/OffersScreen/CategoryFilter';
 import { UserPointsDisplay } from '../assets/components/OffersScreen/UserPointsDisplay';
-import { styles } from '../assets/styles/marketplace';
 import Header from '../assets/components/Header/Header';
 import { useLanguage } from '@languagecontext';
 
@@ -159,13 +158,13 @@ const OffersScreen = () => {
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <Header title="Marketplace" />
-      <View style={[styles.container, styles.flexContainer]}>
-      <UserPointsDisplay 
-        userName={userName} 
-        points={userPoints} 
-      />
+      <View style={styles.mainContainer}>
+        <UserPointsDisplay 
+          userName={userName} 
+          points={userPoints} 
+        />
         <SearchBar onSearch={handleSearch} />
         <CategoryFilter 
           categories={categories} 
@@ -182,12 +181,28 @@ const OffersScreen = () => {
             />
           )}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
-        <BottomNavBar />
       </View>
-    </>
+      <BottomNavBar />
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF5F5",
+  },
+  mainContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  listContent: {
+    paddingTop: 8,
+    paddingBottom: 80,
+  },
+});
 
 export default OffersScreen;

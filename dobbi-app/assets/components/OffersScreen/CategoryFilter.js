@@ -20,29 +20,31 @@ export const CategoryFilter = ({ categories, onSelectCategories }) => {
   };
 
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false} 
-      style={styles.categoryContainer}
-      contentContainerStyle={styles.categoryScrollContent}
-    >
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.id}
-          style={[
-            styles.categoryItem,
-            selectedCategories.some(c => c.id === category.id) && styles.selectedCategoryItem
-          ]}
-          onPress={() => handleCategoryToggle(category)}
-        >
-          <Text style={[
-            styles.categoryText,
-            selectedCategories.some(c => c.id === category.id) && styles.selectedCategoryText
-          ]}>
-            {category.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <View style={styles.categoryFilterContainer}>
+      <ScrollView 
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoryScrollView}
+        contentContainerStyle={styles.categoryScrollContent}
+      >
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category.id}
+            style={[
+              styles.categoryChip,
+              selectedCategories.some(c => c.id === category.id) && styles.selectedCategoryChip
+            ]}
+            onPress={() => handleCategoryToggle(category)}
+          >
+            <Text style={[
+              styles.categoryChipText,
+              selectedCategories.some(c => c.id === category.id) && styles.selectedCategoryChipText
+            ]}>
+              {category.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
