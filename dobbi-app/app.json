@@ -5,34 +5,29 @@
     "owner": "eeriiclopeezz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/dobbi-logo.png",  
-    "scheme": "myapp",
+    "icon": "./assets/images/dobbi-avatar.png",
+    "scheme": "dobbi",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "UIViewControllerBasedStatusBarAppearance": true
-      },
-      "newArchEnabled": true
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/dobbi-logo.png",  
+        "foregroundImage": "./assets/images/dobbi-avatar.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.eeriiclopeezz.dobbiapp",
-      "newArchEnabled": true,
+      "package": "com.elsegui.dobbiapp",
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE",
-        "MEDIA_LIBRARY",
-        "MEDIA_LIBRARY_WRITE_ONLY"
+        "ACCESS_MEDIA_LOCATION"
       ]
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/dobbi-logo.png"
+      "favicon": "./assets/images/dobbi-avatar.png"
     },
     "plugins": [
       "expo-router",
@@ -41,23 +36,17 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
-          "isAccessMediaLocationEnabled": true
+          "photosPermission": "Allow Dobbi to access your photos.",
+          "savePhotosPermission": "Allow Dobbi to save photos."
         }
       ]
     ],
-    "experiments": {
-      "typedRoutes": true
-    },
     "extra": {
-      "router": {
-        "origin": false
-      },
       "eas": {
         "projectId": "8a8bf979-f26f-4cb7-80e9-040747f15b11"
       }
     },
+    "assetBundlePatterns": ["**/*"],
     "sdkVersion": "52.0.0"
   }
 }

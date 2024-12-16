@@ -28,6 +28,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
 import { useAuth } from '../contexts/AuthContext';
+import { getAllUnredeemedOffers } from "../services/marketplaceService";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -110,16 +111,32 @@ const ChatbotScreen = () => {
   };
 
   useEffect(() => {
-    const initializeNewChat = async () => {
-      const newChatId = uuidv4();
-      setConversationId(newChatId);
-      await showAssistantResponse(true); // Pass true for welcome message
-      setShowAvatar(false);
-      setIsTyping(false);
-      setMessages([WELCOME_MESSAGE]);
+    const initializeChat = async () => {
+      try {
+        await loadChatHistory();
+        
+        // Get last active chat from storage
+        const lastChatId = await AsyncStorage.getItem('lastActiveChatId');
+        
+        if (lastChatId) {
+          // Load last active chat
+          await loadChat(lastChatId);
+        } else {
+          // Only create new chat if no previous chat exists
+          const newChatId = uuidv4();
+          setConversationId(newChatId);
+          await showAssistantResponse(true);
+          setShowAvatar(false);
+          setIsTyping(false);
+          setMessages([WELCOME_MESSAGE]);
+          await AsyncStorage.setItem('lastActiveChatId', newChatId);
+        }
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+      }
     };
-
-    initializeNewChat();
+  
+    initializeChat();
   }, []);
 
   // Save messages to AsyncStorage whenever they change
@@ -130,6 +147,13 @@ const ChatbotScreen = () => {
 
     saveConversation();
   }, [messages, conversationId]); // Run when messages or conversationId changes
+
+  // Add this effect to save last active chat ID
+  useEffect(() => {
+    if (conversationId) {
+      AsyncStorage.setItem('lastActiveChatId', conversationId);
+    }
+  }, [conversationId]);
 
   const toggleMenu = () => {
     const toValue = isMenuOpen ? 0 : 1;
@@ -259,6 +283,7 @@ const ChatbotScreen = () => {
         setConversationId(chatId);
         setSelectedMessage(null); // Reset selected message
       }
+      await AsyncStorage.setItem('lastActiveChatId', chatId);
       setShowHistory(false);
       toggleMenu();
     } catch (error) {
@@ -317,8 +342,10 @@ const ChatbotScreen = () => {
       let typingCompleted = await showAssistantResponse(false);
       
       const financialData = await getFinancialContextData(user.id);
+      const offersData = await getAllUnredeemedOffers(user.id);
+
       // Get AI response while showing typing indicator
-      const aiResponse = await getOpenAIResponse(inputText, financialData, user.username);
+      const aiResponse = await getOpenAIResponse(inputText, user.username, financialData, offersData);
       console.log('🤖 Dobbi:', aiResponse);
       
       const responseChunks = splitResponse(aiResponse);
@@ -423,12 +450,6 @@ const ChatbotScreen = () => {
   // Update keyExtractor to use message ID
   const keyExtractor = useCallback((item) => item.id, []);
 
-  useEffect(() => {
-    console.log('Current System Prompt:');
-    console.log('===================');
-    console.log('===================');
-  }, []);
-
   const handleHistoryPress = useCallback(async () => {
     await loadChatHistory();
     setShowHistory(true);
@@ -447,6 +468,7 @@ const ChatbotScreen = () => {
       }
 
       const newChatId = uuidv4();
+      await AsyncStorage.setItem('lastActiveChatId', newChatId);
       await chatStorageService.setCurrentChat(newChatId);
       setConversationId(newChatId);
       setMessages([]); // Clear messages first

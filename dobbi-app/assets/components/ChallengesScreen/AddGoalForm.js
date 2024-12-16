@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import { CustomModal } from "../common/Modal";
-import { Button } from "../common/Button";
+import { CustomModal } from "common/Modal";
+import { Button } from "common/Button";
 import { supabase } from "../../../config/supabaseClient";
 
 export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
@@ -55,6 +55,20 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
       if (goalError) throw goalError;
 
+            // Create goal tracking entry
+            const { error: trackingError } = await supabase
+                .from('goal_tracking')
+                .insert({
+                    user_id: userId,
+                    goal_id: goalData.id,
+                    current_amount: 0,
+                    start_date: new Date().toISOString(),
+                    end_date: expiringDate.toISOString(),
+                    monthly_saving: parseFloat(monthlySaving),
+                    target_amount: parseFloat(targetAmount),
+                    completed: false,
+                    goal_status: 'working'
+                });
       // Create goal tracking entry
       const { error: trackingError } = await supabase
         .from("goal_tracking")

@@ -13,7 +13,7 @@ const ChallengesScreen = () => {
 
     return (
         <>
-            <Header />
+            <Header title={'Saving goals'}/>
             <TabView tabs={tabs}>
                 <AssignedGoalsView userId={user?.id} />
                 <SponsoredGoalsView userId={user?.id} />

@@ -363,10 +363,10 @@ export default function OffersContent() {
                 <Select
                   id="offer_status"
                   options={[
-                    { value: "Draft", label: "Draft" },
-                    { value: "Active", label: "Active" },
-                    { value: "Pending", label: "Pending" },
-                    { value: "Expired", label: "Expired" },
+                    { value: "draft", label: "Draft" },
+                    { value: "active", label: "Active" },
+                    { value: "pending", label: "Pending" },
+                    { value: "expired", label: "Expired" },
                   ]}
                   value={formData.offer_status}
                   onValueChange={(value) =>
@@ -422,6 +422,6 @@ const initialFormData = () => ({
   start_date: "",
   end_date: "",
   points_required: 0,
-  offer_status: "Draft",
+  offer_status: "draft",
   category_id: "",
 });
