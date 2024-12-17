@@ -52,6 +52,12 @@ export default function Layout() {
                 animation: 'none'
               }}
             />
+            <Stack.Screen
+              name="stats"
+              options={{
+                animation: 'none'
+              }}
+            />
           </Stack>
         </AuthProvider>
       </LanguageProvider>

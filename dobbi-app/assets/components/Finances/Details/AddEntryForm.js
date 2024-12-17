@@ -6,7 +6,7 @@ import { CustomModal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import { Ionicons } from '@expo/vector-icons';
 
-export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories, preselectedCategory, onRefresh }) => {
+export const AddEntryForm = ({ visible, onClose, onSubmit, userId, categories = [], preselectedCategory, onRefresh }) => {
     const [entryType, setEntryType] = useState('expense'); // Default to expense
     const [categoryId, setCategoryId] = useState('0');
     const [entryName, setEntryName] = useState('');

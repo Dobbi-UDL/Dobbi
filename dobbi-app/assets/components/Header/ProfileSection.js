@@ -23,6 +23,7 @@ import {
   calculateXPForLevel,
   calculateProgressPercentage,
 } from "../../../utils/experienceSystem";
+import { OnboardingForm } from "../Onboarding/OnboardingForm.js";
 
 export const ProfileSection = ({ userData, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -61,11 +62,21 @@ export const ProfileSection = ({ userData, onClose }) => {
     setIsLanguageModalVisible(true);
   };
 
+  const [isOnboardingFormVisible, setIsOnboardingFormVisible] = useState(false);
+  const handleOpenOnboardingForm = () => {
+    setIsOnboardingFormVisible(true);
+  };
+
   const menuItems = [
     // {
     //   icon: "cog",
     //   title: i18n.t("settings"),
     //   onPress: () => console.log("Settings pressed"),
+    // },
+    // {
+    //   icon: "document-text-outline",
+    //   title: "Update Onboarding Info",
+    //   onPress: handleOpenOnboardingForm,
     // },
     {
       icon: "shield-account",
@@ -182,6 +193,16 @@ export const ProfileSection = ({ userData, onClose }) => {
         onClose={() => setIsEditProfileModalVisible(false)}
         userData={userData}
       />
+      <Modal
+        visible={isOnboardingFormVisible}
+        animationType="slide"
+        onRequestClose={() => setIsOnboardingFormVisible(false)}
+      >
+        <OnboardingForm
+          userId={userData?.id}
+          onComplete={() => setIsOnboardingFormVisible(false)}
+        />
+      </Modal>
     </View>
   );
 };
