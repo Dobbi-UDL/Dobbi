@@ -358,7 +358,14 @@ const ChatbotScreen = () => {
       const offersData = await getAllUnredeemedOffers(user.id);
 
       // Get AI response while showing typing indicator
-      const aiResponse = await getOpenAIResponse(inputText, user.username, financialData, offersData);
+      console.log('User:', user);
+      const aiResponse = await getOpenAIResponse(
+        inputText, 
+        user.username, 
+        financialData, 
+        offersData,
+        user.user_type
+      );
       console.log('🤖 Dobbi:', aiResponse);
       
       const responseChunks = splitResponse(aiResponse);

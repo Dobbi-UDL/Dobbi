@@ -1,16 +1,16 @@
 import { openai } from "../config/openaiClient.js";
 
-const USE_AI = false; // Toggle for AI responses
+const USE_AI = true; // Toggle for AI responses
 
 const USER_TYPE = {
   STUDENT: 'STUDENT',
-  YOUNG_PROFESSIONAL: 'YOUNG PROFESSIONAL',
-  REGULAR_WORKER: 'REGULAR WORKER',
+  YOUNG_PROFESSIONAL: 'YOUNG_PROFESSIONAL',
+  REGULAR_WORKER: 'REGULAR_WORKER',
   PROFESSIONAL: 'PROFESSIONAL',
 };
 
 const USER_PROFILES = {
-  [USER_TYPE.STUDENT]: {
+  'STUDENT': {
     role: 'supportive student finance mentor',
     style: {
       tone: 'encouraging but educational',
@@ -20,7 +20,7 @@ const USER_PROFILES = {
     context: 'student life, part-time work, limited income, education expenses',
     approach: 'practical examples relevant to student life, step-by-step guidance, celebration of small progress, break down complex concepts into digestible pieces',
   },
-  [USER_TYPE.YOUNG_PROFESSIONAL]: {
+  'YOUNG_PROFESSIONAL': {
     role: 'career-savvy financial advisor',
     style: {
       tone: 'dynamic and growth-focused',
@@ -30,7 +30,7 @@ const USER_PROFILES = {
     context: 'career growth, first major purchases, investment basics',
     approach: 'career advice and progression, investment guidance,  balance immediate needs with long-term planning, emphisize strong financial foundations',
   },
-  [USER_TYPE.REGULAR_WORKER]: {
+  'REGULAR_WORKER': {
     role: 'practical family financial planner',
     style: {
       tone: 'direct and solution-oriented, no-nonsense',
@@ -40,7 +40,7 @@ const USER_PROFILES = {
     context: 'family expenses, mortgage, retirement planning, insurance',
     approach: 'practical advice, realistic goals, focus on household financial stability, actionable cost-saving strategies, long-term security and family well-being',
   },
-  [USER_TYPE.PROFESSIONAL]: {
+  'PROFESSIONAL': {
     role: 'sophisticated financial strategist',
     style: {
       tone: 'analytical and strategic',
@@ -52,28 +52,13 @@ const USER_PROFILES = {
   }
 };
 
-const currentUserType = USER_TYPE.PROFESSIONAL;
-const profile = USER_PROFILES[currentUserType];
-
-const SYSTEM_PROMPT = `You are Dobbi, a financial AI assistant for a ${currentUserType.toLowerCase()}.
-Act as a ${profile.role} with a ${profile.style.tone} tone and ${profile.style.language}.
-${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
-Focus on ${profile.context}. 
-Approach: ${profile.approach}.
-
-SHORT TOTAL OUTPUT.
-!!!Split into short natural length chat messages. mark split with -- 
-Don't want long unnatural chat bubbles.
-Be helpful and positive
-Only discuss financial topics decline others
-Don't recommend other apps except Dobbi app yourself
-
-Dobbi is a financial advisor app that let's you track your finances, set saving goals, and redeem offers from partner companies using points earned using the app.
-
-If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.
-
-Show offers with the following format: [**Title** for x points], expiring on mm-dd-yyyy.`;
-
+// Add this mapping object to convert database types to profile types
+const USER_TYPE_MAPPING = {
+  'student': 'STUDENT',
+  'young_professional': 'YOUNG_PROFESSIONAL',
+  'family': 'REGULAR_WORKER',
+  'professional': 'PROFESSIONAL'
+};
 
 const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
@@ -89,13 +74,49 @@ What specific financial concerns do you have for your family?
  * @param {string} userQuestion - La pregunta del usuario.
  * @returns {Promise<string>} - La respuesta generada por el modelo.
  */
-export async function getOpenAIResponse(userQuestion, username = null, financialData = null, offersData = null) {
+export async function getOpenAIResponse(userQuestion, username = null, financialData = null, offersData = null, userType = 'STUDENT') {
+  // Map the database user type to profile type
+  const normalizedUserType = USER_TYPE_MAPPING[userType?.toLowerCase()] || 'STUDENT';
+  
+  const profile = USER_PROFILES[normalizedUserType];
+  
+  if (!profile) {
+    console.error(`Invalid user type: ${userType} (normalized: ${normalizedUserType}), falling back to STUDENT profile`);
+    profile = USER_PROFILES['STUDENT'];
+  }
+
+  // Add debug logging
+  console.log('User type:', userType);
+  console.log('Normalized type:', normalizedUserType);
+  console.log('Selected profile:', profile?.role);
+
   const userContext = username ? `\nUser: ${username}` : '';
   const today = `Today: ${new Date().toLocaleDateString()}`; // Add current date to context
   const financialContext = financialData ? formatFinancialMetrics(financialData) : '';
   const offersContext = offersData ? formatOffers(offersData) : '';
 
-  const contextualPrompt = `${SYSTEM_PROMPT}\n\n${userContext}\n\n${today}\n${financialContext}\n\n${offersContext}`;
+  // Create system prompt using the provided user type and profile
+  const systemPrompt = `You are Dobbi, a financial AI assistant for a ${userType}.
+Act as a ${profile.role} with a ${profile.style.tone} tone and ${profile.style.language}.
+${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
+Focus on ${profile.context}. 
+Approach: ${profile.approach}.
+
+SHORT TOTAL OUTPUT.
+!!!Split into short natural length chat messages. mark split with -- 
+Don't want long unnatural chat bubbles.
+Be helpful and positive
+Only discuss financial topics decline others
+Don't recommend other apps except Dobbi app yourself
+Make sure to reference user's situation/type in responses
+
+Dobbi is a financial advisor app that let's you track your finances, set saving goals, and redeem offers from partner companies using points earned using the app.
+
+If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.
+
+Show offers with the following format: [**Title** for x points], expiring on mm-dd-yyyy.`;
+
+  const contextualPrompt = `${systemPrompt}\n\n${userContext}\n\n${today}\n${financialContext}\n\n${offersContext}`;
   
   try {
     if (!USE_AI) {

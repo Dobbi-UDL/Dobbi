@@ -2,7 +2,7 @@ import { supabase } from '../config/supabase'; // Asegúrate de tener configurad
 
 export const authService = {
   // Registro de usuario
-  async signUp({ username, email, password, phone }) {
+  async signUp({ username, email, password, phone, user_type = 'STUDENT' }) {
     try {
       // 1. Crear usuario en auth.users
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -21,6 +21,7 @@ export const authService = {
             username,
             email,
             points: 0,
+            user_type, // Add user_type to the creation
             created_at: new Date(),
           },
         ])

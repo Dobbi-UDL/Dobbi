@@ -458,9 +458,9 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   logo: {
-    // 808 x 700
+    // 808 x 808
     width: 36,
-    height: 31,
+    height: 36,
   },
   boldText: {
     fontWeight: '600',
