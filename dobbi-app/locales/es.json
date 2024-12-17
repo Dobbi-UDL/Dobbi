@@ -38,12 +38,11 @@
   "netCashFlow": "Flujo Neto de Efectivo",
 
   "quickActionsTitle": "Acciones Rápidas",
-  "addIncome": "Agregar Ingreso",
-  "addExpense": "Agregar Gasto",
+  "addEntry": "Añadir Entrada",
   "budget": "Finanzas",
   "setGoal": "Nuevo Objetivo",
 
-  "activeGoalsTitle": "Metas Activas",
+  "activeGoalsTitle": "Objetivos Activos",
   "viewAll": "Ver Todas",
   "goalVacation": "Ahorrar para las vacaciones",
   "goalCreditCard": "Pagar tarjeta de crédito",
@@ -67,5 +66,10 @@
   "transport": "Transporte",
   "expenseBreakdown": "Desglose de Gastos",
   
-  "welcome" : "Bienvenid@"
+  "welcome" : "Bienvenid@",
+
+  "currentAmount": "Cantidad Actual",
+  "targetAmount": "Cantidad Objetivo",
+  "endDate": "Fecha de Finalización",
+  "progressPercentage": "Progreso actual: "
 }

@@ -37,8 +37,7 @@
   "netCashFlow": "Net Cash Flow",
 
   "quickActionsTitle": "Quick Actions",
-  "addIncome": "Add Income",
-  "addExpense": "Add Expense",
+  "addEntry": "Add Entry",
   "budget": "finances",
   "setGoal": "Set Goal",
 
@@ -59,7 +58,6 @@
   "details": "Details",
   "financesOverview": "Finances Overview",
   "remainingBalance": "Remaining Balance",
-  "totalIncome": "Total Income",
   "totalExpenses": "Total Expenses",
 
   "entertainment": "Entertainment",
@@ -96,6 +94,9 @@
 "noexpensesCategories": "No expense categories yet",
 "addincomeEntry": "Add Income",
 "addexpensesEntry": "Add Expense",
-"noincomeCategories": "No income transactions",
-"noexpensesCategories": "No expense transactions"
+
+"currentAmount": "Current Amount",
+"targetAmount": "Target Amount",
+"endDate": "End Date",
+"progressPercentage": "Current progress: "
 }

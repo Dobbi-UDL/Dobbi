@@ -6,13 +6,13 @@ import {
   TextInput,
   Alert,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomModal } from "../common/Modal";
 import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
-import { Picker } from "@react-native-picker/picker";
 
 export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [title, setTitle] = useState("");
@@ -21,7 +21,6 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [monthlySaving, setMonthlySaving] = useState("");
   const [expiringDate, setExpiringDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [goalStatus, setGoalStatus] = useState("pending");
 
   // Validation Form
   const isFormValid = () => {
@@ -69,7 +68,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
           monthly_saving: parseFloat(monthlySaving),
           target_amount: parseFloat(targetAmount),
           completed: false,
-          goal_status: goalData.is_sponsored ? "active" : "pending",
+          goal_status: "pending",
         });
 
       if (trackingError) throw trackingError;
@@ -185,46 +184,32 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
           <Text style={styles.label}>Target Date</Text>
           <TouchableOpacity
             style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => setShowDatePicker(true)} // Al tocar, muestra el popup
           >
             <Ionicons name="calendar-outline" size={24} color="#EE6567" />
             <Text style={styles.dateButtonText}>
               {expiringDate.toDateString()}
             </Text>
           </TouchableOpacity>
+
+          {/* Mostrar el popup como un modal solo cuando se toque el botón */}
           {showDatePicker && (
             <DateTimePicker
               value={expiringDate}
               mode="date"
-              display="default"
-              firstDayOfWeek={1}
+              display="default" // Modo de spinner en dispositivos móviles, tipo popup
               onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
+                setShowDatePicker(false); // Cierra el popup después de seleccionar la fecha
                 if (selectedDate) {
                   setExpiringDate(selectedDate);
                 }
-                }}
-                style={styles.datePicker}
-              />
-              )}
-            </View>
-
-            {/* Goal Status */}
-            <View style={styles.section}>
-              <Text style={styles.label}>Goal Status</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={goalStatus}
-                  onValueChange={(itemValue) => setGoalStatus(itemValue)}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Pending" value="pending" />
-                  <Picker.Item label="Active" value="active" />
-                </Picker>
-              </View>
-            </View>
-
-            {/* Submit Buttons */}
+              }}
+              style={styles.datePicker}
+            />
+          )}
+        </View>
+            
+        {/* Submit Buttons */}
         <View style={styles.submitButtonContainer}>
           <Button
             title="Cancel"
@@ -304,18 +289,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  datePicker: {
-    backgroundColor: "white",
-  },
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#CCCCCC",
     borderRadius: 8,
     overflow: "hidden",
+    backgroundColor: "#fff", // Fondo blanco para que se vea bien
   },
   picker: {
-    height: 50,
-    width: "100%",
+    fontSize: 16,
+    height: 50, // Altura ajustada para que sea consistente con los inputs
+    color: "#333", // Texto oscuro
   },
   submitButtonContainer: {
     flexDirection: "row",
