@@ -6,18 +6,34 @@ import Card from '../common/Card';
 import { useRouter } from 'expo-router';
 import { AddGoalForm } from '../ChallengesScreen/AddGoalForm';
 import { AddEntryForm } from '../Finances/Details/AddEntryForm'; 
+import { useAuth } from '../../../contexts/AuthContext'; // Asegúrate de importar tu contexto de autenticación
 
 export const QuickActions = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState(null); 
-  const router = useRouter(); 
+  const router = useRouter();
+  const { user } = useAuth(); // Obtener el usuario del contexto de autenticación
 
-   const actions = [
-    { icon: 'plus', label: i18n.t('addEntry'), color: '#4CAF50', onClick: () => openModal('addEntry') },
-    { icon: 'chart-line', label: i18n.t('budget'), color: '#FF9800', onClick: () => router.push('stats') }, 
-    { icon: 'bookmark-plus-outline', label: i18n.t('setGoal'), color: '#3F51B5', onClick: () => openModal('setGoal') }, 
+  const actions = [
+    { 
+      icon: 'plus', 
+      label: i18n.t('addEntry'), 
+      color: '#4CAF50', 
+      onClick: () => openModal('addEntry') 
+    },
+    { 
+      icon: 'chart-line', 
+      label: i18n.t('budget'), 
+      color: '#FF9800', 
+      onClick: () => router.push('stats') 
+    }, 
+    { 
+      icon: 'bookmark-plus-outline', 
+      label: i18n.t('setGoal'), 
+      color: '#3F51B5', 
+      onClick: () => openModal('setGoal') 
+    }, 
   ];
-
 
   const openModal = (type) => {
     setModalType(type);
@@ -26,7 +42,40 @@ export const QuickActions = () => {
 
   const closeModal = () => {
     setModalVisible(false);
-    setModalType(null); 
+    setModalType(null);
+  };
+
+  const handleGoalCreated = () => {
+    // Añade aquí cualquier lógica adicional que quieras ejecutar cuando se cree un objetivo
+    console.log('Goal created');
+  };
+
+  const renderModal = () => {
+    switch(modalType) {
+      case 'addEntry':
+        return (
+          <AddEntryForm 
+            visible={modalVisible}
+            onClose={closeModal}
+            userId={user.id}
+            onEntryCreated={() => {
+              // Lógica opcional después de crear una entrada
+              closeModal();
+            }}
+          />
+        );
+      case 'setGoal':
+        return (
+          <AddGoalForm 
+            visible={modalVisible}
+            onClose={closeModal}
+            userId={user.id}
+            onGoalCreated={handleGoalCreated}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -37,7 +86,7 @@ export const QuickActions = () => {
           <TouchableOpacity
             key={index}
             style={styles.actionItem}
-            onPress={action.onClick} // Ejecutar acción al presionar
+            onPress={action.onClick}
           >
             <View style={[styles.iconContainer, { backgroundColor: action.color }]}>
               <Icon name={action.icon} size={30} color="#fff" />
@@ -47,32 +96,7 @@ export const QuickActions = () => {
         ))}
       </View>
 
-      {/* Modal para mostrar los formularios dependiendo del tipo */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal} // Cerrar el modal al presionar fuera
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {/* Condicional para mostrar el formulario según el tipo */}
-            {modalType === 'addEntry' && (
-              <AddEntryForm onClose={closeModal} />
-            )}
-            {modalType === 'setGoal' && (
-              <AddGoalForm onClose={closeModal} />
-            )}
-            {/* Botón de cerrar */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={closeModal}
-            >
-              <Text style={styles.closeButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      {renderModal()}
     </Card>
   );
 };

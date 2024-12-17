@@ -71,5 +71,27 @@
   "currentAmount": "Cantidad Actual",
   "targetAmount": "Cantidad Objetivo",
   "endDate": "Fecha de Finalización",
-  "progressPercentage": "Progreso actual: "
+  "progressPercentage": "Progreso actual: ",
+
+  "of": "de",
+  "ends_on": "Finaliza el: ",
+  "pts": "puntos",
+
+  "company_name_placeholder": "Nombre de la empresa",
+  "description_placeholder": "Descripción",
+  "title_placeholder": "Título",
+
+  "monthly_saving": "Ahorro mensual: ",
+  "target_amount": "Cantidad objetivo: ",
+  "expiring_date": "Fecha de vencimiento",
+
+  "accept_challenge": "Aceptar Desafío",
+
+  "goal_title": "Título del objetivo",
+  "goal_description": "Descripción",
+  "goal_target_amount": "Objetivo",
+  "goal_monthly_saving": "Ahorro mensual",
+  "goal_target_date": "Fecha de finalización",
+  "cancel_button": "Cancelar",
+  "create_goal_button": "Crear"
 }
