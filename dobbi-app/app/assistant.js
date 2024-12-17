@@ -275,17 +275,21 @@ const ChatbotScreen = () => {
       const storedChat = await AsyncStorage.getItem(`chat_${chatId}`);
       if (storedChat) {
         const parsedData = JSON.parse(storedChat);
-        const messagesWithIds = parsedData.messages.map(msg => ({
-          ...msg,
-          id: msg.id || uuidv4() // Add ID if missing
-        }));
+        // Sort messages by timestamp in reverse order (newest first)
+        const messagesWithIds = parsedData.messages
+          .map(msg => ({
+            ...msg,
+            id: msg.id || uuidv4(),
+            timestamp: msg.timestamp || Date.now() // Ensure all messages have timestamps
+          }))
+          .sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp, newest first
+        
         setMessages(messagesWithIds);
         setConversationId(chatId);
-        setSelectedMessage(null); // Reset selected message
+        setSelectedMessage(null);
       }
       await AsyncStorage.setItem('lastActiveChatId', chatId);
       setShowHistory(false);
-      toggleMenu();
     } catch (error) {
       console.error("Error loading chat:", error);
     }
@@ -301,6 +305,15 @@ const ChatbotScreen = () => {
       await loadChatHistory();
       if (chatList.length > 0) {
         await loadChat(chatList[0].id);
+      } else {
+        // Create new chat if no previous chats exist
+        const newChatId = uuidv4();
+        setConversationId(newChatId);
+        await showAssistantResponse(true);
+        setShowAvatar(false);
+        setIsTyping(false);
+        setMessages([WELCOME_MESSAGE]);
+        await AsyncStorage.setItem('lastActiveChatId', newChatId);
       }
     };
 

@@ -308,12 +308,12 @@ export default function Stats() {
                     <>
                         <TopCategoriesCard
                             title="Top Expense Categories"
-                            data={expenseCategories}
+                            data={expenseCategories.slice(0, 5)}
                             type="expense"
                         />
                         <TopCategoriesCard
                             title="Top Income Categories"
-                            data={incomeCategories}
+                            data={incomeCategories.slice(0, 5)}
                             type="income"
                         />
                     </>

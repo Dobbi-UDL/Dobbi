@@ -52,7 +52,7 @@ const USER_PROFILES = {
   }
 };
 
-const currentUserType = USER_TYPE.REGULAR_WORKER;
+const currentUserType = USER_TYPE.PROFESSIONAL;
 const profile = USER_PROFILES[currentUserType];
 
 const SYSTEM_PROMPT = `You are Dobbi, a financial AI assistant for a ${currentUserType.toLowerCase()}.
@@ -78,9 +78,10 @@ Show offers with the following format: [**Title** for x points], expiring on mm-
 const getMockResponse = async () => {
   // Simulate reasonable API delay (500-1500ms)
   await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-  return `Here's a link:
-  [**MegaMarkt - 100€ en Electrónica** for 2500 points]
-  After link.`;
+  return `I can help you manage your family's finances, set up saving goals, and track your expenses right here in the Dobbi app. Let's focus on making your household financially stable and secure. --
+
+What specific financial concerns do you have for your family?
+`;
 };
 
 /**
