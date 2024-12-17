@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../common/Card';
 import { assignGoal } from '../../../services/goalService';
 import { useAuth } from '../../../contexts/AuthContext';
+import i18n from '../../../i18n';
 
 export const ChallengeCard = ({ challenge }) => {
     const { user } = useAuth();
@@ -53,13 +54,13 @@ export const ChallengeCard = ({ challenge }) => {
                 <View style={localStyles.headerContainer}>
                     <View style={localStyles.companySection}>
                         <Text style={localStyles.companyName} numberOfLines={1}>
-                            {challenge.company_name || 'Nombre de la empresa'}
+                            {challenge.company_name || i18n.t('company_name_placeholder')}
                         </Text>
                     </View>
                     <View style={localStyles.rewardBadge}>
                         <Icon name="gift" size={16} color="#fff" />
                         <Text style={localStyles.rewardText}>
-                            {challenge.points_rewards || 0} pts
+                            {challenge.points_rewards || 0} {i18n.t('pts')}
                         </Text>
                     </View>
                 </View>
@@ -67,10 +68,10 @@ export const ChallengeCard = ({ challenge }) => {
                 {/* Challenge Details */}
                 <View style={localStyles.contentContainer}>
                     <Text style={localStyles.titleText} numberOfLines={2}>
-                        {challenge.title || 'Título no disponible'}
+                        {challenge.title || i18n.t('title_placeholder')}
                     </Text>
                     <Text style={localStyles.descriptionText} numberOfLines={3}>
-                        {challenge.description || 'Descripción no disponible'}
+                        {challenge.description || i18n.t('description_placeholder')}
                     </Text>
 
                     {/* Challenge Metrics */}
@@ -78,19 +79,19 @@ export const ChallengeCard = ({ challenge }) => {
                         <View style={localStyles.metricItem}>
                             <Icon name="cash" size={20} color="#4a4a4a" />
                             <Text style={localStyles.metricText}>
-                                Ahorro mensual: {formatCurrency(challenge.monthly_saving)}
+                            i18n.t('title_placeholder'): {formatCurrency(challenge.monthly_saving)}
                             </Text>
                         </View>
                         <View style={localStyles.metricItem}>
                             <Icon name="target" size={20} color="#4a4a4a" />
                             <Text style={localStyles.metricText}>
-                                Objetivo: {formatCurrency(challenge.target_amount)}
+                                {i18n.t('target_amount')}: {formatCurrency(challenge.target_amount)}
                             </Text>
                         </View>
                         <View style={localStyles.metricItem}>
                             <Icon name="calendar" size={20} color="#4a4a4a" />
                             <Text style={localStyles.metricText}>
-                                Vence: {formatDate(challenge.expiring_date)}
+                                {i18n.t('expiring_date')}: {formatDate(challenge.expiring_date)}
                             </Text>
                         </View>
                     </View>
@@ -100,7 +101,7 @@ export const ChallengeCard = ({ challenge }) => {
                         style={localStyles.actionButton} 
                         onPress={handleAssignChallenge}
                     >
-                        <Text style={localStyles.actionButtonText}>Aceptar Desafío</Text>
+                        <Text style={localStyles.actionButtonText}>{i18n.t('accept_challenge')}</Text>
                     </TouchableOpacity>
                 </View>
             </Card>

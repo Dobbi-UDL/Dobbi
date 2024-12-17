@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CustomModal } from "../common/Modal";
 import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
+import i18n from "../../../i18n"
 
 export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [title, setTitle] = useState("");
@@ -127,7 +128,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
       <View style={styles.container}>
         {/* Title */}
         <View style={styles.section}>
-          <Text style={styles.label}>Goal Title</Text>
+          <Text style={styles.label}>{i18n.t('goal_title')}</Text>
           <TextInput
             style={styles.input}
             placeholder="e.g., New Laptop Fund"
@@ -151,7 +152,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
         {/* Target Amount */}
         <View style={styles.section}>
-          <Text style={styles.label}>Target Amount</Text>
+          <Text style={styles.label}>{i18n.t('goal_target_amount')}</Text>
           <View style={styles.amountInputContainer}>
             <Text style={styles.currencySymbol}>$</Text>
             <TextInput
@@ -166,7 +167,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
         {/* Monthly Saving */}
         <View style={styles.section}>
-          <Text style={styles.label}>Monthly Saving</Text>
+          <Text style={styles.label}>{i18n.t('goal_monthly_saving')}</Text>
           <View style={styles.amountInputContainer}>
             <Text style={styles.currencySymbol}>$</Text>
             <TextInput
@@ -181,7 +182,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
         {/* Expiring Date */}
         <View style={styles.section}>
-          <Text style={styles.label}>Target Date</Text>
+          <Text style={styles.label}>{i18n.t('goal_target_date')}</Text>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowDatePicker(true)} // Al tocar, muestra el popup
@@ -212,13 +213,13 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
         {/* Submit Buttons */}
         <View style={styles.submitButtonContainer}>
           <Button
-            title="Cancel"
+            title={i18n.t('cancel_button')}
             onPress={handleClose}
             variant="outline"
             style={styles.deleteButton}
           />
           <Button
-            title="Create Goal"
+            title={i18n.t('create_goal_button')}
             onPress={handleSubmit}
             disabled={!isFormValid()}
             style={[

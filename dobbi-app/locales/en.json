@@ -90,13 +90,35 @@
   "addNewEntry": "Add New Entry",
 
   "welcome" : "Welcome",
-"noincomeCategories": "No income categories yet",
-"noexpensesCategories": "No expense categories yet",
-"addincomeEntry": "Add Income",
-"addexpensesEntry": "Add Expense",
+  "noincomeCategories": "No income categories yet",
+  "noexpensesCategories": "No expense categories yet",
+  "addincomeEntry": "Add Income",
+  "addexpensesEntry": "Add Expense",
 
-"currentAmount": "Current Amount",
-"targetAmount": "Target Amount",
-"endDate": "End Date",
-"progressPercentage": "Current progress: "
+  "currentAmount": "Current Amount",
+  "targetAmount": "Target Amount",
+  "endDate": "End Date",
+  "progressPercentage": "Current progress: ",
+
+  "of": "of",
+  "ends_on": "Ends on",
+  "pts": "points",
+
+  "company_name_placeholder": "Company name",
+  "description_placeholder": "Description",
+  "title_placeholder": "Title",
+
+  "monthly_saving": "Monthly saving: ",
+  "target_amount": "Target amount: ",
+  "expiring_date": "Expiring date",
+
+  "accept_challenge": "Accept Challenge",
+
+  "goal_title": "Goal title",
+  "goal_description": "Goal description",
+  "goal_target_amount": "Target amount",
+  "goal_monthly_saving": "Monthly saving",
+  "goal_target_date": "Target date",
+  "cancel_button": "Cancel",
+  "create_goal_button": "Create goal"
 }

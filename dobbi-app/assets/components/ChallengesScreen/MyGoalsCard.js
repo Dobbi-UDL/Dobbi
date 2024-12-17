@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../common/Card';
 import * as Progress from 'react-native-progress';
+import i18n from '../../../i18n';
 
 export const MyGoalsCard = ({ goal }) => {
     const formatCurrency = (amount) => {
@@ -68,26 +69,25 @@ export const MyGoalsCard = ({ goal }) => {
                 {/* Header Section */}
                 <View style={localStyles.headerContainer}>
                     <Text style={localStyles.titleText} numberOfLines={2}>
-                        {goal.title || 'Objetivo sin título'}
+                        {goal.title || i18n.t('untitled_goal')}
                     </Text>
                     <View style={localStyles.rewardBadge}>
                         <Icon name="gift" size={16} color="#fff" />
                         <Text style={localStyles.rewardText}>
-                            {goal.points_rewards || 0} pts
+                            {goal.points_rewards || 0} {i18n.t('pts')}
                         </Text>
                     </View>
                 </View>
 
                 {/* Goal Progress Details */}
                 <View style={localStyles.progressContainer}>
-                    {/* Amount Information */}
                     <View style={localStyles.amountSection}>
                         <View>
                             <Text style={localStyles.currentAmountText}>
                                 {formatCurrency(goal.current_amount || 0)}
                             </Text>
                             <Text style={localStyles.targetAmountText}>
-                                de {formatCurrency(goal.target_amount || 0)}
+                                {i18n.t('of')} {formatCurrency(goal.target_amount || 0)}
                             </Text>
                         </View>
                         <Text style={localStyles.progressPercentageText}>
@@ -110,7 +110,7 @@ export const MyGoalsCard = ({ goal }) => {
                         <View style={localStyles.dateContainer}>
                             <Icon name="calendar" size={16} color="#7f8c8d" />
                             <Text style={localStyles.dateText}>
-                                Finaliza: {formatDate(goal.end_date)}
+                                {i18n.t('ends_on')}: {formatDate(goal.end_date)}
                             </Text>
                         </View>
                         
