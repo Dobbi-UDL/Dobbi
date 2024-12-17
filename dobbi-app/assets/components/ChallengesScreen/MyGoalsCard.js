@@ -36,6 +36,30 @@ export const MyGoalsCard = ({ goal }) => {
         return Math.min(goal.current_amount / goal.target_amount, 1);
     };
 
+    const getGoalStatusColor = (status) => {
+        switch (status) {
+            case 'active': return '#4CAF50';   // Green
+            case 'stopped': return '#FF9800';   // Orange
+            case 'completed': return '#2196F3'; // Blue
+            case 'failed': return '#F44336';    // Red
+            case 'cancelled': return '#9E9E9E'; // Gray
+            case 'pending': return '#FFC107';   // Amber
+            default: return '#9E9E9E';          // Gray
+        }
+    };
+
+    const getGoalStatusIcon = (status) => {
+        switch (status) {
+            case 'active': return 'progress-check';
+            case 'stopped': return 'pause-circle';
+            case 'completed': return 'trophy';
+            case 'failed': return 'close-circle';
+            case 'cancelled': return 'cancel';
+            case 'pending': return 'clock-outline';
+            default: return 'help-circle';
+        }
+    };
+
     const progressPercentage = calculateProgressPercentage();
 
     return (
@@ -81,7 +105,7 @@ export const MyGoalsCard = ({ goal }) => {
                         style={localStyles.progressBar}
                     />
 
-                    {/* Additional Goal Information */}
+                    {/* Goal Status and Additional Information */}
                     <View style={localStyles.goalInfoContainer}>
                         <View style={localStyles.dateContainer}>
                             <Icon name="calendar" size={16} color="#7f8c8d" />
@@ -89,6 +113,22 @@ export const MyGoalsCard = ({ goal }) => {
                                 Finaliza: {formatDate(goal.end_date)}
                             </Text>
                         </View>
+                        
+                        {goal.goal_status && (
+                            <View style={[
+                                localStyles.statusBadge, 
+                                { backgroundColor: getGoalStatusColor(goal.goal_status) }
+                            ]}>
+                                <Icon 
+                                    name={getGoalStatusIcon(goal.goal_status)} 
+                                    size={16} 
+                                    color="#ffffff" 
+                                />
+                                <Text style={localStyles.statusText}>
+                                    {goal.goal_status}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
             </Card>
@@ -97,6 +137,25 @@ export const MyGoalsCard = ({ goal }) => {
 };
 
 const localStyles = StyleSheet.create({
+    goalInfoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+    },
+    statusText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 5,
+        textTransform: 'capitalize',
+    }, 
     container: {
         marginBottom: 16,
         shadowColor: '#000',

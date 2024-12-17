@@ -9,9 +9,10 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import { CustomModal } from "common/Modal";
-import { Button } from "common/Button";
+import { CustomModal } from "../common/Modal";
+import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
+import { Picker } from "@react-native-picker/picker";
 
 export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [title, setTitle] = useState("");
@@ -20,6 +21,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [monthlySaving, setMonthlySaving] = useState("");
   const [expiringDate, setExpiringDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [goalStatus, setGoalStatus] = useState("pending");
 
   // Validation Form
   const isFormValid = () => {
@@ -55,20 +57,6 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
       if (goalError) throw goalError;
 
-            // Create goal tracking entry
-            const { error: trackingError } = await supabase
-                .from('goal_tracking')
-                .insert({
-                    user_id: userId,
-                    goal_id: goalData.id,
-                    current_amount: 0,
-                    start_date: new Date().toISOString(),
-                    end_date: expiringDate.toISOString(),
-                    monthly_saving: parseFloat(monthlySaving),
-                    target_amount: parseFloat(targetAmount),
-                    completed: false,
-                    goal_status: 'working'
-                });
       // Create goal tracking entry
       const { error: trackingError } = await supabase
         .from("goal_tracking")
@@ -81,7 +69,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
           monthly_saving: parseFloat(monthlySaving),
           target_amount: parseFloat(targetAmount),
           completed: false,
-          goal_status: "active",
+          goal_status: goalData.is_sponsored ? "active" : "pending",
         });
 
       if (trackingError) throw trackingError;
@@ -215,13 +203,28 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
                 if (selectedDate) {
                   setExpiringDate(selectedDate);
                 }
-              }}
-              style={styles.datePicker}
-            />
-          )}
-        </View>
+                }}
+                style={styles.datePicker}
+              />
+              )}
+            </View>
 
-        {/* Submit Buttons */}
+            {/* Goal Status */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Goal Status</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={goalStatus}
+                  onValueChange={(itemValue) => setGoalStatus(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Pending" value="pending" />
+                  <Picker.Item label="Active" value="active" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* Submit Buttons */}
         <View style={styles.submitButtonContainer}>
           <Button
             title="Cancel"
@@ -303,6 +306,16 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     backgroundColor: "white",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 50,
+    width: "100%",
   },
   submitButtonContainer: {
     flexDirection: "row",
