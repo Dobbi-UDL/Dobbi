@@ -78,7 +78,7 @@ export const generatePDF = async (data) => {
 
         // Validate required data properties
         if (!summary || !periodComparison || !expenseCategories || !incomeCategories || !monthlyTrend || !dateRange || !previousDateRange || !metrics) {
-            console.error('Missing required data:', { summary, periodComparison, expenseCategories, incomeCategories, monthlyTrend, monthlyAverages });
+            console.error('Missing required data:', { summary, periodComparison, expenseCategories, incomeCategories, monthlyTrend, dateRange, previousDateRange, metrics });
             throw new Error('Missing required data for PDF generation');
         }
 

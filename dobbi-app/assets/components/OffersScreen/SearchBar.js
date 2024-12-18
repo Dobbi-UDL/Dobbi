@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/marketplace';
+import i18n from '../../../i18n';
 
 export const SearchBar = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -14,7 +15,7 @@ export const SearchBar = ({ onSearch }) => {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar ofertas..."
+          placeholder={i18n.t('search')}
           value={searchTerm}
           onChangeText={setSearchTerm}
           onSubmitEditing={handleSearch}

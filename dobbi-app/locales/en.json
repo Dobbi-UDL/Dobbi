@@ -120,5 +120,10 @@
   "goal_monthly_saving": "Monthly saving",
   "goal_target_date": "Target date",
   "cancel_button": "Cancel",
-  "create_goal_button": "Create goal"
+  "create_goal_button": "Create goal",
+
+  "search": "Search offers",
+  "you_have": ", you have ",
+
+  "monthly_amount": "Monthly amount needed"  
 }

@@ -93,5 +93,10 @@
   "goal_monthly_saving": "Ahorro mensual",
   "goal_target_date": "Fecha de finalización",
   "cancel_button": "Cancelar",
-  "create_goal_button": "Crear"
+  "create_goal_button": "Crear",
+
+  "search": "Buscar ofertas",
+  "you_have": ", tienes ",
+
+  "monthly_amount": "Ahorro mensual requerido" 
 }

@@ -79,7 +79,7 @@ export const ChallengeCard = ({ challenge }) => {
                         <View style={localStyles.metricItem}>
                             <Icon name="cash" size={20} color="#4a4a4a" />
                             <Text style={localStyles.metricText}>
-                            i18n.t('title_placeholder'): {formatCurrency(challenge.monthly_saving)}
+                            {i18n.t('monthly_amount')}: {formatCurrency(challenge.monthly_saving)}
                             </Text>
                         </View>
                         <View style={localStyles.metricItem}>

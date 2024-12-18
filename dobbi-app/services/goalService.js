@@ -38,7 +38,7 @@ export const assignGoal = async (goalId, userId) => {
       (financialData.total_expense + goalData.monthly_saving);
 
     // Determinar el estado inicial del objetivo
-    const goalStatus = canSave ? 'working' : 'pending';
+    const goalStatus = 'pending';
 
     // Preparar los datos para insertar en goal_tracking
     const goalTrackingData = {
@@ -64,10 +64,10 @@ export const assignGoal = async (goalId, userId) => {
 
     // Notificar éxito
     Alert.alert(
-      'Objetivo Asignado', 
+      'Goal Assigned', 
       goalStatus === 'working' 
-        ? 'Has asignado el objetivo exitosamente.' 
-        : 'Objetivo asignado, pero no podrás ahorrar este mes debido a tu situación financiera.'
+      ? 'You have successfully assigned the goal.' 
+      : 'Goal assigned, but you will not be able to save this month due to your financial situation.'
     );
 
     return insertedGoal;
