@@ -98,5 +98,12 @@
   "search": "Buscar ofertas",
   "you_have": ", tienes ",
 
-  "monthly_amount": "Ahorro mensual requerido" 
+  "monthly_amount": "Ahorro mensual requerido",
+  "personal_goals": "Objetivos Personales",
+  "sponsored_goals": "Objetivos Patrocinados",
+  "activate": "Activar",
+  "pause": "Pausar",
+  "resume": "Reanudar",
+  "status_actions": "Acciones de estado",
+  "other_actions": "Otras acciones"
 }

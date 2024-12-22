@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../common/Card';
 import * as Progress from 'react-native-progress';
 import i18n from '../../../i18n';
+import GoalManagementMenu from './GoalManagementMenu';
 
-export const MyGoalsCard = ({ goal }) => {
+const MyGoalsCard = ({ goal, onStatusChange, onEdit, onUpdate, isHighlighted }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return 'N/A';
         return amount.toLocaleString('de-DE', { 
@@ -63,76 +70,97 @@ export const MyGoalsCard = ({ goal }) => {
 
     const progressPercentage = calculateProgressPercentage();
 
+    const handleStatusChange = (newStatus) => {
+        onStatusChange(newStatus);
+        if (onUpdate) onUpdate();
+    };
+
     return (
-        <TouchableOpacity style={localStyles.container}>
-            <Card style={localStyles.card}>
-                {/* Header Section */}
-                <View style={localStyles.headerContainer}>
-                    <Text style={localStyles.titleText} numberOfLines={2}>
-                        {goal.title || i18n.t('untitled_goal')}
-                    </Text>
-                    <View style={localStyles.rewardBadge}>
-                        <Icon name="gift" size={16} color="#fff" />
-                        <Text style={localStyles.rewardText}>
-                            {goal.points_rewards || 0} {i18n.t('pts')}
+        <Card style={[
+            localStyles.card,
+            { marginBottom: isMenuOpen ? 8 : 16 },
+            isHighlighted && localStyles.highlightedCard // Añade el estilo de resaltado si es necesario
+        ]}>
+            <TouchableOpacity 
+                onPress={toggleMenu}
+                activeOpacity={0.8}
+            >
+                <View style={localStyles.container}>
+                    {/* Header Section */}
+                    <View style={localStyles.headerContainer}>
+                        <Text style={localStyles.titleText} numberOfLines={2}>
+                            {goal.title || i18n.t('untitled_goal')}
                         </Text>
-                    </View>
-                </View>
-
-                {/* Goal Progress Details */}
-                <View style={localStyles.progressContainer}>
-                    <View style={localStyles.amountSection}>
-                        <View>
-                            <Text style={localStyles.currentAmountText}>
-                                {formatCurrency(goal.current_amount || 0)}
-                            </Text>
-                            <Text style={localStyles.targetAmountText}>
-                                {i18n.t('of')} {formatCurrency(goal.target_amount || 0)}
+                        <View style={localStyles.rewardBadge}>
+                            <Icon name="gift" size={16} color="#fff" />
+                            <Text style={localStyles.rewardText}>
+                                {goal.points_rewards || 0} {i18n.t('pts')}
                             </Text>
                         </View>
-                        <Text style={localStyles.progressPercentageText}>
-                            {(progressPercentage * 100).toFixed(0)}%
-                        </Text>
                     </View>
 
-                    {/* Progress Bar */}
-                    <Progress.Bar 
-                        progress={progressPercentage}
-                        width={null}
-                        color="#ff6b6b"
-                        unfilledColor="#e0e0e0"
-                        borderWidth={0}
-                        style={localStyles.progressBar}
-                    />
-
-                    {/* Goal Status and Additional Information */}
-                    <View style={localStyles.goalInfoContainer}>
-                        <View style={localStyles.dateContainer}>
-                            <Icon name="calendar" size={16} color="#7f8c8d" />
-                            <Text style={localStyles.dateText}>
-                                {i18n.t('ends_on')}: {formatDate(goal.end_date)}
-                            </Text>
-                        </View>
-                        
-                        {goal.goal_status && (
-                            <View style={[
-                                localStyles.statusBadge, 
-                                { backgroundColor: getGoalStatusColor(goal.goal_status) }
-                            ]}>
-                                <Icon 
-                                    name={getGoalStatusIcon(goal.goal_status)} 
-                                    size={16} 
-                                    color="#ffffff" 
-                                />
-                                <Text style={localStyles.statusText}>
-                                    {goal.goal_status}
+                    {/* Goal Progress Details */}
+                    <View style={localStyles.progressContainer}>
+                        <View style={localStyles.amountSection}>
+                            <View>
+                                <Text style={localStyles.currentAmountText}>
+                                    {formatCurrency(goal.current_amount || 0)}
+                                </Text>
+                                <Text style={localStyles.targetAmountText}>
+                                    {i18n.t('of')} {formatCurrency(goal.target_amount || 0)}
                                 </Text>
                             </View>
-                        )}
+                            <Text style={localStyles.progressPercentageText}>
+                                {(progressPercentage * 100).toFixed(0)}%
+                            </Text>
+                        </View>
+
+                        {/* Progress Bar */}
+                        <Progress.Bar 
+                            progress={progressPercentage}
+                            width={null}
+                            color="#ff6b6b"
+                            unfilledColor="#e0e0e0"
+                            borderWidth={0}
+                            style={localStyles.progressBar}
+                        />
+
+                        {/* Goal Status and Additional Information */}
+                        <View style={localStyles.goalInfoContainer}>
+                            <View style={localStyles.dateContainer}>
+                                <Icon name="calendar" size={16} color="#7f8c8d" />
+                                <Text style={localStyles.dateText}>
+                                    {i18n.t('ends_on')}: {formatDate(goal.end_date)}
+                                </Text>
+                            </View>
+                            
+                            {goal.goal_status && (
+                                <View style={[
+                                    localStyles.statusBadge, 
+                                    { backgroundColor: getGoalStatusColor(goal.goal_status) }
+                                ]}>
+                                    <Icon 
+                                        name={getGoalStatusIcon(goal.goal_status)} 
+                                        size={16} 
+                                        color="#ffffff" 
+                                    />
+                                    <Text style={localStyles.statusText}>
+                                        {goal.goal_status}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
                 </View>
-            </Card>
-        </TouchableOpacity>
+            </TouchableOpacity>
+            
+            <GoalManagementMenu
+                goal={goal}
+                isOpen={isMenuOpen}
+                onStatusChange={handleStatusChange}
+                onEdit={onEdit}
+            />
+        </Card>
     );
 };
 
@@ -166,10 +194,18 @@ const localStyles = StyleSheet.create({
         margin: 10,
     },
     card: {
-        borderRadius: 12,
         backgroundColor: '#FFFFFF',
+        borderRadius: 16,
         padding: 0,
-        overflow: 'hidden',
+        marginVertical: 8,
+        marginHorizontal: 10, // Añadido para coincidir con ChallengeCard
+        width: 'auto',
+        alignSelf: 'stretch',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     headerContainer: {
         flexDirection: 'row',
@@ -242,4 +278,14 @@ const localStyles = StyleSheet.create({
         fontSize: 14,
         color: '#7f8c8d',
     },
+    cardExpanded: {
+        marginBottom: 24,
+    },
+    highlightedCard: {
+        borderWidth: 2,
+        borderColor: '#ff6b6b',
+        transform: [{scale: 1.02}],
+    },
 });
+
+export default MyGoalsCard;

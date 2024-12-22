@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
   registerButton: {
-    backgroundColor: '#F66C72',
+    backgroundColor: '#ff6b6b',
   },
   loginButton: {
     backgroundColor: 'black',

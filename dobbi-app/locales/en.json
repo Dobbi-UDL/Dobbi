@@ -125,5 +125,13 @@
   "search": "Search offers",
   "you_have": ", you have ",
 
-  "monthly_amount": "Monthly amount needed"  
+  "monthly_amount": "Monthly amount needed",
+  "personal_goals": "Personal Goals",
+  "sponsored_goals": "Sponsored Goals",
+  "activate": "Activate",
+  "pause": "Pause",
+  "resume": "Resume",
+
+  "status_actions": "Status Actions",
+  "other_actions": "Other Actions"
 }

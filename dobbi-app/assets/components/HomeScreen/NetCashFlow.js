@@ -66,111 +66,151 @@ export const NetCashFlow = () => {
   const netCashFlow = income - expense;
 
   return (
-    <Card>
-      <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
+    <View style={styles.mainContainer}>
+      <Card style={styles.container}>
+        <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
 
-      <View style={styles.summaryContainer}>
-        <View style={styles.incomeExpenseContainer}>
-          <View style={styles.infoCard}>
-            <Icon name="cash" size={40} color="#4CAF50" />
-            <Text style={styles.amount}>
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(income)}
-            </Text>
-            <Text style={styles.label}>{i18n.t('monthlyIncome')}</Text>
+        <View style={styles.flowContainer}>
+          {/* Income Section */}
+          <View style={styles.flowSection}>
+            <View style={[styles.iconContainer, styles.incomeIcon]}>
+              <Icon name="trending-up" size={24} color="#4CAF50" />
+            </View>
+            <View style={styles.flowInfo}>
+              <Text style={styles.flowLabel}>{i18n.t('monthlyIncome')}</Text>
+              <Text style={[styles.flowAmount, styles.incomeText]}>
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(income)}
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.infoCard}>
-            <Icon name="credit-card-minus" size={40} color="#FF5252" />
-            <Text style={styles.amount}>
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(expense)}
-            </Text>
-            <Text style={styles.label}>{i18n.t('monthlyExpenses')}</Text>
+          {/* Expenses Section */}
+          <View style={styles.flowSection}>
+            <View style={[styles.iconContainer, styles.expenseIcon]}>
+              <Icon name="trending-down" size={24} color="#FF5252" />
+            </View>
+            <View style={styles.flowInfo}>
+              <Text style={styles.flowLabel}>{i18n.t('monthlyExpenses')}</Text>
+              <Text style={[styles.flowAmount, styles.expenseText]}>
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(expense)}
+              </Text>
+            </View>
+          </View>
+
+          {/* Net Flow Section */}
+          <View style={styles.netFlowSection}>
+            <View style={[styles.netFlowContainer, netCashFlow >= 0 ? styles.positiveFlow : styles.negativeFlow]}>
+              <Icon 
+                name={netCashFlow >= 0 ? "arrow-up-circle" : "arrow-down-circle"} 
+                size={28} 
+                color="#FFF" 
+              />
+              <View style={styles.netFlowInfo}>
+                <Text style={styles.netFlowLabel}>{i18n.t('netCashFlow')}</Text>
+                <Text style={styles.netFlowAmount}>
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(netCashFlow)}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
-
-        <View style={styles.netFlowContainer}>
-          <Text style={styles.netFlowTitle}>{i18n.t('netCashFlow')}</Text>
-          <Text style={[styles.netFlowAmount, netCashFlow >= 0 ? styles.positive : styles.negative]}>
-            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(netCashFlow)}
-          </Text>
-        </View>
-      </View>
-    </Card>
+      </Card>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 15,
-    margin: 10,
+  mainContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    width: '100%',
+  },
+  container: {
+    padding: 10,
+    marginHorizontal: 10,
+    marginVertical: 8,
+    width: '100%', // Ajusta este valor según necesites
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontWeight: '700',
+    color: '#2d3436',
+    marginBottom: 24,
+    textAlign: 'center', // Añadido para centrar título
   },
-  summaryContainer: {
-    marginTop: 20,
+  flowContainer: {
+    gap: 16,
+    width: '100%', // Asegura que el contenedor ocupe todo el ancho
   },
-  incomeExpenseContainer: {
+  flowSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  infoCard: {
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    padding: 15,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+    borderRadius: 12,
+    justifyContent: 'center', // Añadido para centrar contenido
+    width: '100%', // Asegura que la sección ocupe todo el ancho
   },
-  label: {
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  incomeIcon: {
+    backgroundColor: '#E8F5E9',
+  },
+  expenseIcon: {
+    backgroundColor: '#FFEBEE',
+  },
+  flowInfo: {
+    flex: 1,
+  },
+  flowLabel: {
     fontSize: 14,
     color: '#666',
-    marginTop: 8,
+    marginBottom: 4,
   },
-  amount: {
+  flowAmount: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
   },
-  netFlowContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  netFlowTitle: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 10,
-  },
-  netFlowAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  positive: {
+  incomeText: {
     color: '#4CAF50',
   },
-  negative: {
+  expenseText: {
     color: '#FF5252',
+  },
+  netFlowSection: {
+    marginTop: 8,
+    width: '100%', // Asegura que la sección ocupe todo el ancho
+  },
+  netFlowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Añadido para centrar contenido
+    padding: 16,
+    borderRadius: 12,
+  },
+  positiveFlow: {
+    backgroundColor: '#4CAF50',
+  },
+  negativeFlow: {
+    backgroundColor: '#FF5252',
+  },
+  netFlowInfo: {
+    marginLeft: 16,
+  },
+  netFlowLabel: {
+    color: '#FFF',
+    fontSize: 14,
+    opacity: 0.9,
+  },
+  netFlowAmount: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: '700',
   },
   error: {
     color: '#FF5252',

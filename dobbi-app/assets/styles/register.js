@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
   },
   registerButton: {
     backgroundColor: '#ff6b6b',
-    borderRadius: 10,
+    borderRadius: 25,
     padding: 15,
     alignItems: 'center',
     marginBottom: 20,

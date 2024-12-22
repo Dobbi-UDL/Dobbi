@@ -74,8 +74,8 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
       if (trackingError) throw trackingError;
 
-      // Notify parent component
-      onGoalCreated();
+      // Notify parent components
+      if (onGoalCreated) onGoalCreated();
 
       // Reset form and close
       resetForm();
