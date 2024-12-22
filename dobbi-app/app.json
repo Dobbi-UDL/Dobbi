@@ -46,6 +46,11 @@
         "projectId": "8a8bf979-f26f-4cb7-80e9-040747f15b11"
       }
     },
+    "splash": {
+      "image": "./assets/images/dobbi-splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "assetBundlePatterns": ["**/*"],
     "sdkVersion": "52.0.0"
   }
