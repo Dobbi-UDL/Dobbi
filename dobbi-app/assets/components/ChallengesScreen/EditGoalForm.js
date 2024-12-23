@@ -6,7 +6,6 @@ import {
   TextInput,
   Alert,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,16 +15,48 @@ import { supabase } from "../../../config/supabaseClient";
 import i18n from "../../../i18n"
 import { calculateGoalMetrics } from '../../utils/goalCalculations';
 
-export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
+export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [monthlySaving, setMonthlySaving] = useState("");
   const [expiringDate, setExpiringDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [estimatedPoints, setEstimatedPoints] = useState(0);
 
-  // Validation Form
+  useEffect(() => {
+    if (goal) {
+      setTitle(goal.title);
+      setDescription(goal.description);
+      setTargetAmount(goal.target_amount.toString());
+      setMonthlySaving(goal.monthly_saving.toString());
+      // Asegurarse de que la fecha sea válida
+      try {
+        const date = new Date(goal.expiring_date);
+        if (isNaN(date.getTime())) {
+          // Si la fecha es inválida, usar la fecha actual
+          setExpiringDate(new Date());
+        } else {
+          setExpiringDate(date);
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        setExpiringDate(new Date());
+      }
+    }
+  }, [goal]);
+
+  useEffect(() => {
+    if (targetAmount && monthlySaving) {
+      const amount = parseFloat(targetAmount);
+      const saving = parseFloat(monthlySaving);
+      if (amount > 0 && saving > 0) {
+        const { estimatedEndDate, points } = calculateGoalMetrics(amount, saving);
+        setExpiringDate(estimatedEndDate);
+        // Puedes mostrar los puntos actualizados en la UI
+      }
+    }
+  }, [targetAmount, monthlySaving]);
+
   const isFormValid = () => {
     return (
       title.trim() !== "" &&
@@ -34,29 +65,6 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
       parseFloat(monthlySaving) > 0
     );
   };
-
-  useEffect(() => {
-    if (targetAmount && monthlySaving && expiringDate) {
-      const amount = parseFloat(targetAmount);
-      const saving = parseFloat(monthlySaving);
-      if (amount > 0 && saving > 0) {
-        const { estimatedEndDate, points } = calculateGoalMetrics(amount, saving);
-        setExpiringDate(estimatedEndDate);
-        // Puedes mostrar los puntos en la UI si lo deseas
-      }
-    }
-  }, [targetAmount, monthlySaving]);
-
-  useEffect(() => {
-    if (targetAmount && monthlySaving && expiringDate) {
-        const amount = parseFloat(targetAmount);
-        const saving = parseFloat(monthlySaving);
-        if (amount > 0 && saving > 0) {
-            const { points } = calculateGoalMetrics(amount, saving, expiringDate);
-            setEstimatedPoints(points);
-        }
-    }
-  }, [targetAmount, monthlySaving, expiringDate]);
 
   const handleSubmit = async () => {
     if (!isFormValid()) {
@@ -69,91 +77,84 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
       const saving = parseFloat(monthlySaving);
       const { points } = calculateGoalMetrics(amount, saving);
 
-      // Insert saving goal with calculated points
-      const { data: goalData, error: goalError } = await supabase
+      const { error: goalError } = await supabase
         .from("saving_goals")
-        .insert({
-          creator_id: userId,
+        .update({
           title: title,
           description: description,
           target_amount: amount,
           monthly_saving: saving,
           expiring_date: expiringDate.toISOString(),
-          is_sponsored: false,
-          points_rewards: points // Añadir los puntos calculados
+          points_rewards: points // Actualizar los puntos
         })
-        .select()
-        .single();
+        .eq('id', goal.id);
 
       if (goalError) throw goalError;
 
-      // Create goal tracking entry
       const { error: trackingError } = await supabase
         .from("goal_tracking")
-        .insert({
-          user_id: userId,
-          goal_id: goalData.id,
-          current_amount: 0,
-          start_date: new Date().toISOString(),
+        .update({
           end_date: expiringDate.toISOString(),
           monthly_saving: parseFloat(monthlySaving),
           target_amount: parseFloat(targetAmount),
-          completed: false,
-          goal_status: "pending",
-        });
+        })
+        .eq('goal_id', goal.id);
 
       if (trackingError) throw trackingError;
 
-      // Notify parent components
-      if (onGoalCreated) onGoalCreated();
-
-      // Reset form and close
-      resetForm();
+      if (onGoalUpdated) onGoalUpdated();
       onClose();
-
-      Alert.alert("Success", "Your saving goal has been created!");
+      Alert.alert("Success", "Your saving goal has been updated!");
     } catch (error) {
-      console.error("Error creating saving goal:", error);
-      Alert.alert("Error", "Failed to create saving goal. Please try again.");
+      console.error("Error updating saving goal:", error);
+      Alert.alert("Error", "Failed to update saving goal. Please try again.");
     }
   };
 
   const handleClose = () => {
     Alert.alert(
-      "Are you sure?",
-      "You will lose any unsaved changes.",
+      i18n.t('cancel'),
+      i18n.t('cancel_changes_message'),
       [
         {
-          text: "No",
-          onPress: () => {},
-          style: "cancel",
+          text: i18n.t('no'),
+          style: "cancel"
         },
         {
-          text: "Yes",
+          text: i18n.t('yes'),
           onPress: () => {
             resetForm();
             onClose();
-          },
-        },
-      ],
-      { cancelable: true }
+          }
+        }
+      ]
     );
   };
 
   const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setTargetAmount("");
-    setMonthlySaving("");
-    setExpiringDate(new Date());
+    if (goal) {
+      setTitle(goal.title);
+      setDescription(goal.description);
+      setTargetAmount(goal.target_amount.toString());
+      setMonthlySaving(goal.monthly_saving.toString());
+      setExpiringDate(new Date(goal.expiring_date));
+    }
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate && !isNaN(selectedDate.getTime())) {
+      setExpiringDate(selectedDate);
+    }
   };
 
   return (
     <CustomModal
-      title="Create Saving Goal"
+      title={i18n.t('edit_goal_title')}
       visible={visible}
       onClose={handleClose}
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit}  // Añadir esta prop
+      fullWidth={true}         // Añadir esta prop
     >
       <View style={styles.container}>
         {/* Title */}
@@ -161,7 +162,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
           <Text style={styles.label}>{i18n.t('goal_title')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g., New Laptop Fund"
+            placeholder={i18n.t('title_placeholder')}
             value={title}
             onChangeText={setTitle}
           />
@@ -169,10 +170,10 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
         {/* Description */}
         <View style={styles.section}>
-          <Text style={styles.label}>Description</Text>
+          <Text style={styles.label}>{i18n.t('goal_description')}</Text>
           <TextInput
             style={[styles.input, styles.multilineInput]}
-            placeholder="Describe your saving goal"
+            placeholder={i18n.t('description_placeholder')}
             value={description}
             onChangeText={setDescription}
             multiline
@@ -219,45 +220,38 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
           >
             <Ionicons name="calendar-outline" size={24} color="#EE6567" />
             <Text style={styles.dateButtonText}>
-              {expiringDate.toDateString()}
+              {expiringDate instanceof Date && !isNaN(expiringDate.getTime())
+                ? expiringDate.toLocaleDateString()
+                : 'Select date'}
             </Text>
           </TouchableOpacity>
 
           {/* Mostrar el popup como un modal solo cuando se toque el botón */}
           {showDatePicker && (
             <DateTimePicker
-              value={expiringDate}
+              testID="dateTimePicker"
+              value={expiringDate instanceof Date && !isNaN(expiringDate.getTime()) 
+                ? expiringDate 
+                : new Date()}
               mode="date"
               display="default" // Modo de spinner en dispositivos móviles, tipo popup
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false); // Cierra el popup después de seleccionar la fecha
-                if (selectedDate) {
-                  setExpiringDate(selectedDate);
-                }
-              }}
+              onChange={handleDateChange}
+              minimumDate={new Date()}
               style={styles.datePicker}
             />
           )}
         </View>
             
-        {/* Estimated Points and Time Range */}
-        <View style={styles.section}>
-            <View style={styles.infoContainer}>
-                <Text style={styles.infoLabel}>Estimated Points:</Text>
-                <Text style={styles.infoValue}>{estimatedPoints} pts</Text>
-            </View>
-        </View>
-
         {/* Submit Buttons */}
         <View style={styles.submitButtonContainer}>
           <Button
             title={i18n.t('cancel_button')}
             onPress={handleClose}
             variant="outline"
-            style={styles.deleteButton}
+            style={styles.submitButton}
           />
           <Button
-            title={i18n.t('create_goal_button')}
+            title={i18n.t('update_goal_button')}
             onPress={handleSubmit}
             disabled={!isFormValid()}
             style={[
@@ -265,7 +259,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
               !isFormValid() && styles.submitButtonDisabled,
             ]}
           />
-        </View>
+      </View>
       </View>
     </CustomModal>
   );
@@ -273,11 +267,12 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "95%",
-    marginTop: 16,
+    padding: 16,
+    width: '100%',  // Cambiar a 100%
   },
   section: {
     marginBottom: 16,
+    width: '100%',  // Asegurar que las secciones ocupen todo el ancho
   },
   label: {
     fontSize: 16,
@@ -302,7 +297,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#CCCCCC",
     borderRadius: 8,
-    overflow: "hidden",
   },
   currencySymbol: {
     fontSize: 18,
@@ -328,61 +322,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: "#fff", // Fondo blanco para que se vea bien
-  },
-  picker: {
-    fontSize: 16,
-    height: 50, // Altura ajustada para que sea consistente con los inputs
-    color: "#333", // Texto oscuro
-  },
   submitButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "80%",
-    alignSelf: "center",
+    width: '100%',  // Asegurar que el contenedor de botones ocupe todo el ancho
+    marginTop: 16,
   },
   submitButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginTop: 8,
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 8,
+    flex: 1,
+    marginHorizontal: 8,
+    minWidth: 120,  // Asegurar un ancho mínimo para los botones
   },
   submitButtonDisabled: {
     opacity: 0.5,
   },
-  deleteButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginTop: 8,
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 8,
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
 });
+
+export default EditGoalForm;

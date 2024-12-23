@@ -133,5 +133,24 @@
   "resume": "Resume",
 
   "status_actions": "Status Actions",
-  "other_actions": "Other Actions"
+  "other_actions": "Other Actions",
+
+  "edit_goal_title": "Edit Goal",
+  "update_goal_button": "Update",
+  
+  "add_money": "Add Money",
+  "contribution_amount": "Contribution Amount",
+  "add_contribution_button": "Add",
+  "contribution_success": "Contribution added successfully",
+  "invalid_amount": "Invalid Amount",
+  "enter_valid_amount": "Please enter a valid amount.",
+  
+  "goal_updated_success": "Goal has been updated successfully",
+  "goal_update_error": "Failed to update goal",
+  "contribution_error": "Failed to add contribution",
+
+  "cancel_changes_message": "Are you sure? You will lose unsaved changes.",
+  "yes": "Yes",
+  "no": "No",
+  "close": "Close"
 }

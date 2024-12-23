@@ -1,5 +1,5 @@
 // assets/components/Header/ProfileSection.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -34,6 +34,29 @@ export const ProfileSection = ({ userData, onClose }) => {
   const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
   const [isEditProfileModalVisible, setIsEditProfileModalVisible] =
     useState(false);
+  const [userStats, setUserStats] = useState(null);
+
+  useEffect(() => {
+    if (userData?.id) {
+      fetchUserStats();
+    }
+  }, [userData]);
+
+  const fetchUserStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('current_xp, current_level')
+        .eq('id', userData.id)
+        .single();
+
+      if (error) throw error;
+
+      setUserStats(data);
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
 
   const getInitials = (name) => {
     if (!name) return "?";
@@ -68,16 +91,6 @@ export const ProfileSection = ({ userData, onClose }) => {
   };
 
   const menuItems = [
-    // {
-    //   icon: "cog",
-    //   title: i18n.t("settings"),
-    //   onPress: () => console.log("Settings pressed"),
-    // },
-    // {
-    //   icon: "document-text-outline",
-    //   title: "Update Onboarding Info",
-    //   onPress: handleOpenOnboardingForm,
-    // },
     {
       icon: "shield-account",
       title: i18n.t("privacy"),
@@ -124,14 +137,14 @@ export const ProfileSection = ({ userData, onClose }) => {
               <View style={styles.levelBadge}>
                 <Icon name="star" size={16} color="#FFD700" />
                 <Text style={styles.levelText}>
-                  Level {userData?.current_level || 1}
+                  Level {userStats?.current_level || 1}
                 </Text>
               </View>
               <View style={styles.expBadge}>
                 <Icon name="lightning-bolt" size={14} color="#FF6B6B" />
                 <Text style={styles.expText}>
-                  {userData?.current_xp || 0}/
-                  {calculateXPForLevel(userData?.current_level || 1)} XP
+                  {userStats?.current_xp || 0}/
+                  {calculateXPForLevel(userStats?.current_level || 1)} XP
                 </Text>
               </View>
             </View>
@@ -141,8 +154,8 @@ export const ProfileSection = ({ userData, onClose }) => {
                   styles.progressBar,
                   {
                     width: `${calculateProgressPercentage(
-                      userData?.current_xp || 0,
-                      userData?.current_level || 1
+                      userStats?.current_xp || 0,
+                      userStats?.current_level || 1
                     )}%`,
                   },
                 ]}

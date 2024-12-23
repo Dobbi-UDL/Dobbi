@@ -105,5 +105,24 @@
   "pause": "Pausar",
   "resume": "Reanudar",
   "status_actions": "Acciones de estado",
-  "other_actions": "Otras acciones"
+  "other_actions": "Otras acciones",
+  
+  "edit_goal_title": "Editar Objetivo",
+  "update_goal_button": "Actualizar",
+  "edit": "Editar",
+  "add_money": "Añadir Dinero",
+  "contribution_amount": "Cantidad a Añadir",
+  "add_contribution_button": "Añadir",
+  "contribution_success": "Contribución añadida con éxito",
+  "invalid_amount": "Cantidad inválida",
+  "enter_valid_amount": "Por favor, introduce una cantidad válida.",
+  
+  "goal_updated_success": "El objetivo ha sido actualizado con éxito",
+  "goal_update_error": "Error al actualizar el objetivo",
+  "contribution_error": "Error al añadir la contribución",
+
+  "cancel_changes_message": "¿Estás seguro? Perderás los cambios no guardados.",
+  "yes": "Sí",
+  "no": "No",
+  "close": "Cerrar"
 }

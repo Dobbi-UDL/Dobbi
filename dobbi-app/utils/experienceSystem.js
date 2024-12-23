@@ -1,4 +1,9 @@
-// utils/experienceSystem.js
+import { supabase } from '../config/supabaseClient'; 
+
+// La experiencia ganada es el 30% de los puntos de recompensa del objetivo
+// Esto ayuda a mantener un progreso más gradual en el sistema de niveles
+const XP_CONVERSION_RATE = 0.3;
+
 export const calculateXPForLevel = (level) => {
   return level * 100;
 };
@@ -8,10 +13,40 @@ export const calculateProgressPercentage = (currentXp, level) => {
   return (currentXp / xpNeeded) * 100;
 };
 
-export const addExperiencePoints = async (userData, amount, description) => {
+export const addExperiencePoints = async (userId, amount, description) => {
   try {
-    let currentXP = userData?.current_xp || 0;
-    let currentLevel = userData?.current_level || 1;
+    console.log('Adding XP - Raw userId:', userId); // Debug log
+
+    // Validación más estricta del userId
+    if (!userId || typeof userId !== 'string') {
+      const idString = String(userId).trim();
+      if (!idString) {
+        throw new Error('Invalid userId: empty or invalid value');
+      }
+      userId = idString;
+    }
+
+    console.log('Processed userId:', userId); // Debug log
+
+    // Obtener datos actuales del usuario
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('current_xp, current_level')
+      .eq('id', userId)
+      .single();
+
+    if (userError) {
+      console.error('Error fetching user data:', userError);
+      throw userError;
+    }
+
+    if (!userData) {
+      console.error('User not found for ID:', userId);
+      throw new Error('User not found');
+    }
+
+    let currentXP = userData.current_xp || 0;
+    let currentLevel = userData.current_level || 1;
 
     const newXP = currentXP + amount;
     const xpNeeded = calculateXPForLevel(currentLevel);
@@ -24,30 +59,25 @@ export const addExperiencePoints = async (userData, amount, description) => {
       currentXP = newXP;
     }
 
-    const { data, error } = await supabase
-      .from("users")
+    // Actualizar usuario
+    const { error: updateError } = await supabase
+      .from('users')
       .update({
         current_xp: currentXP,
         current_level: currentLevel,
       })
-      .eq("id", userData.id)
-      .select();
+      .eq('id', userId);
 
-    if (error) throw error;
-
-    await supabase.from("experience_history").insert({
-      user_id: userData.id,
-      amount: amount,
-      description: description,
-      timestamp: new Date().toISOString(),
-    });
+    if (updateError) throw updateError;
 
     return {
       currentXP,
       currentLevel,
+      didLevelUp: newXP >= xpNeeded
     };
   } catch (error) {
-    console.error("Error adding experience points:", error);
+    console.error('Error in addExperiencePoints:', error);
+    console.error('Failed userId:', userId);
     throw error;
   }
 };

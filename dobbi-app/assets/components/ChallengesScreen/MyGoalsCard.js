@@ -6,7 +6,7 @@ import * as Progress from 'react-native-progress';
 import i18n from '../../../i18n';
 import GoalManagementMenu from './GoalManagementMenu';
 
-const MyGoalsCard = ({ goal, onStatusChange, onEdit, onUpdate, isHighlighted }) => {
+const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -72,7 +72,12 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onUpdate, isHighlighted }) 
 
     const handleStatusChange = (newStatus) => {
         onStatusChange(newStatus);
-        if (onUpdate) onUpdate();
+    };
+
+    const handleAddMoney = () => {
+        if (onAddMoney) {
+            onAddMoney(goal);
+        }
     };
 
     return (
@@ -158,7 +163,8 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onUpdate, isHighlighted }) 
                 goal={goal}
                 isOpen={isMenuOpen}
                 onStatusChange={handleStatusChange}
-                onEdit={onEdit}
+                onEdit={!goal.is_sponsored ? onEdit : undefined}  // Solo pasar onEdit si no es patrocinado
+                onAddMoney={handleAddMoney}
             />
         </Card>
     );

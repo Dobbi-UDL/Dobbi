@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { supabase } from '../../../config/supabaseClient';
 import MyGoalsCard from './MyGoalsCard'; // Cambiar a importación default
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { styles } from '../../styles/marketplace';
 import { AddGoalForm }  from './AddGoalForm';
 import { Collapsible } from '../common/Collapsible';
 import i18n from '../../../i18n';
+import { EditGoalForm } from './EditGoalForm';
+import { AddContributionForm } from './AddContributionForm';
 
 const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoalId }) => {
     const scrollViewRef = useRef(null);
@@ -17,6 +19,9 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [selectedGoal, setSelectedGoal] = useState(null);
+    const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+    const [isContributionFormVisible, setIsContributionFormVisible] = useState(false);
 
     // Añadimos useCallback para mejorar el rendimiento
     const fetchPersonalGoals = useCallback(async (userId) => {
@@ -93,19 +98,55 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
 
     const handleStatusChange = async (goalId, newStatus) => {
         try {
-            const { error } = await supabase
-                .from('goal_tracking')
-                .update({ goal_status: newStatus })
-                .eq('goal_id', goalId);
+            // Si el estado es final, eliminar el objetivo
+            if (['completed', 'cancelled', 'failed'].includes(newStatus)) {
+                // Primero eliminar el tracking
+                const { error: trackingError } = await supabase
+                    .from('goal_tracking')
+                    .delete()
+                    .eq('goal_id', goalId);
 
-            if (error) throw error;
+                if (trackingError) throw trackingError;
+
+                // mostrar una alerta de objetivo eliminado
+                Alert.alert('Success', 'Goal deleted successfully');
+            } else {
+                // Si no es estado final, solo actualizar el estado
+                const { error } = await supabase
+                    .from('goal_tracking')
+                    .update({ goal_status: newStatus })
+                    .eq('goal_id', goalId);
+
+                if (error) throw error;
+            }
             
-            // Trigger refresh in both views
+            // Refrescar la vista
             if (onGoalUpdate) onGoalUpdate();
             fetchPersonalGoals(userId);
         } catch (error) {
             console.error('Error updating goal status:', error);
+            Alert.alert('Error', 'Failed to update goal status');
         }
+    };
+
+    const handleEditGoal = (goal) => {
+        setSelectedGoal(goal);
+        setIsEditFormVisible(true);
+    };
+
+    const handleAddMoney = (goal) => {
+        setSelectedGoal(goal);
+        setIsContributionFormVisible(true);
+    };
+
+    const handleGoalUpdated = () => {
+        if (onGoalUpdate) onGoalUpdate();
+        setIsEditFormVisible(false);
+    };
+
+    const handleContributionAdded = () => {
+        if (onGoalUpdate) onGoalUpdate();
+        setIsContributionFormVisible(false);
     };
 
     if (loading) {
@@ -118,10 +159,7 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView 
-                ref={scrollViewRef}
-                style={styles.container}
-            >
+            <ScrollView ref={scrollViewRef} style={styles.container}>
                 <Collapsible
                     title={`${i18n.t('personal_goals')} (${personalGoals.length})`}
                     isExpanded={isPersonalExpanded}
@@ -132,13 +170,14 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
                             key={goal.id}
                             goal={goal}
                             onStatusChange={(status) => handleStatusChange(goal.id, status)}
-                            onEdit={() => {/* Handle edit */}}
-                            onUpdate={onGoalUpdate}
-                            isHighlighted={goal.id === highlightGoalId}
+                            onEdit={() => handleEditGoal(goal)}
+                            onAddMoney={handleAddMoney}  // Cambiado aquí
+                            isHighlighted={goal.id === parseInt(highlightGoalId)}
                         />
                     ))}
                 </Collapsible>
 
+                {/* También añadir la prop a los sponsored goals si es necesario */}
                 <Collapsible
                     title={`${i18n.t('sponsored_goals')} (${sponsoredGoals.length})`}
                     isExpanded={isSponsoredExpanded}
@@ -149,7 +188,8 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
                             key={goal.id}
                             goal={goal}
                             onStatusChange={(status) => handleStatusChange(goal.id, status)}
-                            onEdit={() => {/* Handle edit */}}
+                            onEdit={() => handleEditGoal(goal)}
+                            onAddMoney={handleAddMoney}  // Añadir aquí también si es necesario
                         />
                     ))}
                 </Collapsible>
@@ -167,6 +207,20 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
                 onClose={closePopup}
                 userId={userId}
                 onGoalCreated={handleGoalCreated}
+            />
+
+            <EditGoalForm
+                visible={isEditFormVisible}
+                onClose={() => setIsEditFormVisible(false)}
+                goal={selectedGoal}
+                onGoalUpdated={handleGoalUpdated}
+            />
+
+            <AddContributionForm
+                visible={isContributionFormVisible}
+                onClose={() => setIsContributionFormVisible(false)}
+                goal={selectedGoal}
+                onContributionAdded={handleContributionAdded}
             />
         </View>
     );

@@ -38,4 +38,16 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
+  testButton: {
+    backgroundColor: '#ff6b6b',
+    padding: 15,
+    borderRadius: 8,
+    margin: 16,
+    alignItems: 'center',
+  },
+  testButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
