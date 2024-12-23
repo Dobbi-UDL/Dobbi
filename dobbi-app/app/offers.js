@@ -22,6 +22,7 @@ const OffersScreen = () => {
   const [userId, setUserId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [expandedOfferId, setExpandedOfferId] = useState(null);
+  const [showRedeemed, setShowRedeemed] = useState(false);
   const CARD_HEIGHT = 250; // Update to match new card height
   const HEADER_HEIGHT = 60;
   const USER_POINTS_HEIGHT = 70;
@@ -101,11 +102,23 @@ const OffersScreen = () => {
   
       const processedOffers = data.map(offer => ({
         ...offer,
-        isRedeemed: offer.offer_interactions?.length > 0
+        isRedeemed: offer.offer_interactions?.length > 0,
+        canRedeem: offer.points_required <= userPoints
       }));
   
-      setOffers(processedOffers);
-      setFilteredOffers(processedOffers);
+      // Ordenar: primero disponibles y canjeables, luego no canjeables, finalmente canjeadas
+      const sortedOffers = processedOffers.sort((a, b) => {
+        if (a.isRedeemed && !b.isRedeemed) return 1;
+        if (!a.isRedeemed && b.isRedeemed) return -1;
+        if (!a.isRedeemed && !b.isRedeemed) {
+          if (a.canRedeem && !b.canRedeem) return -1;
+          if (!a.canRedeem && b.canRedeem) return 1;
+        }
+        return 0;
+      });
+  
+      setOffers(sortedOffers);
+      setFilteredOffers(sortedOffers);
     } catch (error) {
       console.error('Error fetching offers:', error);
     } finally {
@@ -138,25 +151,58 @@ const OffersScreen = () => {
     }
   };
 
-  const handleSearch = (term) => {
-    const filtered = offers.filter(offer => 
-      offer.title.toLowerCase().includes(term.toLowerCase()) ||
-      offer.description.toLowerCase().includes(term.toLowerCase())
-    );
+  const applyFilters = useCallback((searchTerm = '', selectedCats = [], showRedeemed = false) => {
+    let filtered = offers;
+    
+    // Apply redeemed filter
+    filtered = filtered.filter(offer => showRedeemed ? true : !offer.isRedeemed);
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(offer => 
+        offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        offer.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Apply category filter
+    if (selectedCats.length > 0) {
+      filtered = filtered.filter(offer => 
+        selectedCats.some(category => offer.category_id === category.id)
+      );
+    }
+    
     setFilteredOffers(filtered);
+  }, [offers]);
+
+  const handleSearch = (term) => {
+    applyFilters(term, [], showRedeemed);
   };
 
   const handleCategorySelect = (selectedCategories) => {
     if (selectedCategories.length === 0) {
-      // Si no hay categorías seleccionadas, mostrar todas las ofertas
       setFilteredOffers(offers);
     } else {
-      // Filtrar ofertas que coincidan con alguna de las categorías seleccionadas
       const filtered = offers.filter(offer => 
         selectedCategories.some(category => offer.category_id === category.id)
       );
       setFilteredOffers(filtered);
     }
+  };
+
+  const handleShowRedeemed = (show) => {
+    if (show) {
+      const redeemedOffers = offers.filter(offer => offer.isRedeemed);
+      setFilteredOffers(redeemedOffers);
+    } else {
+      setFilteredOffers(offers);
+    }
+  };
+
+  const handleRedeemedToggle = () => {
+    const newShowRedeemed = !showRedeemed;
+    setShowRedeemed(newShowRedeemed);
+    applyFilters('', [], newShowRedeemed);
   };
 
   const findOfferIndex = useCallback((title) => {
@@ -247,10 +293,14 @@ const OffersScreen = () => {
           points={userPoints} 
         />
         <SearchBar onSearch={handleSearch} />
-        <CategoryFilter 
-          categories={categories} 
-          onSelectCategories={handleCategorySelect} 
-        />
+        <View style={styles.filterSection}>
+          <CategoryFilter 
+            categories={categories} 
+            onSelectCategories={handleCategorySelect}
+            showRedeemed={showRedeemed}
+            onShowRedeemed={handleRedeemedToggle}
+          />
+        </View>
         <FlatList
           ref={listRef}
           data={filteredOffers}
@@ -262,7 +312,6 @@ const OffersScreen = () => {
           windowSize={5}
           initialNumToRender={5}
           onScrollToIndexFailed={handleScrollToIndexFailed}
-          contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
       </View>
@@ -281,8 +330,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   listContent: {
-    paddingTop: 8,
+    paddingTop: 4, // Added small padding to separate from filters
     paddingBottom: 80,
+  },
+  filterSection: {
+    position: 'relative',
+    zIndex: 1,
+    marginTop: 4, // Reduced from 8
+  },
+  fixedFilterContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFF5F5',
+    zIndex: 2,
+    paddingVertical: 8,
   },
 });
 

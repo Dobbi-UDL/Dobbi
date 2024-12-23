@@ -227,7 +227,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: 50,
     backgroundColor: '#FFF9E6',
-    borderRadius: 10,
+    borderRadius: 25,
   },
   userPointsContainer: {
     flexDirection: 'row',
@@ -345,7 +345,7 @@ export const styles = StyleSheet.create({
   },
   cardContainer: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 25,
     padding: 16,
     marginHorizontal: 2,
     marginBottom: 12,
@@ -388,5 +388,71 @@ export const styles = StyleSheet.create({
     borderTopColor: '#f0f0f0',
     paddingTop: 12,
     marginTop: 12,
+  },
+  cardContainer: {
+    marginVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+  },
+  redeemedCard: {
+    opacity: 0.8,
+    backgroundColor: '#f5f5f5',
+  },
+  cardContent: {
+    padding: 12,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  headerLeft: {
+    flex: 1,
+    marginRight: 8,
+  },
+  companyName: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  pointsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  pointsText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#EE6567',
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  categoryFilterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+    gap: 8,
+  },
+  redeemedChip: {
+    flexShrink: 0, // Evita que el chip se encoja
+  },
+  categoryScrollView: {
+    flex: 1,
+  },
+  categoryScrollContent: {
+    gap: 8,
   },
 });

@@ -23,6 +23,7 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
   const [expiringDate, setExpiringDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentAmount, setCurrentAmount] = useState(0);
+  const [isValidAmount, setIsValidAmount] = useState(true);
 
   useEffect(() => {
     if (goal) {
@@ -68,18 +69,38 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
     }
   }, [targetAmount, monthlySaving, currentAmount]);
 
+  useEffect(() => {
+    if (targetAmount && monthlySaving) {
+      const targetAmountValue = parseFloat(targetAmount);
+      const monthlySavingValue = parseFloat(monthlySaving);
+      setIsValidAmount(monthlySavingValue <= targetAmountValue);
+    }
+  }, [targetAmount, monthlySaving]);
+
   const isFormValid = () => {
+    const targetAmountValue = parseFloat(targetAmount);
+    const monthlySavingValue = parseFloat(monthlySaving);
+    
     return (
       title.trim() !== "" &&
       description.trim() !== "" &&
-      parseFloat(targetAmount) > 0 &&
-      parseFloat(monthlySaving) > 0
+      targetAmountValue > 0 &&
+      monthlySavingValue > 0 &&
+      monthlySavingValue <= targetAmountValue
     );
   };
 
   const handleSubmit = async () => {
+    const targetAmountValue = parseFloat(targetAmount);
+    const monthlySavingValue = parseFloat(monthlySaving);
+    
+    if (monthlySavingValue > targetAmountValue) {
+      Alert.alert(i18n.t('invalid_amount'), i18n.t('monthly_saving_error'));
+      return;
+    }
+
     if (!isFormValid()) {
-      Alert.alert("Incomplete Form", "Please fill out all fields correctly.");
+      Alert.alert(i18n.t('incomplete_form'), i18n.t('fill_fields'));
       return;
     }
 
@@ -122,10 +143,10 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
 
       if (onGoalUpdated) onGoalUpdated();
       onClose();
-      Alert.alert("Success", "Your saving goal has been updated!");
+      Alert.alert("Success", i18n.t('goal_updated'));
     } catch (error) {
       console.error("Error updating saving goal:", error);
-      Alert.alert("Error", "Failed to update saving goal. Please try again.");
+      Alert.alert("Error", i18n.t('goal_update_error'));
     }
   };
 
@@ -217,7 +238,7 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
         {/* Monthly Saving */}
         <View style={styles.section}>
           <Text style={styles.label}>{i18n.t('goal_monthly_saving')}</Text>
-          <View style={styles.amountInputContainer}>
+          <View style={[styles.amountInputContainer, !isValidAmount && styles.inputError]}>
             <Text style={styles.currencySymbol}>$</Text>
             <TextInput
               style={styles.amountInput}
@@ -227,6 +248,9 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
               keyboardType="decimal-pad"
             />
           </View>
+          {!isValidAmount && (
+            <Text style={styles.errorText}>{i18n.t('monthly_saving_error')}</Text>
+          )}
         </View>
 
         {/* Expiring Date */}
@@ -382,6 +406,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
+  },
+  inputError: {
+    borderColor: '#ff0000',
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

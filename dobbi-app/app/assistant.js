@@ -29,6 +29,7 @@ import * as Haptics from 'expo-haptics';
 import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
 import { useAuth } from '../contexts/AuthContext';
 import { getAllUnredeemedOffers } from "../services/marketplaceService";
+import i18n from "../i18n";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 

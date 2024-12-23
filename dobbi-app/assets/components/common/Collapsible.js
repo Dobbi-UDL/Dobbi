@@ -33,33 +33,36 @@ export const Collapsible = ({ title, isExpanded, onToggle, children }) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#FFF5F5',
-        marginVertical: 4,
-        borderRadius: 8,
+        backgroundColor: '#FFF5F5', // Fondo muy suave rosado
+        marginVertical: 8,
+        marginHorizontal: 10,
+        borderRadius: 25,
         overflow: 'hidden',
-        elevation: 1,
+        elevation: 2,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 1,
+        shadowRadius: 4,
+        borderWidth: 1,
+        borderColor: '#FFE5E5', // Borde suave que coincide con el tema
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 12,
-        backgroundColor: '#FFF5F5',
+        padding: 16,
+        backgroundColor: '#FFE5E5', // Header ligeramente más oscuro que el container
     },
     title: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '600',
-        color: '#444',
+        color: '#EE6567', // Color principal de la app
     },
     content: {
         overflow: 'hidden',
+        backgroundColor: '#FFF5F5', // Mismo color que el container
     },
     childrenContainer: {
-        paddingHorizontal: 4,
-        paddingVertical: 4,
+        padding: 12,
     }
 });

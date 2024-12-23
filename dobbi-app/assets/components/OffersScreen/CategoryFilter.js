@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { styles } from '../../styles/marketplace';
+import i18n from '../../../i18n';
 
-export const CategoryFilter = ({ categories, onSelectCategories }) => {
+export const CategoryFilter = ({ categories, onSelectCategories, showRedeemed, onShowRedeemed }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const handleCategoryToggle = (category) => {
@@ -27,6 +28,20 @@ export const CategoryFilter = ({ categories, onSelectCategories }) => {
         style={styles.categoryScrollView}
         contentContainerStyle={styles.categoryScrollContent}
       >
+        <TouchableOpacity
+          style={[
+            styles.categoryChip,
+            showRedeemed && styles.selectedCategoryChip
+          ]}
+          onPress={() => onShowRedeemed(!showRedeemed)}
+        >
+          <Text style={[
+            styles.categoryChipText,
+            showRedeemed && styles.selectedCategoryChipText
+          ]}>
+            {i18n.t('redeemed_offers')}
+          </Text>
+        </TouchableOpacity>
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}

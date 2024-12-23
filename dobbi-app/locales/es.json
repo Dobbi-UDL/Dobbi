@@ -115,14 +115,32 @@
   "add_contribution_button": "Añadir",
   "contribution_success": "Contribución añadida con éxito",
   "invalid_amount": "Cantidad inválida",
-  "enter_valid_amount": "Por favor, introduce una cantidad válida.",
+  "enter_valid_amount": "Por favor, introduce una cantidad v��lida.",
   
   "goal_updated_success": "El objetivo ha sido actualizado con éxito",
-  "goal_update_error": "Error al actualizar el objetivo",
   "contribution_error": "Error al añadir la contribución",
 
   "cancel_changes_message": "¿Estás seguro? Perderás los cambios no guardados.",
   "yes": "Sí",
   "no": "No",
-  "close": "Cerrar"
+  "close": "Cerrar",
+  "monthly_saving_error": "El ahorro mensual no puede exceder el monto objetivo",
+  "contribution_excess_error": "La contribución no puede exceder el monto restante",
+  "incomplete_form": "Formulario Incompleto",
+  "fill_fields": "Por favor complete todos los campos correctamente",
+  "goal_created": "¡Tu objetivo de ahorro ha sido creado!",
+  "goal_creation_error": "Error al crear el objetivo. Por favor intente de nuevo.",
+  "goal_updated": "¡Tu objetivo de ahorro ha sido actualizado!",
+  "goal_update_error": "Error al actualizar el objetivo. Por favor intente de nuevo.",
+  
+  "redeemed_offers": "Ofertas Canjeadas",
+  "available_offers": "Ofertas Disponibles",
+  "see_more": "Ver más",
+  "see_less": "Ver menos",
+  "points_required": "puntos necesarios",
+  "redeem_offer": "Canjear Oferta",
+  "insufficient_points": "Puntos Insuficientes",
+  "discount_code": "Código de Descuento",
+  "valid_until": "Válido hasta",
+  "redeem_confirmation": "¿Estás seguro de que quieres canjear esta oferta por {{points}} puntos?"
 }

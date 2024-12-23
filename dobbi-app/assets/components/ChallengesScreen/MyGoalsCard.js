@@ -204,9 +204,6 @@ const localStyles = StyleSheet.create({
         borderRadius: 16,
         padding: 0,
         marginVertical: 8,
-        marginHorizontal: 10, // Añadido para coincidir con ChallengeCard
-        width: 'auto',
-        alignSelf: 'stretch',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,

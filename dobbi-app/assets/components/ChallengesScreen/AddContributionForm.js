@@ -17,8 +17,17 @@ export const AddContributionForm = ({ visible, onClose, goal, onContributionAdde
 
   const handleSubmit = async () => {
     try {
-      if (!amount || parseFloat(amount) <= 0) {
+      const contributionAmount = parseFloat(amount);
+      
+      if (!contributionAmount || contributionAmount <= 0) {
         Alert.alert(i18n.t('invalid_amount'), i18n.t('enter_valid_amount'));
+        return;
+      }
+
+      const remainingAmount = goal.target_amount - goal.current_amount;
+      
+      if (contributionAmount > remainingAmount) {
+        Alert.alert(i18n.t('invalid_amount'), i18n.t('contribution_excess_error'));
         return;
       }
 
@@ -119,7 +128,7 @@ export const AddContributionForm = ({ visible, onClose, goal, onContributionAdde
       }
     } catch (error) {
       console.error("Error handling contribution:", error);
-      Alert.alert("Error", "Failed to process contribution. Please try again.");
+      Alert.alert("Error", i18n.t('contribution_error'));
     }
   };
 

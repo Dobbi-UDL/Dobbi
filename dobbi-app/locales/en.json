@@ -146,11 +146,28 @@
   "enter_valid_amount": "Please enter a valid amount.",
   
   "goal_updated_success": "Goal has been updated successfully",
-  "goal_update_error": "Failed to update goal",
   "contribution_error": "Failed to add contribution",
 
   "cancel_changes_message": "Are you sure? You will lose unsaved changes.",
   "yes": "Yes",
   "no": "No",
-  "close": "Close"
+  "close": "Close",
+  "monthly_saving_error": "Monthly saving cannot exceed target amount",
+  "contribution_excess_error": "Contribution cannot exceed remaining amount",
+  "incomplete_form": "Incomplete Form",
+  "fill_fields": "Please fill out all fields correctly",
+  "goal_created": "Your saving goal has been created!",
+  "goal_creation_error": "Failed to create saving goal. Please try again.",
+  "goal_updated": "Your saving goal has been updated!",
+  "goal_update_error": "Failed to update saving goal. Please try again.",
+  "redeemed_offers": "Redeemed Offers",
+  "available_offers": "Available Offers",
+  "see_more": "See more",
+  "see_less": "See less",
+  "points_required": "points required",
+  "redeem_offer": "Redeem Offer",
+  "insufficient_points": "Insufficient Points",
+  "discount_code": "Discount Code",
+  "valid_until": "Valid until",
+  "redeem_confirmation": "Are you sure you want to redeem this offer for {{points}} points?"
 }

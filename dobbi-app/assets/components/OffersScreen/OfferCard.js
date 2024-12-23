@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/marketplace';
 import Card from '../common/Card';
+import i18n from '../../../i18n';
 
 export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onToggleExpand }) => {
   const [showCode, setShowCode] = useState(offer.isRedeemed);
@@ -57,54 +58,60 @@ export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onTogg
     <TouchableOpacity>
       <Card style={[
         styles.cardContainer,
-        isExpanded && styles.expandedCard
+        isExpanded && styles.expandedCard,
+        offer.isRedeemed && styles.redeemedCard
       ]}>
         <View style={styles.cardContent}>
-          <View>
-            <View style={styles.cardHeader}>
+          {/* Header Section */}
+          <View style={styles.cardHeader}>
+            <View style={styles.headerLeft}>
               <Text style={styles.companyName}>{offer.companies.name}</Text>
-              <View style={[
-                styles.pointsContainer,
-                !canRedeem && styles.pointsContainerDisabled
-              ]}>
-                <Icon name="star" size={16} color="#FFD700" />
-                <Text style={[
-                  styles.pointsText,
-                  !canRedeem && styles.pointsTextDisabled
-                ]}>
-                  {offer.points_required} points
-                </Text>
-              </View>
+              <Text style={styles.cardTitle} numberOfLines={1}>
+                {offer.title}
+              </Text>
             </View>
-
-            <Text style={styles.cardTitle}>{offer.title}</Text>
-            
-            <Text 
-              style={[
-                styles.cardDescription,
-                isExpanded && styles.expandedDescription
-              ]}
-              numberOfLines={isExpanded ? undefined : 2}
-              onLayout={handleLayout}
-            >
-              {offer.description}
-            </Text>
-            {numberOfLines > 2 && (
-              <TouchableOpacity 
-                style={styles.seeMoreButton}
-                onPress={() => onToggleExpand(isExpanded ? null : offer.id)}
-              >
-                <Text style={styles.seeMoreText}>
-                  {isExpanded ? 'See less' : 'See more'}
-                </Text>
-              </TouchableOpacity>
-            )}
+            <View style={[
+              styles.pointsContainer,
+              !canRedeem && styles.pointsContainerDisabled
+            ]}>
+              <Icon name="star" size={16} color="#FFD700" />
+              <Text style={[
+                styles.pointsText,
+                !canRedeem && styles.pointsTextDisabled
+              ]}>
+                {offer.points_required}
+              </Text>
+            </View>
           </View>
 
+          {/* Description Section */}
+          <Text 
+            style={[
+              styles.cardDescription,
+              isExpanded && styles.expandedDescription
+            ]}
+            numberOfLines={isExpanded ? undefined : 2}
+            onLayout={handleLayout}
+          >
+            {offer.description}
+          </Text>
+          
+          {numberOfLines > 2 && (
+            <TouchableOpacity 
+              style={styles.seeMoreButton}
+              onPress={() => onToggleExpand(isExpanded ? null : offer.id)}
+            >
+              <Text style={styles.seeMoreText}>
+                {isExpanded ? i18n.t('see_less') : i18n.t('see_more')}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Actions Section */}
           <View style={styles.actionsContainer}>
             {showCode ? (
               <View style={styles.codeContainer}>
-                <Text style={styles.codeLabel}>Discount Code:</Text>
+                <Text style={styles.codeLabel}>{i18n.t('discount_code')}:</Text>
                 <Text style={styles.codeText}>{offer.discount_code}</Text>
               </View>
             ) : (
@@ -120,16 +127,14 @@ export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onTogg
                   styles.redeemButtonText,
                   !canRedeem && styles.redeemButtonTextDisabled
                 ]}>
-                  {canRedeem ? 'Redeem Offer' : 'Insufficient Points'}
+                  {canRedeem ? i18n.t('redeem_offer') : i18n.t('insufficient_points')}
                 </Text>
               </TouchableOpacity>
             )}
 
-            <View style={styles.cardFooter}>
-              <Text style={styles.dateText}>
-                Valid until {new Date(offer.end_date).toLocaleDateString()}
-              </Text>
-            </View>
+            <Text style={styles.validUntil}>
+              {i18n.t('valid_until')} {new Date(offer.end_date).toLocaleDateString()}
+            </Text>
           </View>
         </View>
       </Card>
