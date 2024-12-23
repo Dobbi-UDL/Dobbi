@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFF5F5', // Fondo muy suave rosado
         marginVertical: 8,
-        marginHorizontal: 10,
         borderRadius: 25,
         overflow: 'hidden',
         elevation: 2,

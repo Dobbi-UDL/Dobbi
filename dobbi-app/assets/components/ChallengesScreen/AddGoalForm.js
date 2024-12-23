@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   Alert,
-  TouchableOpacity,
-  Platform,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomModal } from "../common/Modal";
 import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
 import i18n from "../../../i18n"
 import { calculateGoalMetrics } from '../../utils/goalCalculations';
+import { styles } from "../../styles/challenges";
 
 export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   const [title, setTitle] = useState("");
@@ -176,7 +173,7 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
       onClose={handleClose}
       onSubmit={handleSubmit}
     >
-      <View style={styles.container}>
+      <View style={styles.GoalContainer}>
         {/* Title */}
         <View style={styles.section}>
           <Text style={styles.label}>{i18n.t('goal_title')}</Text>
@@ -237,31 +234,12 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
         {/* Expiring Date */}
         <View style={styles.section}>
           <Text style={styles.label}>{i18n.t('goal_target_date')}</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)} // Al tocar, muestra el popup
-          >
-            <Ionicons name="calendar-outline" size={24} color="#EE6567" />
-            <Text style={styles.dateButtonText}>
-              {expiringDate.toLocaleDateString('en-GB')} {/* Cambiado a formato DD/MM/YYYY */}
+          <View style={styles.dateButtonDisabled}>
+            <Ionicons name="calendar-outline" size={24} color="#999" />
+            <Text style={styles.dateButtonTextDisabled}>
+              {expiringDate.toLocaleDateString('en-GB')}
             </Text>
-          </TouchableOpacity>
-
-          {/* Mostrar el popup como un modal solo cuando se toque el botón */}
-          {showDatePicker && (
-            <DateTimePicker
-              value={expiringDate}
-              mode="date"
-              display="default" // Modo de spinner en dispositivos móviles, tipo popup
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false); // Cierra el popup después de seleccionar la fecha
-                if (selectedDate) {
-                  setExpiringDate(selectedDate);
-                }
-              }}
-              style={styles.datePicker}
-            />
-          )}
+          </View>
         </View>
             
         {/* Estimated Points and Time Range */}
@@ -295,126 +273,3 @@ export const AddGoalForm = ({ visible, onClose, userId, onGoalCreated }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: "95%",
-    marginTop: 16,
-  },
-  section: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  multilineInput: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  amountInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  currencySymbol: {
-    fontSize: 18,
-    fontWeight: "bold",
-    paddingHorizontal: 12,
-    color: "#333",
-  },
-  amountInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-  },
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    padding: 12,
-  },
-  dateButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: "#333",
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: "#fff", // Fondo blanco para que se vea bien
-  },
-  picker: {
-    fontSize: 16,
-    height: 50, // Altura ajustada para que sea consistente con los inputs
-    color: "#333", // Texto oscuro
-  },
-  submitButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
-    alignSelf: "center",
-  },
-  submitButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginTop: 8,
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 8,
-  },
-  submitButtonDisabled: {
-    opacity: 0.5,
-  },
-  deleteButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginTop: 8,
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 8,
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  inputError: {
-    borderColor: '#ff0000',
-  },
-  errorText: {
-    color: '#ff0000',
-    fontSize: 12,
-    marginTop: 4,
-  },
-});

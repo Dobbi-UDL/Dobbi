@@ -9,6 +9,7 @@ import { UserPointsDisplay } from '../assets/components/OffersScreen/UserPointsD
 import Header from '../assets/components/Header/Header';
 import { useLanguage } from '@languagecontext';
 import { useLocalSearchParams } from 'expo-router';
+import { styles } from '../assets/styles/offers';
 
 const OffersScreen = () => {
   const { locale } = useLanguage();
@@ -319,34 +320,5 @@ const OffersScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF5F5",
-  },
-  mainContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  listContent: {
-    paddingTop: 4, // Added small padding to separate from filters
-    paddingBottom: 80,
-  },
-  filterSection: {
-    position: 'relative',
-    zIndex: 1,
-    marginTop: 4, // Reduced from 8
-  },
-  fixedFilterContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFF5F5',
-    zIndex: 2,
-    paddingVertical: 8,
-  },
-});
 
 export default OffersScreen;

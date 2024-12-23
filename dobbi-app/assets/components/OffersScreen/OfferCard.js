@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/marketplace';
+import { styles } from '../../styles/offers';
 import Card from '../common/Card';
 import i18n from '../../../i18n';
 
