@@ -17,21 +17,6 @@ export default function HomeScreen() {
   const { user, loading } = useAuth();
   const userName = user?.username || 'User';
 
-  const handleTestSavings = async () => {
-    try {
-      console.log('Iniciando test de ahorros automáticos...');
-      const result = await testAutomaticSavings();
-      console.log('Resultado del test:', result);
-      Alert.alert(
-        'Test Completado',
-        result ? 'Procesamiento automático ejecutado con éxito' : 'No se ejecutó el procesamiento'
-      );
-    } catch (error) {
-      console.error('Error en test:', error);
-      Alert.alert('Error', 'Error ejecutando el test de ahorros automáticos');
-    }
-  };
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -52,7 +37,6 @@ export default function HomeScreen() {
         <FlatList
           style={styles.contentContainer}
           data={[
-            { key: 'test' }, // Añadir el botón de test al principio
             { key: 'netCashFlow' },
             { key: 'quickActions' },
             { key: 'activeGoals' },
@@ -64,17 +48,6 @@ export default function HomeScreen() {
           )}
           renderItem={({ item }) => {
             switch (item.key) {
-              case 'test':
-                return __DEV__ ? (
-                  <TouchableOpacity
-                    style={styles.testButton}
-                    onPress={handleTestSavings}
-                  >
-                    <Text style={styles.testButtonText}>
-                      Test Automatic Savings (DEV)
-                    </Text>
-                  </TouchableOpacity>
-                ) : null;
               case 'netCashFlow':
                 return <NetCashFlow />;
               case 'quickActions':

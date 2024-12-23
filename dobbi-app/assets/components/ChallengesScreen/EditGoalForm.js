@@ -22,6 +22,7 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
   const [monthlySaving, setMonthlySaving] = useState("");
   const [expiringDate, setExpiringDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [currentAmount, setCurrentAmount] = useState(0);
 
   useEffect(() => {
     if (goal) {
@@ -29,6 +30,7 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
       setDescription(goal.description);
       setTargetAmount(goal.target_amount.toString());
       setMonthlySaving(goal.monthly_saving.toString());
+      setCurrentAmount(goal.current_amount || 0);
       // Asegurarse de que la fecha sea válida
       try {
         const date = new Date(goal.expiring_date);
@@ -49,13 +51,22 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
     if (targetAmount && monthlySaving) {
       const amount = parseFloat(targetAmount);
       const saving = parseFloat(monthlySaving);
-      if (amount > 0 && saving > 0) {
-        const { estimatedEndDate, points } = calculateGoalMetrics(amount, saving);
+      const remaining = amount - currentAmount; // Calcular cantidad restante
+
+      if (amount > 0 && saving > 0 && remaining > 0) {
+        // Calcular meses necesarios basado en la cantidad restante
+        const monthsNeeded = Math.ceil(remaining / saving);
+        const estimatedEndDate = new Date();
+        estimatedEndDate.setMonth(estimatedEndDate.getMonth() + monthsNeeded);
+        
         setExpiringDate(estimatedEndDate);
-        // Puedes mostrar los puntos actualizados en la UI
+
+        // Recalcular puntos basado en la cantidad total y el tiempo
+        const { points } = calculateGoalMetrics(amount, saving, estimatedEndDate);
+        // Puedes mostrar los puntos actualizados en la UI si lo deseas
       }
     }
-  }, [targetAmount, monthlySaving]);
+  }, [targetAmount, monthlySaving, currentAmount]);
 
   const isFormValid = () => {
     return (
@@ -75,7 +86,14 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
     try {
       const amount = parseFloat(targetAmount);
       const saving = parseFloat(monthlySaving);
-      const { points } = calculateGoalMetrics(amount, saving);
+      const remaining = amount - currentAmount;
+      
+      // Recalcular puntos basado en la cantidad restante y el tiempo
+      const monthsNeeded = Math.ceil(remaining / saving);
+      const estimatedEndDate = new Date();
+      estimatedEndDate.setMonth(estimatedEndDate.getMonth() + monthsNeeded);
+      
+      const { points } = calculateGoalMetrics(amount, saving, estimatedEndDate);
 
       const { error: goalError } = await supabase
         .from("saving_goals")
@@ -242,6 +260,17 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
           )}
         </View>
             
+        {/* Mostrar información del progreso actual */}
+        <View style={styles.section}>
+          <View style={styles.progressInfo}>
+            <Text style={styles.infoLabel}>Current Progress:</Text>
+            <Text style={styles.infoValue}>
+              ${currentAmount} / ${targetAmount}
+              {` (${((currentAmount / parseFloat(targetAmount)) * 100).toFixed(1)}%)`}
+            </Text>
+          </View>
+        </View>
+
         {/* Submit Buttons */}
         <View style={styles.submitButtonContainer}>
           <Button
@@ -335,6 +364,24 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: {
     opacity: 0.5,
+  },
+  progressInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
 

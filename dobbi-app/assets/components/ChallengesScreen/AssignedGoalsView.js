@@ -36,13 +36,8 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
 
             // Asegúrate de que data no sea null
             const goals = data || [];
-            console.log('Fetched goals:', goals); // Para debug
-
             const personal = goals.filter(goal => !goal.is_sponsored);
             const sponsored = goals.filter(goal => goal.is_sponsored);
-
-            console.log('Personal goals:', personal); // Para debug
-            console.log('Sponsored goals:', sponsored); // Para debug
 
             setPersonalGoals(personal);
             setSponsoredGoals(sponsored);

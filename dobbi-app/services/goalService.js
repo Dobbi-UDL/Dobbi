@@ -1,32 +1,14 @@
 import { supabase } from '../config/supabaseClient';
 import { addExperiencePoints } from '../utils/experienceSystem';
 
-// Función helper para comparar fechas
-const isSameDateTime = (date1, date2) => {
-  return date1.getHours() === date2.getHours() &&
-         date1.getMinutes() === date2.getMinutes() &&
-         date1.getDate() === date2.getDate() &&
-         date1.getMonth() === date2.getMonth();
-};
-
-// Función para testing con fecha específica
-export const shouldProcessAutomaticSavings = (testDate = null) => {
-  const today = testDate || new Date();
-  const targetDate = new Date('2023-12-23T01:15:00');
-  
-  return isSameDateTime(today, targetDate);
-};
-
-export const processMonthlyAutomaticSavings = async (testDate = null) => {
+export const processMonthlyAutomaticSavings = async () => {
   try {
-    const today = testDate || new Date();
+    const today = new Date();
     
-    // Comprobar si es el momento de procesar
-    if (!shouldProcessAutomaticSavings(today)) {
-      console.log('No es momento de procesamiento automático');
-      console.log('Hora actual:', today);
-      console.log('Esperando: 2023-12-23 01:15');
-      return;
+    // Solo procesar si es día 5
+    if (today.getDate() !== 5) {
+      console.log('No es día de procesamiento automático');
+      return false;
     }
 
     console.log('Iniciando procesamiento automático:', today);
@@ -46,6 +28,12 @@ export const processMonthlyAutomaticSavings = async (testDate = null) => {
       .eq('goal_status', 'active');
 
     if (goalsError) throw goalsError;
+
+    // Si no hay objetivos activos, también consideramos que se procesó correctamente
+    if (!activeGoals || activeGoals.length === 0) {
+      console.log('No hay objetivos activos para procesar');
+      return true;
+    }
 
     // Procesar cada objetivo activo
     for (const tracking of activeGoals) {
@@ -112,17 +100,10 @@ export const processMonthlyAutomaticSavings = async (testDate = null) => {
     }
 
     console.log('Procesamiento automático completado');
-    return true;
+    return true; // Retornar true explícitamente cuando todo se procesó
 
   } catch (error) {
     console.error('Error en el procesamiento automático:', error);
-    return false;
+    return false; // Retornar false explícitamente en caso de error
   }
-};
-
-// Función de ayuda para testing
-export const testAutomaticSavings = async () => {
-  const testDate = new Date('2023-12-23T01:19:00');
-  console.log('Ejecutando test con fecha:', testDate);
-  return await processMonthlyAutomaticSavings(testDate);
 };
