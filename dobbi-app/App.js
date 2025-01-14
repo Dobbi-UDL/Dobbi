@@ -1,32 +1,27 @@
 import ExpoRouter from 'expo-router';
-import { processMonthlyAutomaticSavings, shouldProcessAutomaticSavings, testAutomaticSavings } from './services/goalService';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+// Configuración mejorada para las notificaciones
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    priority: 'high',
+  }),
+});
+
+// Configurar el canal para Android
+if (Platform.OS === 'android') {
+  Notifications.setNotificationChannelAsync('default', {
+    name: 'Dobbi',
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: '#4CAF50',
+  });
+}
 
 export default function App() {
-  useEffect(() => {
-    const checkAutomaticSavings = async () => {
-      const testDate = new Date();
-      const targetDate = new Date('2023-12-23T01:13:00');
-      
-      // Si estamos en modo desarrollo, ejecutar el test
-      if (__DEV__) {
-        console.log('Modo desarrollo: simulando fecha específica');
-        await testAutomaticSavings();
-      } else {
-        // En producción, usar la fecha real
-        if (shouldProcessAutomaticSavings()) {
-          await processMonthlyAutomaticSavings();
-        }
-      }
-    };
-
-    // Ejecutar la comprobación cada minuto
-    const interval = setInterval(checkAutomaticSavings, 60000);
-
-    // Ejecutar una vez al inicio
-    checkAutomaticSavings();
-
-    return () => clearInterval(interval);
-  }, []);
-
   return <ExpoRouter />;
 }

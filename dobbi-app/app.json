@@ -13,14 +13,18 @@
       "infoPlist": {
         "UIViewControllerBasedStatusBarAppearance": true,
         "NSFaceIDUsageDescription": "This app uses Face ID to securely log you in to your account.",
-        "NSFaceIDUsageDescription_es": "Esta aplicación utiliza Face ID para iniciar sesión de forma segura en tu cuenta."
+        "NSFaceIDUsageDescription_es": "Esta aplicación utiliza Face ID para iniciar sesión de forma segura en tu cuenta.",
+        "UIBackgroundModes": ["remote-notification"],
+        "NSCameraUsageDescription": "Esta aplicación necesita acceso a la cámara para escanear documentos",
+        "NSPhotoLibraryUsageDescription": "Esta aplicación necesita acceso a la galería para guardar documentos",
+        "NSUserNotificationsUsageDescription": "Necesitamos tu permiso para enviar notificaciones sobre tus objetivos y recordatorios importantes"
       },
       "bundleIdentifier": "eric"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/dobbi-avatar.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.elsegui.dobbiapp",
       "permissions": [
@@ -30,7 +34,11 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT"
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -53,6 +61,14 @@
         {
           "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/dobbi-avatar.png",
+          "color": "#ffffff",
+          "mode": "production"
+        }
       ]
     ],
     "extra": {
@@ -68,6 +84,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "sdkVersion": "52.0.0"
+    "sdkVersion": "52.0.0",
+    "notification": {
+      "icon": "./assets/images/dobbi-avatar.png",
+      "color": "#4CAF50",
+      "iosDisplayInForeground": true
+    }
   }
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, FlatList, ActivityIndicator, Text, TouchableOpacity, Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import NotificationService from '../services/NotificationService';
 import { NetCashFlow } from '../assets/components/HomeScreen/NetCashFlow';
 import { QuickActions } from '../assets/components/HomeScreen/QuickActions';
 import { ActiveGoals } from '../assets/components/HomeScreen/ActiveGoals';
@@ -30,6 +32,54 @@ export default function HomeScreen() {
     return null;
   }
 
+  const sendTestNotification = async () => {
+    try {
+      console.log('Intentando enviar notificación...');
+      const identifier = await NotificationService.sendTestNotification();
+      console.log('Notificación enviada correctamente:', identifier);
+      Alert.alert(
+        "Éxito",
+        "Notificación enviada. Si no la ves, verifica los permisos en la configuración de tu dispositivo."
+      );
+    } catch (error) {
+      console.error('Error al enviar notificación:', error);
+      Alert.alert(
+        "Error",
+        "No se pudo enviar la notificación. Verifica los permisos: " + error.message
+      );
+    }
+  };
+
+  const sendGoalReminder = async () => {
+    await NotificationService.scheduleNotificationAsync({
+      content: {
+        title: "¡Objetivo cerca! 🎯",
+        body: `¡${userName}, estás cerca de alcanzar tu objetivo!`,
+        data: { screen: 'goals' },
+      },
+      trigger: {
+        seconds: 5, // La notificación aparecerá en 5 segundos
+      },
+    });
+  };
+
+  const renderQuickActions = () => (
+    <QuickActions 
+      additionalActions={[
+        {
+          title: "Test Notificación",
+          icon: "bell",
+          onPress: sendTestNotification
+        },
+        {
+          title: "Recordatorio",
+          icon: "target",
+          onPress: sendGoalReminder
+        }
+      ]}
+    />
+  );
+
   return (
     <>
       <Header title="Home" />
@@ -51,7 +101,7 @@ export default function HomeScreen() {
               case 'netCashFlow':
                 return <NetCashFlow />;
               case 'quickActions':
-                return <QuickActions />;
+                return renderQuickActions();
               case 'activeGoals':
                 return <ActiveGoals />;
               default:

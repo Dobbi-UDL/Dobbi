@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Modal } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Modal, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import i18n from '@i18n';
 import Card from '../common/Card';
@@ -7,14 +7,15 @@ import { useRouter } from 'expo-router';
 import { AddGoalForm } from '../ChallengesScreen/AddGoalForm';
 import { AddEntryForm } from '../Finances/Details/AddEntryForm'; 
 import { useAuth } from '../../../contexts/AuthContext'; // Asegúrate de importar tu contexto de autenticación
+import NotificationService from '../../../services/NotificationService'; // Importa el servicio de notificaciones
 
-export const QuickActions = () => {
+export const QuickActions = ({ additionalActions = [] }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState(null); 
   const router = useRouter();
   const { user } = useAuth(); // Obtener el usuario del contexto de autenticación
 
-  const actions = [
+  const defaultActions = [
     { 
       icon: 'plus', 
       label: i18n.t('addEntry'), 
@@ -32,7 +33,21 @@ export const QuickActions = () => {
       label: i18n.t('setGoal'), 
       color: '#3F51B5', 
       onClick: () => openModal('setGoal') 
-    }, 
+    },
+    {
+      icon: 'bell',
+      label: 'Test Notif.',
+      color: '#9C27B0',
+      onClick: async () => {
+        try {
+          await NotificationService.sendTestNotification();
+          console.log('Notificación enviada');
+        } catch (error) {
+          console.error('Error:', error);
+          Alert.alert('Error', error.message);
+        }
+      }
+    }
   ];
 
   const openModal = (type) => {
@@ -82,16 +97,16 @@ export const QuickActions = () => {
     <Card>
       <Text style={styles.title}>{i18n.t('quickActionsTitle')}</Text>
       <View style={styles.actionsContainer}>
-        {actions.map((action, index) => (
+        {defaultActions.map((action, index) => (
           <TouchableOpacity
             key={index}
             style={styles.actionItem}
-            onPress={action.onClick}
+            onPress={action.onClick || action.onPress}
           >
             <View style={[styles.iconContainer, { backgroundColor: action.color }]}>
               <Icon name={action.icon} size={30} color="#fff" />
             </View>
-            <Text style={styles.actionLabel}>{action.label}</Text>
+            <Text style={styles.actionLabel}>{action.label || action.title}</Text>
           </TouchableOpacity>
         ))}
       </View>
