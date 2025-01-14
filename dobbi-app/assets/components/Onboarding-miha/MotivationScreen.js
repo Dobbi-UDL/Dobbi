@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -22,11 +22,21 @@ const GOALS = [
     { id: 'other', title: 'Other', icon: 'more-horiz' }
 ];
 
-export default function MotivationScreen({ onNext, onBack, currentStep = 4, totalSteps = 6 }) {
-    const [selectedMotivations, setSelectedMotivations] = useState([]);
-    const [selectedGoals, setSelectedGoals] = useState([]);
-    const [otherMotivation, setOtherMotivation] = useState('');
-    const [otherGoal, setOtherGoal] = useState('');
+export default function MotivationScreen({ onNext, onBack, data, onDataUpdate, currentStep = 4, totalSteps = 6 }) {
+    const [selectedMotivations, setSelectedMotivations] = useState(data?.motivations || []);
+    const [selectedGoals, setSelectedGoals] = useState(data?.goals || []);
+    const [otherMotivation, setOtherMotivation] = useState(data?.otherMotivation || '');
+    const [otherGoal, setOtherGoal] = useState(data?.otherGoal || '');
+
+    // Update parent state when any selection changes
+    useEffect(() => {
+        onDataUpdate('motivation', {
+            motivations: selectedMotivations,
+            goals: selectedGoals,
+            otherMotivation,
+            otherGoal
+        });
+    }, [selectedMotivations, selectedGoals, otherMotivation, otherGoal]);
 
     const handleMotivationSelect = (id) => {
         setSelectedMotivations(prev => {
@@ -217,14 +227,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        marginHorizontal: -4, // Add negative margin to offset card padding
+        marginHorizontal: 0, // Remove negative margin
     },
     card: {
         width: '48.5%',
         backgroundColor: '#FFFFFF',
         borderRadius: 12, // Match common border radius
         padding: 14, // Increased from 12
-        marginBottom: 12, // Increased from 8
+        marginBottom: 8, // Increased from 8
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1.5, // Reduced from 2
@@ -254,14 +264,15 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     otherInput: {
+        width: '100%', // Make it full width like the cards container
         backgroundColor: '#FFFFFF',
         borderRadius: 12, // Match common border radius
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: '#E5E5E5',
-        padding: 10, // Reduced from 12
+        padding: 12, // Reduced from 12
         marginTop: 8,
         fontSize: 14, // Reduced from 16
-        height: 50, // Match standard input height
+        height: 52.5, // Match standard input height
     },
     buttonContainer: {
         flexDirection: 'row',

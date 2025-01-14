@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Button } from '../common/Button';
+import { CustomPicker } from '../common/CustomPicker';
 
 const OPTIONS = {
     experience: [
@@ -28,61 +29,57 @@ const OPTIONS = {
         { id: 'credit_cards', title: 'Credit Cards', icon: 'credit-card' },
         { id: 'loans', title: 'Personal Loans', icon: 'account-balance' },
         { id: 'mortgage', title: 'Mortgage', icon: 'home' },
-        { id: 'student', title: 'Student Loans', icon: 'school' }
+        { id: 'student', title: 'Student Loans', icon: 'school' },
+        { id: 'other', title: 'Other', icon: 'more-horiz' }
     ]
 };
 
-export default function FinancialContextScreen({ onNext, onBack }) {
+export default function FinancialContextScreen({ onNext, onBack, data, onDataUpdate }) {
     const [selections, setSelections] = useState({
-        experience: null,
-        savings: null,
-        situation: null,
-        debt: []
+        experience: data.experience,
+        savings: data.savings,
+        situation: data.situation,
+        debtTypes: data.debtTypes,
+        otherDebt: data.otherDebt
     });
-    const [openDropdown, setOpenDropdown] = useState(null);
 
-    const toggleDropdown = (dropdownName) => {
-        setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-    };
+    // Update parent state when selections change
+    useEffect(() => {
+        onDataUpdate('financial', selections);
+    }, [selections]);
 
-    const handleSelect = (type, id) => {
+    const handleDebtSelect = (id) => {
         setSelections(prev => ({
             ...prev,
-            [type]: type === 'debt' 
-                ? handleDebtSelection(prev.debt, id)
-                : id
+            debtTypes: prev.debtTypes.includes(id)
+                ? prev.debtTypes.filter(item => item !== id)
+                : [...prev.debtTypes, id]
         }));
     };
 
-    const handleDebtSelection = (prevSelection, id) => {
-        if (id === 'no_debt') return ['no_debt'];
-        const newSelection = prevSelection.filter(item => item !== 'no_debt');
-        return newSelection.includes(id)
-            ? newSelection.filter(item => item !== id)
-            : [...newSelection, id];
-    };
-
-    const DropdownItem = ({ item, selected, onSelect }) => (
+    const SelectionCard = ({ item, isSelected }) => (
         <TouchableOpacity
-            style={[styles.dropdownItem, selected && styles.dropdownItemSelected]}
-            onPress={() => onSelect(item.id)}
+            style={[styles.card, isSelected && styles.cardSelected]}
+            onPress={() => handleDebtSelect(item.id)}
         >
             <MaterialIcons
                 name={item.icon}
                 size={20}
-                color={selected ? '#EE6567' : '#666666'}
+                color={isSelected ? '#EE6567' : '#666666'}
             />
-            <Text style={[styles.dropdownItemText, selected && styles.dropdownItemTextSelected]}>
+            <Text style={[styles.cardText, isSelected && styles.cardTextSelected]}>
                 {item.title}
             </Text>
-            {selected && (
-                <MaterialIcons name="check" size={20} color="#EE6567" />
+            {isSelected && (
+                <View style={styles.checkmark}>
+                    <MaterialIcons name="check-circle" size={16} color="#EE6567" />
+                </View>
             )}
         </TouchableOpacity>
     );
 
     const isValid = selections.experience && selections.savings && 
-                   selections.situation && selections.debt.length > 0;
+                   selections.situation && selections.debtTypes.length > 0;
 
     return (
         <LinearGradient colors={['#FFFFFF', '#FFF5F5']} style={styles.container}>
@@ -92,140 +89,80 @@ export default function FinancialContextScreen({ onNext, onBack }) {
                     <Text style={styles.subheadline}>Help us understand your situation</Text>
                 </View>
 
-                {/* Experience Dropdown */}
-                <View style={styles.dropdownContainer}>
-                    <TouchableOpacity
-                        style={styles.dropdownHeader}
-                        onPress={() => toggleDropdown('experience')}
-                    >
-                        <View style={styles.dropdownHeaderContent}>
-                            <Text style={styles.dropdownLabel}>Financial Experience</Text>
-                            <Text style={styles.dropdownValue}>
-                                {selections.experience 
-                                    ? OPTIONS.experience.find(i => i.id === selections.experience)?.title 
-                                    : 'Select level'}
-                            </Text>
-                        </View>
-                        <MaterialIcons
-                            name={openDropdown === 'experience' ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-                            size={24}
-                            color="#666666"
+                <View style={styles.formContainer}>
+                    {/* Financial Experience */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>What's your level of financial experience?</Text>
+                        <CustomPicker
+                            placeholder="Select experience level"
+                            value={selections.experience}
+                            onSelect={(option) => setSelections(prev => ({ ...prev, experience: option.value }))}
+                            options={OPTIONS.experience.map(item => ({
+                                value: item.id,
+                                label: item.title,
+                                icon: item.icon
+                            }))}
+                            defaultIcon="school"
                         />
-                    </TouchableOpacity>
-                    {openDropdown === 'experience' && (
-                        <View style={styles.dropdownList}>
-                            {OPTIONS.experience.map(item => (
-                                <DropdownItem
-                                    key={item.id}
-                                    item={item}
-                                    selected={selections.experience === item.id}
-                                    onSelect={(id) => handleSelect('experience', id)}
-                                />
-                            ))}
-                        </View>
-                    )}
-                </View>
+                    </View>
 
-                {/* Savings Dropdown */}
-                <View style={styles.dropdownContainer}>
-                    <TouchableOpacity
-                        style={styles.dropdownHeader}
-                        onPress={() => toggleDropdown('savings')}
-                    >
-                        <View style={styles.dropdownHeaderContent}>
-                            <Text style={styles.dropdownLabel}>Saving Habits</Text>
-                            <Text style={styles.dropdownValue}>
-                                {selections.savings 
-                                    ? OPTIONS.savings.find(i => i.id === selections.savings)?.title 
-                                    : 'Select habits'}
-                            </Text>
-                        </View>
-                        <MaterialIcons
-                            name={openDropdown === 'savings' ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-                            size={24}
-                            color="#666666"
+                    {/* Saving Habits */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>How would you describe your saving habits?</Text>
+                        <CustomPicker
+                            placeholder="Select saving habits"
+                            value={selections.savings}
+                            onSelect={(option) => setSelections(prev => ({ ...prev, savings: option.value }))}
+                            options={OPTIONS.savings.map(item => ({
+                                value: item.id,
+                                label: item.title,
+                                icon: item.icon
+                            }))}
+                            defaultIcon="savings"
                         />
-                    </TouchableOpacity>
-                    {openDropdown === 'savings' && (
-                        <View style={styles.dropdownList}>
-                            {OPTIONS.savings.map(item => (
-                                <DropdownItem
-                                    key={item.id}
-                                    item={item}
-                                    selected={selections.savings === item.id}
-                                    onSelect={(id) => handleSelect('savings', id)}
-                                />
-                            ))}
-                        </View>
-                    )}
-                </View>
+                    </View>
 
-                {/* Financial Situation Dropdown */}
-                <View style={styles.dropdownContainer}>
-                    <TouchableOpacity
-                        style={styles.dropdownHeader}
-                        onPress={() => toggleDropdown('situation')}
-                    >
-                        <View style={styles.dropdownHeaderContent}>
-                            <Text style={styles.dropdownLabel}>Current Financial Situation</Text>
-                            <Text style={styles.dropdownValue}>
-                                {selections.situation 
-                                    ? OPTIONS.situation.find(i => i.id === selections.situation)?.title 
-                                    : 'Select situation'}
-                            </Text>
-                        </View>
-                        <MaterialIcons
-                            name={openDropdown === 'situation' ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-                            size={24}
-                            color="#666666"
+                    {/* Financial Situation */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>What's your current financial situation?</Text>
+                        <CustomPicker
+                            placeholder="Select financial situation"
+                            value={selections.situation}
+                            onSelect={(option) => setSelections(prev => ({ ...prev, situation: option.value }))}
+                            options={OPTIONS.situation.map(item => ({
+                                value: item.id,
+                                label: item.title,
+                                icon: item.icon
+                            }))}
+                            defaultIcon="sentiment-very-satisfied"
                         />
-                    </TouchableOpacity>
-                    {openDropdown === 'situation' && (
-                        <View style={styles.dropdownList}>
-                            {OPTIONS.situation.map(item => (
-                                <DropdownItem
-                                    key={item.id}
-                                    item={item}
-                                    selected={selections.situation === item.id}
-                                    onSelect={(id) => handleSelect('situation', id)}
-                                />
-                            ))}
-                        </View>
-                    )}
-                </View>
+                    </View>
 
-                {/* Debt Dropdown (Multiple Selection) */}
-                <View style={styles.dropdownContainer}>
-                    <TouchableOpacity
-                        style={styles.dropdownHeader}
-                        onPress={() => toggleDropdown('debt')}
-                    >
-                        <View style={styles.dropdownHeaderContent}>
-                            <Text style={styles.dropdownLabel}>Current Debt</Text>
-                            <Text style={styles.dropdownValue}>
-                                {selections.debt.length > 0
-                                    ? `${selections.debt.length} selected`
-                                    : 'Select debt types'}
-                            </Text>
-                        </View>
-                        <MaterialIcons
-                            name={openDropdown === 'debt' ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-                            size={24}
-                            color="#666666"
-                        />
-                    </TouchableOpacity>
-                    {openDropdown === 'debt' && (
-                        <View style={styles.dropdownList}>
+                    {/* Debt Types */}
+                    <View style={[styles.inputGroup, { marginTop: 24 }]}>
+                        <Text style={styles.label}>Do you currently have any debt?</Text>
+                        <Text style={styles.subtitle}>(Select all that apply)</Text>
+                        <View style={styles.cardsContainer}>
                             {OPTIONS.debt.map(item => (
-                                <DropdownItem
+                                <SelectionCard
                                     key={item.id}
                                     item={item}
-                                    selected={selections.debt.includes(item.id)}
-                                    onSelect={(id) => handleSelect('debt', id)}
+                                    isSelected={selections.debtTypes.includes(item.id)}
                                 />
                             ))}
                         </View>
-                    )}
+                        {selections.debtTypes.includes('other') && (
+                            <TextInput
+                                style={styles.otherInput}
+                                placeholder="Specify other debt type..."
+                                value={selections.otherDebt}
+                                onChangeText={(text) => setSelections(prev => ({
+                                    ...prev,
+                                    otherDebt: text
+                                }))}
+                            />
+                        )}
+                    </View>
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -273,31 +210,47 @@ const styles = StyleSheet.create({
         color: '#666666',
         textAlign: 'center',
     },
-    dropdownContainer: {
-        marginBottom: 16,
+    formContainer: {
+        marginBottom: 24,
     },
-    dropdownHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+    inputGroup: {
+        marginBottom: 2, // Reduced from 20 to 16
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333333',
+        marginBottom: 8,
+    },
+    pickerContainer: {
+        marginBottom: 8,
+    },
+    pickerContainer: {
         backgroundColor: '#FFFFFF',
-        padding: 12,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: '#E5E5E5',
+        height: 50,
     },
-    dropdownHeaderContent: {
+    pickerContent: {
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        height: '100%',
     },
-    dropdownLabel: {
-        fontSize: 14,
-        color: '#666666',
-        marginBottom: 2,
+    iconLeft: {
+        marginRight: 12,
     },
-    dropdownValue: {
+    selectedText: {
+        flex: 1,
         fontSize: 16,
         color: '#333333',
-        fontWeight: '500',
+    },
+    placeholderText: {
+        flex: 1,
+        fontSize: 16,
+        color: '#999999',
     },
     dropdownList: {
         backgroundColor: '#FFFFFF',
@@ -348,5 +301,60 @@ const styles = StyleSheet.create({
     },
     nextButtonDisabled: {
         opacity: 0.5,
-    }
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#666666',
+        marginBottom: 8,
+        marginTop: -4, // Tighter coupling with main label
+    },
+    cardsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    card: {
+        width: '48.5%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12, // Match common border radius
+        padding: 14, // Increased from 12
+        marginBottom: 8, // Increased from 8
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1.5, // Reduced from 2
+        borderColor: '#E5E5E5',
+        position: 'relative',
+        height: 50, // Match standard input height
+    },
+    cardSelected: {
+        borderColor: '#EE6567',
+        backgroundColor: '#FFF5F5',
+    },
+    cardText: {
+        fontSize: 14,
+        color: '#666666',
+        marginLeft: 10,
+        flex: 1,
+    },
+    cardTextSelected: {
+        color: '#EE6567',
+        fontWeight: '600',
+    },
+    checkmark: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    otherInput: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: '#E5E5E5',
+        padding: 14,
+        marginTop: 8,
+        fontSize: 14,
+        height: 52.5,
+    },
 });

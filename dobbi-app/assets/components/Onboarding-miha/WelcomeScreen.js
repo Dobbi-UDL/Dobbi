@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from '../common/Button';  // Import the Button component
 
-export default function WelcomeScreen({ onNext, currentStep = 1, totalSteps = 6 }) {
+export default function WelcomeScreen({ onNext, }) {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(50)).current;
     const scaleAnim = useRef(new Animated.Value(0.95)).current;

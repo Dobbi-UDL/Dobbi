@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from '../common/Button';
@@ -6,8 +6,13 @@ import { Picker } from '@react-native-picker/picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Animated } from 'react-native';
 
-export default function PersonalInfoScreen1({ onNext, onBack, currentStep = 2, totalSteps = 6 }) {
-    const [selectedRole, setSelectedRole] = useState(null);
+export default function PersonalInfoScreen1({ onNext, onBack, data, onDataUpdate, currentStep = 2, totalSteps = 6 }) {
+    const [selectedRole, setSelectedRole] = useState(data?.role || null);
+
+    // Update parent state when selection changes
+    useEffect(() => {
+        onDataUpdate('personal1', { role: selectedRole });
+    }, [selectedRole]);
 
     const roles = [
         { 
@@ -145,13 +150,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     selectionContainer: {
-        marginBottom: 32,
+        marginBottom: 24,
     },
     rolesGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        marginBottom: 24,
+        marginBottom: 20,
+        gap: 8,
     },
     roleCard: {
         width: '48.5%', // Match MotivationScreen card width
@@ -212,7 +218,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingHorizontal: 8,
-        marginBottom: 24, // Match standard spacing
+        marginTop: 8,
     },
     infoIcon: {
         marginRight: 8,
