@@ -4,8 +4,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from '../../styles/marketplace';
 import Card from '../common/Card';
 import i18n from '../../../i18n';
-
-export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onToggleExpand }) => {
+import { supabase } from '../../../config/supabaseClient';
+export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onToggleExpand, userId}) => {
   const [showCode, setShowCode] = useState(offer.isRedeemed);
   const canRedeem = userPoints >= offer.points_required;
   const [numberOfLines, setNumberOfLines] = useState(0);
@@ -20,6 +20,29 @@ export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onTogg
     const lineHeight = 20; // Approximate line height
     setNumberOfLines(Math.floor(height / lineHeight));
   };
+
+  const handleOfferClick = () => {
+    supabase
+      .from('offer_interactions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('offer_id', offer.id)
+      .eq('type_action', 'click')
+      .then(({ data, error }) => {
+      if (error) {
+        console.error('Error checking interaction:', error);
+      } else if (data.length === 0) {
+        supabase
+        .from('offer_interactions')
+        .insert([{ user_id: userId, type_action: 'click', offer_id: offer.id }])
+        .then(({ error }) => {
+          if (error) {
+          console.error('Error inserting interaction:', error);
+          }
+        });
+      }
+      });
+  }
 
   const handleRedeem = () => {
     if (!canRedeem) {
@@ -55,7 +78,9 @@ export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onTogg
   };
 
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => {
+      handleOfferClick();
+    }}>
       <Card style={[
         styles.cardContainer,
         isExpanded && styles.expandedCard,

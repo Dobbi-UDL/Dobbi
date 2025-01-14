@@ -92,14 +92,14 @@ const OffersScreen = () => {
         .select(`
           *,
           companies:company_id (
-            name
+        name
           ),
           offer_interactions(user_id)
         `)
-        .eq('offer_interactions.user_id', userId);
-  
+        .eq('offer_interactions.user_id', userId)
+        .eq('offer_interactions.type_action', 'redeem');
+        
       if (error) throw error;
-  
       const processedOffers = data.map(offer => ({
         ...offer,
         isRedeemed: offer.offer_interactions?.length > 0,
@@ -249,6 +249,11 @@ const OffersScreen = () => {
     });
   };
 
+  const handleOfferView = (offerId) => {
+    console.log(`Offer ${offerId} viewed`);
+    // Add your logic here
+  };
+
   // Move all callbacks to top level and memoize them
   const handleRedeem = useCallback((offerId) => {
     redeemOffer(offerId);
@@ -258,15 +263,19 @@ const OffersScreen = () => {
     setExpandedOfferId(id);
   }, []);
 
-  const renderItem = useCallback(({ item }) => (
-    <OfferCard 
-      offer={item}
-      userPoints={userPoints}
-      onRedeem={() => handleRedeem(item.id)}
-      isExpanded={expandedOfferId === item.id}
-      onToggleExpand={handleToggleExpand}
-    />
-  ), [userPoints, expandedOfferId, handleRedeem, handleToggleExpand]);
+  const renderItem = useCallback(({ item }) => {
+    // handleOfferView(item.id); // Call handleOfferView when the offer card is viewed
+    return (
+      <OfferCard 
+        offer={item}
+        userPoints={userPoints}
+        onRedeem={() => handleRedeem(item.id)}
+        isExpanded={expandedOfferId === item.id}
+        onToggleExpand={handleToggleExpand}
+        userId={userId} // Pass handleOfferClick to OfferCard
+      />
+    );
+  }, [userPoints, expandedOfferId, handleRedeem, handleToggleExpand]);
 
   const keyExtractor = useCallback((item) => item.id.toString(), []);
 
