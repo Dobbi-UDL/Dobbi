@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   Modal,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -35,10 +36,12 @@ export const ProfileSection = ({ userData, onClose }) => {
   const [isEditProfileModalVisible, setIsEditProfileModalVisible] =
     useState(false);
   const [userStats, setUserStats] = useState(null);
+  const [avatar, setAvatar] = useState(null);
 
   useEffect(() => {
     if (userData?.id) {
       fetchUserStats();
+      fetchAvatar();
     }
   }, [userData]);
 
@@ -58,6 +61,21 @@ export const ProfileSection = ({ userData, onClose }) => {
     }
   };
 
+  const fetchAvatar = async () => {
+    try {
+      const { data } = await supabase
+        .storage
+        .from('avatars')
+        .createSignedUrl(`${userData.id}/avatar.png`, 3600);
+
+      if (data?.signedUrl) {
+        setAvatar(data.signedUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching avatar:', error);
+    }
+  };
+
   const getInitials = (name) => {
     if (!name) return "?";
     return name
@@ -72,13 +90,35 @@ export const ProfileSection = ({ userData, onClose }) => {
   };
 
   const handleLogout = async () => {
-    try {
-      signOut;
-      if (error) throw error;
-    } catch (err) {
-      console.error("Error during signOut:", err);
-      throw err;
-    }
+    Alert.alert(
+      i18n.t('logout'),
+      i18n.t('logout_confirmation'),
+      [
+        {
+          text: i18n.t('cancel'),
+          style: 'cancel'
+        },
+        {
+          text: i18n.t('logout'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.auth.signOut();
+              if (error) throw error;
+              
+              signOut(); // Llama a la función del contexto de autenticación
+              router.replace('/'); // Redirige al inicio
+            } catch (error) {
+              console.error('Error during logout:', error);
+              Alert.alert(
+                'Error',
+                i18n.t('logout_error')
+              );
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleLanguagePress = () => {
@@ -89,6 +129,40 @@ export const ProfileSection = ({ userData, onClose }) => {
   const handleOpenOnboardingForm = () => {
     setIsOnboardingFormVisible(true);
   };
+
+  const getCurrentAndNextLevelXP = (currentXP, currentLevel) => {
+    const currentLevelXP = calculateXPForLevel(currentLevel);
+    const nextLevelXP = calculateXPForLevel(currentLevel + 1);
+    return `${currentXP}/${nextLevelXP} XP`;
+  };
+
+  const renderAvatar = () => {
+    if (avatar) {
+      return (
+        <Image 
+          source={{ uri: avatar }} 
+          style={[styles.profileAvatar, { backgroundColor: 'transparent' }]}
+        />
+      );
+    }
+    return (
+      <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
+        <Text style={styles.avatarText}>
+          {getInitials(userData?.username)}
+        </Text>
+      </View>
+    );
+  };
+
+  const renderMenuIcon = (name, danger = false) => (
+    <View style={[styles.menuItemIcon, { backgroundColor: danger ? '#FFF5F5' : 'transparent' }]}>
+      <Icon 
+        name={name} 
+        size={20} 
+        color={danger ? "#ff6b6b" : "#666"}
+      />
+    </View>
+  );
 
   const menuItems = [
     {
@@ -119,75 +193,79 @@ export const ProfileSection = ({ userData, onClose }) => {
       <View style={styles.settingsHeader}>
         <View style={styles.profileSection}>
           <View style={styles.profileRow}>
-            <TouchableOpacity onPress={handleEditProfile}>
-              <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
-                <Text style={styles.avatarText}>
-                  {getInitials(userData?.username)}
-                </Text>
-              </View>
+            <TouchableOpacity 
+              onPress={handleEditProfile}
+              activeOpacity={0.8}
+            >
+              {renderAvatar()}
             </TouchableOpacity>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>
                 {userData?.username || "User"}
               </Text>
-            </View>
-          </View>
-          <View style={styles.levelSystemContainer}>
-            <View style={styles.levelHeader}>
-              <View style={styles.levelBadge}>
-                <Icon name="star" size={16} color="#FFD700" />
-                <Text style={styles.levelText}>
-                  Level {userStats?.current_level || 1}
-                </Text>
-              </View>
-              <View style={styles.expBadge}>
-                <Icon name="lightning-bolt" size={14} color="#FF6B6B" />
+              <View style={styles.profileLevelInfo}>
+                <View style={styles.levelIndicator}>
+                  <Text style={styles.levelText}>
+                    Level {userStats?.current_level || 1}
+                  </Text>
+                </View>
                 <Text style={styles.expText}>
-                  {userStats?.current_xp || 0}/
-                  {calculateXPForLevel(userStats?.current_level || 1)} XP
+                  {getCurrentAndNextLevelXP(
+                    userStats?.current_xp || 0,
+                    userStats?.current_level || 1
+                  )}
                 </Text>
               </View>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBar,
-                  {
-                    width: `${calculateProgressPercentage(
-                      userStats?.current_xp || 0,
-                      userStats?.current_level || 1
-                    )}%`,
-                  },
-                ]}
-              />
+              <View style={styles.miniProgressBar}>
+                <View
+                  style={[
+                    styles.miniProgress,
+                    {
+                      width: `${calculateProgressPercentage(
+                        userStats?.current_xp || 0,
+                        userStats?.current_level || 1
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
             </View>
           </View>
         </View>
       </View>
 
-      <ScrollView style={styles.menuContainer}>
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={item.onPress}
-            style={styles.menuItem}
-          >
-            <View style={styles.menuItemContent}>
-              <Icon
-                name={item.icon}
-                size={24}
-                color={item.danger ? "red" : "#000"}
+      <ScrollView 
+        style={styles.menuContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.menuSection}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={item.onPress}
+              style={[
+                styles.menuItem,
+                index === menuItems.length - 1 && { borderBottomWidth: 0 }
+              ]}
+            >
+              <View style={styles.menuItemContent}>
+                {renderMenuIcon(item.icon, item.danger)}
+                <Text
+                  style={
+                    item.danger ? styles.menuItemTextDanger : styles.menuItemText
+                  }
+                >
+                  {item.title}
+                </Text>
+              </View>
+              <Icon 
+                name="chevron-right" 
+                size={20} 
+                color="#CCCCCC"
               />
-              <Text
-                style={
-                  item.danger ? styles.menuItemTextDanger : styles.menuItemText
-                }
-              >
-                {item.title}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
       <LanguageModal
         isVisible={isLanguageModalVisible}
@@ -203,7 +281,10 @@ export const ProfileSection = ({ userData, onClose }) => {
       />
       <EditProfileModal
         isVisible={isEditProfileModalVisible}
-        onClose={() => setIsEditProfileModalVisible(false)}
+        onClose={() => {
+          setIsEditProfileModalVisible(false);
+          fetchAvatar(); // Refetch avatar when modal closes
+        }}
         userData={userData}
       />
       <Modal
