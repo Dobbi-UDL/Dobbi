@@ -5,12 +5,17 @@ import { Button } from '../common/Button';
 import { Picker } from '@react-native-picker/picker';
 import { SearchablePicker } from '../common/SearchablePicker';
 import { locationService } from '../../../services/locationService';
+import { CustomPicker } from '../common/CustomPicker';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, totalSteps = 6 }) {
     const [countries, setCountries] = useState([]);
     const [regions, setRegions] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('');
+    const [education, setEducation] = useState('');
 
     useEffect(() => {
         loadCountries();
@@ -48,6 +53,32 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
         onNext();
     };
 
+    const AGE_OPTIONS = [
+        { value: '18-24', label: '18-24' },
+        { value: '25-34', label: '25-34' },
+        { value: '35-44', label: '35-44' },
+        { value: '45-54', label: '45-54' },
+        { value: '55-64', label: '55-64' },
+        { value: '65+', label: '65+' },
+        { value: 'prefer_not_to_say', label: 'Prefer not to say' }
+    ];
+
+    const GENDER_OPTIONS = [
+        { value: 'male', label: 'Male' },
+        { value: 'female', label: 'Female' },
+        { value: 'non_binary', label: 'Non-binary' },
+        { value: 'prefer_not_to_say', label: 'Prefer not to say' }
+    ];
+
+    const EDUCATION_OPTIONS = [
+        { value: 'high_school', label: 'High School' },
+        { value: 'bachelors', label: "Bachelor's Degree" },
+        { value: 'masters', label: "Master's Degree" },
+        { value: 'doctorate', label: 'Doctorate' },
+        { value: 'other', label: 'Other' },
+        { value: 'prefer_not_to_say', label: 'Prefer not to say' }
+    ];
+
     return (
         <LinearGradient colors={['#FFFFFF', '#FFF5F5']} style={styles.container}>
             <View style={styles.content}>
@@ -59,52 +90,32 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
                 </View>
 
                 <View style={styles.formContainer}>
-                    {/* Age */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>What is your age?</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker}>
-                                <Picker.Item label="Select age" value="" />
-                                <Picker.Item label="18-24" value="18-24" />
-                                <Picker.Item label="25-34" value="25-34" />
-                                <Picker.Item label="35-44" value="35-44" />
-                                <Picker.Item label="45-54" value="45-54" />
-                                <Picker.Item label="55-64" value="55-64" />
-                                <Picker.Item label="65+" value="65+" />
-                                <Picker.Item label="Prefer not to say" value="prefer_not_to_say" />
-                            </Picker>
-                        </View>
-                    </View>
+                    <CustomPicker
+                        label="What is your age?"
+                        icon="cake"
+                        placeholder="Select age"
+                        options={AGE_OPTIONS}
+                        value={age}
+                        onSelect={(option) => setAge(option.value)}
+                    />
 
-                    {/* Gender */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>What is your gender?</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker}>
-                                <Picker.Item label="Select gender" value="" />
-                                <Picker.Item label="Male" value="male" />
-                                <Picker.Item label="Female" value="female" />
-                                <Picker.Item label="Non-binary" value="non_binary" />
-                                <Picker.Item label="Prefer not to say" value="prefer_not_to_say" />
-                            </Picker>
-                        </View>
-                    </View>
+                    <CustomPicker
+                        label="What is your gender?"
+                        icon="person"
+                        placeholder="Select gender"
+                        options={GENDER_OPTIONS}
+                        value={gender}
+                        onSelect={(option) => setGender(option.value)}
+                    />
 
-                    {/* Education */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>What is your highest level of education?</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker}>
-                                <Picker.Item label="Select education level" value="" />
-                                <Picker.Item label="High School" value="high_school" />
-                                <Picker.Item label="Bachelor's Degree" value="bachelors" />
-                                <Picker.Item label="Master's Degree" value="masters" />
-                                <Picker.Item label="Doctorate" value="doctorate" />
-                                <Picker.Item label="Other" value="other" />
-                                <Picker.Item label="Prefer not to say" value="prefer_not_to_say" />
-                            </Picker>
-                        </View>
-                    </View>
+                    <CustomPicker
+                        label="What is your highest level of education?"
+                        icon="school"
+                        placeholder="Select education level"
+                        options={EDUCATION_OPTIONS}
+                        value={education}
+                        onSelect={(option) => setEducation(option.value)}
+                    />
 
                     {/* Country Selection */}
                     <View style={styles.inputGroup}>
@@ -115,6 +126,7 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
                             items={countries}
                             onSearch={handleCountrySearch}
                             onSelect={handleCountrySelect}
+                            icon="public"
                         />
                     </View>
 
@@ -128,6 +140,7 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
                                 items={regions}
                                 onSearch={handleRegionSearch}
                                 onSelect={setSelectedRegion}
+                                icon="location-on"
                             />
                         </View>
                     )}
@@ -178,16 +191,24 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     formContainer: {
-        marginBottom: 32,
+        marginBottom: 24, // Match standard spacing
     },
     inputGroup: {
-        marginBottom: 24,
+        marginBottom: 20, // Slightly reduced for better overall spacing
+    },
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
     },
     label: {
         fontSize: 16,
         fontWeight: '600',
         color: '#333333',
-        marginBottom: 8,
+        marginRight: 8,
+    },
+    labelIcon: {
+        marginTop: 2,
     },
     pickerContainer: {
         backgroundColor: '#FFFFFF',
@@ -195,6 +216,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E5E5E5',
         overflow: 'hidden',
+        height: 50, // Match standard input height
     },
     picker: {
         height: 50,

@@ -154,10 +154,11 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     roleCard: {
-        width: '48%',
-        aspectRatio: 1,
+        width: '48.5%', // Match MotivationScreen card width
+        aspectRatio: undefined, // Remove to match other screens
+        height: 120,
+        borderRadius: 12, // Match common border radius
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
         padding: 16,
         marginBottom: 16,
         alignItems: 'center',
@@ -169,7 +170,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        height: 120, // Make cards slightly taller
     },
     roleCardSelected: {
         borderColor: '#EE6567',
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingHorizontal: 8,
-        marginBottom: 32,
+        marginBottom: 24, // Match standard spacing
     },
     infoIcon: {
         marginRight: 8,

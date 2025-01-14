@@ -12,6 +12,7 @@ import NotificationScreen from '../assets/components/Onboarding-miha/Notificatio
 import CompletionScreen from '../assets/components/Onboarding-miha/CompletionScreen';
 import PersonalInfoScreen1 from '../assets/components/Onboarding-miha/PersonalInfoScreen1';
 import PersonalInfoScreen2 from '../assets/components/Onboarding-miha/PersonalInfoScreen2';
+import MotivationScreen from '../assets/components/Onboarding-miha/MotivationScreen';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -20,7 +21,7 @@ export default function OnboardingScreen() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationTrigger, setAnimationTrigger] = useState(0);
-  const totalSteps = 6;
+  const totalSteps = 6; // Update total steps
   const router = useRouter();
   
   const translateX = useRef(new Animated.Value(0)).current;
@@ -43,11 +44,11 @@ export default function OnboardingScreen() {
       case 3:
         return <PersonalInfoScreen2 {...commonProps} />;
       case 4:
-        return <FinancialContextScreen {...commonProps} />;
+        return <MotivationScreen {...commonProps} />;
       case 5:
-        return <NotificationScreen {...commonProps} />;
+        return <FinancialContextScreen {...commonProps} />;
       case 6:
-        return <CompletionScreen {...commonProps} />;
+        return <NotificationScreen {...commonProps} />;
       default:
         return null;
     }

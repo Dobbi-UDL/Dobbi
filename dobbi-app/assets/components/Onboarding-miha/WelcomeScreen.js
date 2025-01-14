@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
-        padding: 30,
+        padding: 24,
         width: '100%',
         maxWidth: 380,
     },
     illustrationContainer: {
         position: 'relative',
-        marginBottom: 40,
+        marginBottom: 32, // Match standard spacing
         width: 260,
         height: 260,
         alignItems: 'center',
@@ -150,8 +150,9 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         alignItems: 'center',
-        marginBottom: 40,
-        width: 340,
+        marginBottom: 32, // Match standard spacing
+        width: '100%', // Changed from 340
+        maxWidth: 340,
     },
     illustration: {
         width: '100%',
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#666666',
         textAlign: 'center',
-        lineHeight: 24,
+        lineHeight: 26, // Adjusted for better readability
     },
     button: {
         borderRadius: 24,
