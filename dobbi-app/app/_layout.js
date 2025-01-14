@@ -17,6 +17,12 @@ export default function Layout() {
             }}
           >
             <Stack.Screen
+              name="onboarding"
+              options={{
+                animation: 'none'  // Disable stack navigation animation
+              }}
+            />
+            <Stack.Screen
               name="home"
               options={{
                 animation: 'none'

@@ -1,25 +1,42 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Animated } from 'react-native';
 
-export const Button = ({ onPress, title, variant = 'primary', size = 'md', style }) => {
+export const Button = ({ 
+    onPress, 
+    title, 
+    variant = 'primary', 
+    size = 'md', 
+    style,
+    animated = false,
+    scaleAnim,
+    onPressIn,
+    onPressOut
+}) => {
+    const ButtonContainer = animated ? Animated.createAnimatedComponent(TouchableOpacity) : TouchableOpacity;
+
     return (
-        <TouchableOpacity
+        <ButtonContainer
             onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
             style={[
                 styles.button,
                 styles[variant],
                 styles[size],
-                style
+                style,
+                animated && { transform: [{ scale: scaleAnim }] }
             ]}
+            activeOpacity={0.9}
         >
             <Text style={[
                 styles.text,
                 variant === 'outline' && styles.outlineText,
+                variant === 'text' && styles.textVariantText,
                 size === 'sm' && styles.smallText
             ]}>
                 {title}
             </Text>
-        </TouchableOpacity>
+        </ButtonContainer>
     );
 };
 
@@ -59,5 +76,11 @@ const styles = StyleSheet.create({
     },
     smallText: {
         fontSize: 14,
+    },
+    textVariantText: {
+        color: '#666666',
+        textDecorationLine: 'underline',
+        fontSize: 14,
+        fontWeight: '400', // Regular font weight instead of bold
     },
 });

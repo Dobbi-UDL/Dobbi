@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from '../../styles/marketplace';
+import { styles } from '../../styles/offers';
 import i18n from '../../../i18n';
 
 export const UserPointsDisplay = ({ userName, points }) => {

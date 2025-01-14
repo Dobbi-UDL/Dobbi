@@ -6,6 +6,7 @@ import { assignGoal } from '../../../services/goalService';
 import { useAuth } from '../../../contexts/AuthContext';
 import i18n from '../../../i18n';
 import { supabase } from '../../../config/supabaseClient';
+import { styles } from '../../styles/challenges';
 
 export const ChallengeCard = ({ challenge, onRefresh }) => {
     const { user } = useAuth();
@@ -179,94 +180,9 @@ export const ChallengeCard = ({ challenge, onRefresh }) => {
 
 // Componente auxiliar para métricas
 const MetricItem = ({ icon, value, label, color }) => (
-    <View style={localStyles.metricItem}>
+    <View style={styles.metricItem}>
         <Icon name={icon} size={24} color={color} />
-        <Text style={localStyles.metricValue}>{value}</Text>
-        <Text style={localStyles.metricLabel}>{label}</Text>
+        <Text style={styles.metricValue}>{value}</Text>
+        <Text style={styles.metricLabel}>{label}</Text>
     </View>
 );
-
-const localStyles = StyleSheet.create({
-    card: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 16,
-        marginVertical: 8,
-        marginHorizontal: 16, // Añadido margen horizontal consistente
-        width: 'auto',       // Asegura que la card respete los márgenes
-        alignSelf: 'stretch', // Hace que la card ocupe el ancho disponible
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 12,
-    },
-    title: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-        marginRight: 12,
-    },
-    points: {
-        flexDirection: 'row',
-        backgroundColor: '#ff6b6b',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        alignItems: 'center',
-    },
-    pointsText: {
-        color: '#fff',
-        marginLeft: 4,
-        fontWeight: '600',
-    },
-    description: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 16,
-        lineHeight: 20,
-    },
-    metrics: {
-        flexDirection: 'row',
-        backgroundColor: '#f8f9fa',
-        borderRadius: 12,
-        padding: 12,
-        marginBottom: 16,
-    },
-    metricItem: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 8,
-    },
-    metricValue: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        marginTop: 4,
-        textAlign: 'center',
-    },
-    metricLabel: {
-        fontSize: 12,
-        color: '#666',
-        textAlign: 'center',
-        marginTop: 2,
-    },
-    button: {
-        backgroundColor: '#4CAF50',
-        borderRadius: 12,
-        paddingVertical: 14,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#ffffff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-});

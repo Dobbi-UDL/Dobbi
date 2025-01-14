@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { supabase } from '../../../config/supabaseClient';
 import MyGoalsCard from './MyGoalsCard'; // Cambiar a importación default
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../../styles/marketplace';
+import { styles } from '../../styles/challenges';
 import { AddGoalForm }  from './AddGoalForm';
 import { Collapsible } from '../common/Collapsible';
 import i18n from '../../../i18n';
@@ -154,7 +154,11 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView ref={scrollViewRef} style={styles.container}>
+            <ScrollView 
+                ref={scrollViewRef} 
+                style={styles.assignedGoalsContainer}
+                contentContainerStyle={[styles.assignedGoalsContent, { backgroundColor: '#FFF5F5' }]}
+            >
                 <Collapsible
                     title={`${i18n.t('personal_goals')} (${personalGoals.length})`}
                     isExpanded={isPersonalExpanded}
