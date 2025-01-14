@@ -7,7 +7,6 @@ import { AnimatedProgressIndicator } from '../assets/components/Onboarding-miha/
 
 // Screen Components
 import WelcomeScreen from '../assets/components/Onboarding-miha/WelcomeScreen';
-import PersonalInfoScreen from '../assets/components/Onboarding-miha/PersonalInfoScreen';
 import FinancialContextScreen from '../assets/components/Onboarding-miha/FinancialContextScreen';
 import NotificationScreen from '../assets/components/Onboarding-miha/NotificationScreen';
 import CompletionScreen from '../assets/components/Onboarding-miha/CompletionScreen';

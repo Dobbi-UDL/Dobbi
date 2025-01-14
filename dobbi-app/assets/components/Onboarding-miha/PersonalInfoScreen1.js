@@ -1,124 +1,116 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from '../common/Button';
 import { Picker } from '@react-native-picker/picker';
 import { MaterialIcons } from '@expo/vector-icons';
-import { CustomCheckbox } from '../common/CustomCheckbox';
+import { Animated } from 'react-native';
 
 export default function PersonalInfoScreen1({ onNext, onBack, currentStep = 2, totalSteps = 6 }) {
-    const [privacyAccepted, setPrivacyAccepted] = useState(false);
+    const [selectedRole, setSelectedRole] = useState(null);
 
-    const handleNext = () => {
-        if (!privacyAccepted) {
-            // Show error message or toast
-            return;
+    const roles = [
+        { 
+            id: 'student',
+            title: 'Student & Graduate',
+            icon: 'school',
+            description: 'Managing student life, part-time work, or starting your first job. Focus on building good financial habits.'
+        },
+        { 
+            id: 'early_career',
+            title: 'Young Professional',
+            icon: 'work',
+            description: 'Building your career, planning first major purchases, and learning about investments.'
+        },
+        { 
+            id: 'family',
+            title: 'Family & Home',
+            icon: 'family-restroom',
+            description: 'Balancing family expenses, planning for the future, and managing household finances.'
+        },
+        { 
+            id: 'professional',
+            title: 'Established Professional',
+            icon: 'business-center',
+            description: 'Growing wealth, optimizing investments, and planning long-term financial strategies.'
         }
-        onNext();
-    };
+    ];
 
     return (
-    <LinearGradient colors={['#FFFFFF', '#FFF5F5']} style={styles.container}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-            <View style={[styles.content, { paddingTop: 20 }]}>
-                <View style={styles.headerContainer}>
-                    <Text style={styles.headline}>Basic Information</Text>
-                    <Text style={styles.subheadline}>
-                        First, let's get to know you better
-                    </Text>
-                </View>
-                <View style={styles.formContainer}>
-                            {/* Age Range */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>What is your age range?</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker style={styles.picker}>
-                                        <Picker.Item label="Select age range" value="" />
-                                        <Picker.Item label="18-24" value="18-24" />
-                                        <Picker.Item label="25-34" value="25-34" />
-                                        <Picker.Item label="35-44" value="35-44" />
-                                        <Picker.Item label="45-54" value="45-54" />
-                                        <Picker.Item label="55+" value="55+" />
-                                        <Picker.Item label="Prefer not to say" value="prefer_not_to_say" />
-                                    </Picker>
-                                </View>
-                            </View>
-    
-                            {/* Gender */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>What is your gender?</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker style={styles.picker}>
-                                        <Picker.Item label="Select gender" value="" />
-                                        <Picker.Item label="Male" value="male" />
-                                        <Picker.Item label="Female" value="female" />
-                                        <Picker.Item label="Non-binary" value="non_binary" />
-                                        <Picker.Item label="Prefer not to say" value="prefer_not_to_say" />
-                                    </Picker>
-                                </View>
-                            </View>
-    
-                            {/* Employment Status */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>What is your employment status?</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker style={styles.picker}>
-                                        <Picker.Item label="Select employment status" value="" />
-                                        <Picker.Item label="Employed Full-Time" value="full_time" />
-                                        <Picker.Item label="Employed Part-Time" value="part_time" />
-                                        <Picker.Item label="Self-Employed" value="self_employed" />
-                                        <Picker.Item label="Student" value="student" />
-                                        <Picker.Item label="Unemployed" value="unemployed" />
-                                        <Picker.Item label="Retired" value="retired" />
-                                    </Picker>
-                                </View>
-                            </View>
-    
-                            <View style={styles.privacySection}>
-                                <View style={styles.privacyNotice}>
-                                    <MaterialIcons name="security" size={20} color="#666666" />
-                                    <Text style={styles.privacyText}>
-                                        Your privacy is important to us. All data is encrypted and stored securely.
-                                    </Text>
-                                </View>
-    
-                                <View style={styles.privacyCheckbox}>
-                                    <CustomCheckbox
-                                        value={privacyAccepted}
-                                        onValueChange={setPrivacyAccepted}
-                                        tintColors={{ true: '#EE6567', false: '#666666' }}
+        <LinearGradient colors={['#FFFFFF', '#FFF5F5']} style={styles.container}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                <View style={[styles.content, { paddingTop: 20 }]}>
+                    <View style={styles.headerContainer}>
+                        <Text style={styles.headline}>Tell Us About Yourself</Text>
+                        <Text style={styles.subheadline}>
+                            Pick the option that best matches your journey
+                        </Text>
+                    </View>
+
+                    <View style={styles.selectionContainer}>
+                        <View style={styles.rolesGrid}>
+                            {roles.map((role) => (
+                                <TouchableOpacity
+                                    key={role.id}
+                                    style={[
+                                        styles.roleCard,
+                                        selectedRole === role.id && styles.roleCardSelected
+                                    ]}
+                                    onPress={() => setSelectedRole(role.id)}
+                                >
+                                    <MaterialIcons 
+                                        name={role.icon} 
+                                        size={32} 
+                                        color={selectedRole === role.id ? '#EE6567' : '#666666'} 
                                     />
-                                    <Text style={styles.checkboxLabel}>
-                                        I agree to the processing of my personal data as described in the{' '}
-                                        <Text style={styles.privacyLink}>Privacy Policy</Text>
+                                    <Text style={[
+                                        styles.roleTitle,
+                                        selectedRole === role.id && styles.roleTitleSelected
+                                    ]}>
+                                        {role.title}
                                     </Text>
-                                </View>
-                            </View>
+                                </TouchableOpacity>
+                            ))}
                         </View>
-    
-                        <View style={styles.buttonContainer}>
-                            <Button
-                                title="Back"
-                                onPress={onBack}
-                                variant="text"
-                                style={styles.backButton}
-                            />
-                            <Button
-                                title="Next"
-                                onPress={handleNext}
-                                variant="primary"
-                                size="lg"
-                                style={[
-                                    styles.nextButton,
-                                    !privacyAccepted && styles.nextButtonDisabled
-                                ]}
-                                disabled={!privacyAccepted}
-                            />
-                        </View>
-                    </View >
-                </ScrollView >
-            </LinearGradient >
-        );
+
+                        {selectedRole && (
+                            <Animated.View style={styles.descriptionWrapper}>
+                                <MaterialIcons 
+                                    name="info-outline" 
+                                    size={16} 
+                                    color="#666666" 
+                                    style={styles.infoIcon}
+                                />
+                                <Text style={styles.descriptionText}>
+                                    {roles.find(r => r.id === selectedRole)?.description}
+                                </Text>
+                            </Animated.View>
+                        )}
+                    </View>
+
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            title="Back"
+                            onPress={onBack}
+                            variant="text"
+                            style={styles.backButton}
+                        />
+                        <Button
+                            title="Next"
+                            onPress={onNext}
+                            variant="primary"
+                            size="lg"
+                            style={[
+                                styles.nextButton,
+                                !selectedRole && styles.nextButtonDisabled
+                            ]}
+                            disabled={!selectedRole}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
+        </LinearGradient>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -141,7 +133,7 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     headline: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '700',
         color: '#333333',
         marginBottom: 8,
@@ -152,61 +144,47 @@ const styles = StyleSheet.create({
         color: '#666666',
         textAlign: 'center',
     },
-    formContainer: {
+    selectionContainer: {
         marginBottom: 32,
     },
-    inputGroup: {
+    rolesGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         marginBottom: 24,
     },
-    label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333333',
-        marginBottom: 8,
-    },
-    pickerContainer: {
+    roleCard: {
+        width: '48%',
+        aspectRatio: 1,
         backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#E5E5E5',
-        overflow: 'hidden',
-    },
-    picker: {
-        height: 50,
-    },
-    privacySection: {
-        marginTop: 24,
-        marginBottom: 32,
-    },
-    privacyNotice: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F8F8F8',
+        borderRadius: 16,
         padding: 16,
-        borderRadius: 12,
         marginBottom: 16,
-    },
-    privacyCheckbox: {
-        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#E5E5E5',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        height: 120, // Make cards slightly taller
+    },
+    roleCardSelected: {
+        borderColor: '#EE6567',
+        backgroundColor: '#FFF5F5',
+    },
+    roleTitle: {
         marginTop: 8,
-    },
-    checkboxLabel: {
-        flex: 1,
-        marginLeft: 8,
         fontSize: 14,
+        fontWeight: '600',
         color: '#666666',
-        lineHeight: 20,
+        textAlign: 'center',
+        lineHeight: 18,
     },
-    privacyText: {
-        fontSize: 14,
-        color: '#666666',
-        marginLeft: 8,
-        flex: 1,
-    },
-    privacyLink: {
+    roleTitleSelected: {
         color: '#EE6567',
-        textDecorationLine: 'underline',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -229,5 +207,22 @@ const styles = StyleSheet.create({
     },
     nextButtonDisabled: {
         opacity: 0.5,
+    },
+    descriptionWrapper: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingHorizontal: 8,
+        marginBottom: 32,
+    },
+    infoIcon: {
+        marginRight: 8,
+        marginTop: 2,
+    },
+    descriptionText: {
+        flex: 1,
+        fontSize: 14,
+        lineHeight: 20,
+        color: '#666666',
+        textAlign: 'left',
     },
 });

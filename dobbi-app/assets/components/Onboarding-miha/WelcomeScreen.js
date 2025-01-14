@@ -11,28 +11,28 @@ export default function WelcomeScreen({ onNext, currentStep = 1, totalSteps = 6 
     const buttonScaleAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-            Animated.stagger(200, [  // Stagger animations for better flow
-                Animated.parallel([
-                    Animated.timing(fadeAnim, {
-                        toValue: 1,
-                        duration: 1000,
-                        useNativeDriver: true,
-                    }),
-                    Animated.spring(slideAnim, {  // Changed to spring for smoother motion
-                        toValue: 0,
-                        friction: 8,
-                        tension: 40,
-                        useNativeDriver: true,
-                    }),
-                ]),
-                Animated.spring(scaleAnim, {
+        Animated.stagger(200, [  // Stagger animations for better flow
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
                     toValue: 1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+                Animated.spring(slideAnim, {  // Changed to spring for smoother motion
+                    toValue: 0,
                     friction: 8,
                     tension: 40,
                     useNativeDriver: true,
                 }),
-            ]).start();
-        }, []);
+            ]),
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                friction: 8,
+                tension: 40,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, []);
 
     // Button animations
     const handlePressIn = () => {
@@ -81,10 +81,6 @@ export default function WelcomeScreen({ onNext, currentStep = 1, totalSteps = 6 
                         Welcome to Dobbi!
                     </Text>
 
-                    <Text style={styles.subheadline}>
-                        Take control of your financial future
-                    </Text>
-
                     <Text style={styles.description}>
                         We're excited to have you on board. Let's get started with a few quick questions to personalize your experience.
                     </Text>
@@ -111,6 +107,10 @@ export default function WelcomeScreen({ onNext, currentStep = 1, totalSteps = 6 
                     size="sm"
                     style={styles.skipButton}
                 />
+
+                <Text style={styles.privacyNote}>
+                    Your privacy is important to us, and all data is anonymized. Learn more in our <Text style={styles.privacyLink}> Privacy Policy</Text>.
+                </Text>
             </Animated.View>
         </LinearGradient>
     );
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     description: {
-        fontSize: 16,
+        fontSize: 18,
         color: '#666666',
         textAlign: 'center',
         lineHeight: 24,
@@ -194,5 +194,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderWidth: 0,
         paddingVertical: 8,
+    },
+    privacyNote: {
+        fontSize: 12,
+        color: '#666666',
+        textAlign: 'center',
+        marginTop: 16,
+    },
+    privacyLink: {
+        color: '#EE6567',
+        textDecorationLine: 'underline',
     }
 });
