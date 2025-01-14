@@ -29,6 +29,7 @@
     "@react-navigation/native": "^6.1.18",
     "@supabase/supabase-js": "^2.47.10",
     "country-state-city": "^3.2.1",
+    "date-fns": "^4.1.0",
     "eas": "^0.1.0",
     "expo": "52.0.19",
     "expo-application": "^6.0.1",
