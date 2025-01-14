@@ -31,9 +31,15 @@ export const NetCashFlow = () => {
 
       if (error) throw new Error(error.message);
 
-      const [result] = data || [{ total_income: 0, total_expense: 0 }];
-      setIncome(result.total_income || 0);
-      setExpense(result.total_expense || 0);
+      // If no data exists or data array is empty, use default values
+      if (!data || data.length === 0) {
+        setIncome(0);
+        setExpense(0);
+      } else {
+        const [result] = data;
+        setIncome(result.total_income || 0);
+        setExpense(result.total_expense || 0);
+      }
     } catch (err) {
       console.error('Error fetching financial data:', err.message);
       setError(err.message || 'Error al obtener los datos financieros.');
