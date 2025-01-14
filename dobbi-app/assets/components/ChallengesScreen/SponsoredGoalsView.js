@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Text, ScrollView } from 'react-native';
 import { supabase } from '../../../config/supabaseClient';
 import { ChallengeCard } from './ChallengeCard';
-import { styles } from '../../styles/marketplace';
+import { styles } from '../../styles/challenges';
 
 const SponsoredGoalsView = ({ userId, refreshTrigger, onGoalUpdate }) => {
     const [sponsoredChallenges, setSponsoredChallenges] = useState([]);
@@ -51,11 +51,8 @@ const SponsoredGoalsView = ({ userId, refreshTrigger, onGoalUpdate }) => {
 
     return (
         <ScrollView 
-            style={[
-                styles.container,
-                { paddingHorizontal: 0 } // Quita el padding horizontal del contenedor
-            ]}
-            contentContainerStyle={{ paddingBottom: 16 }} // Añade padding bottom para scroll
+            style={styles.sponsoredContainer}
+            contentContainerStyle={{ backgroundColor: '#FFF5F5' }} // Añade padding bottom para scroll
         >
             {sponsoredChallenges.length > 0 ? (
                 sponsoredChallenges.map((challenge) => (

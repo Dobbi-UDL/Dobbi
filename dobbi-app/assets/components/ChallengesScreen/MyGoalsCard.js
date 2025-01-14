@@ -5,6 +5,7 @@ import Card from '../common/Card';
 import * as Progress from 'react-native-progress';
 import i18n from '../../../i18n';
 import GoalManagementMenu from './GoalManagementMenu';
+import { styles } from '../../styles/challenges';
 
 const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -82,40 +83,40 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }
 
     return (
         <Card style={[
-            localStyles.card,
+            styles.card,
             { marginBottom: isMenuOpen ? 8 : 16 },
-            isHighlighted && localStyles.highlightedCard // Añade el estilo de resaltado si es necesario
+            isHighlighted && styles.highlightedCard // Añade el estilo de resaltado si es necesario
         ]}>
             <TouchableOpacity 
                 onPress={toggleMenu}
                 activeOpacity={0.8}
             >
-                <View style={localStyles.container}>
+                <View style={styles.container}>
                     {/* Header Section */}
-                    <View style={localStyles.headerContainer}>
-                        <Text style={localStyles.titleText} numberOfLines={2}>
+                    <View style={styles.headerContainer}>
+                        <Text style={styles.titleText} numberOfLines={2}>
                             {goal.title || i18n.t('untitled_goal')}
                         </Text>
-                        <View style={localStyles.rewardBadge}>
+                        <View style={styles.rewardBadge}>
                             <Icon name="gift" size={16} color="#fff" />
-                            <Text style={localStyles.rewardText}>
+                            <Text style={styles.rewardText}>
                                 {goal.points_rewards || 0} {i18n.t('pts')}
                             </Text>
                         </View>
                     </View>
 
                     {/* Goal Progress Details */}
-                    <View style={localStyles.progressContainer}>
-                        <View style={localStyles.amountSection}>
+                    <View style={styles.progressContainer}>
+                        <View style={styles.amountSection}>
                             <View>
-                                <Text style={localStyles.currentAmountText}>
+                                <Text style={styles.currentAmountText}>
                                     {formatCurrency(goal.current_amount || 0)}
                                 </Text>
-                                <Text style={localStyles.targetAmountText}>
+                                <Text style={styles.targetAmountText}>
                                     {i18n.t('of')} {formatCurrency(goal.target_amount || 0)}
                                 </Text>
                             </View>
-                            <Text style={localStyles.progressPercentageText}>
+                            <Text style={styles.progressPercentageText}>
                                 {(progressPercentage * 100).toFixed(0)}%
                             </Text>
                         </View>
@@ -127,21 +128,21 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }
                             color="#ff6b6b"
                             unfilledColor="#e0e0e0"
                             borderWidth={0}
-                            style={localStyles.progressBar}
+                            style={styles.progressBar}
                         />
 
                         {/* Goal Status and Additional Information */}
-                        <View style={localStyles.goalInfoContainer}>
-                            <View style={localStyles.dateContainer}>
+                        <View style={styles.goalInfoContainer}>
+                            <View style={styles.dateContainer}>
                                 <Icon name="calendar" size={16} color="#7f8c8d" />
-                                <Text style={localStyles.dateText}>
+                                <Text style={styles.dateText}>
                                     {i18n.t('ends_on')}: {formatDate(goal.end_date)}
                                 </Text>
                             </View>
                             
                             {goal.goal_status && (
                                 <View style={[
-                                    localStyles.statusBadge, 
+                                    styles.statusBadge, 
                                     { backgroundColor: getGoalStatusColor(goal.goal_status) }
                                 ]}>
                                     <Icon 
@@ -149,7 +150,7 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }
                                         size={16} 
                                         color="#ffffff" 
                                     />
-                                    <Text style={localStyles.statusText}>
+                                    <Text style={styles.statusText}>
                                         {goal.goal_status}
                                     </Text>
                                 </View>
@@ -169,126 +170,5 @@ const MyGoalsCard = ({ goal, onStatusChange, onEdit, onAddMoney, isHighlighted }
         </Card>
     );
 };
-
-const localStyles = StyleSheet.create({
-    goalInfoContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    statusBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
-    },
-    statusText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: '600',
-        marginLeft: 5,
-        textTransform: 'capitalize',
-    }, 
-    container: {
-        marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        margin: 10,
-    },
-    card: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 0,
-        marginVertical: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-    titleText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#2c3e50',
-        flex: 1,
-        marginRight: 10,
-    },
-    rewardBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#ff6b6b',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 20,
-    },
-    rewardText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: '600',
-        marginLeft: 5,
-    },
-    progressContainer: {
-        padding: 16,
-        backgroundColor: '#FFFFFF',
-    },
-    amountSection: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    currentAmountText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#2c3e50',
-    },
-    targetAmountText: {
-        fontSize: 14,
-        color: '#7f8c8d',
-    },
-    progressPercentageText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#ff6b6b',
-    },
-    progressBar: {
-        height: 8,
-        borderRadius: 4,
-        marginBottom: 12,
-    },
-    goalInfoContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    dateContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    dateText: {
-        marginLeft: 8,
-        fontSize: 14,
-        color: '#7f8c8d',
-    },
-    cardExpanded: {
-        marginBottom: 24,
-    },
-    highlightedCard: {
-        borderWidth: 2,
-        borderColor: '#ff6b6b',
-        transform: [{scale: 1.02}],
-    },
-});
 
 export default MyGoalsCard;

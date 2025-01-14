@@ -57,6 +57,27 @@ export const ChallengeCard = ({ challenge, onRefresh }) => {
                     goal_status: 'pending'
                 });
 
+            console.log
+
+            const { data, error: statisticsError } = await supabase
+                .from('goal_statistics')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('goal_id', challenge.id)
+                .eq('type_action', 'redemption');
+
+            if (statisticsError) {
+                console.error('Error checking interaction:', statisticsError);
+            } else if (data.length === 0) {
+                const { error: insertStatisticsError } = await supabase
+                    .from('goal_statistics')
+                    .insert([{ user_id: user.id, type_action: 'redemption', goal_id: challenge.id }]);
+
+                if (insertStatisticsError) {
+                    console.error('Error inserting interaction:', insertStatisticsError);
+                }
+            }
+
             if (trackingError) throw trackingError;
 
             Alert.alert("Success", "Challenge accepted successfully!");
@@ -72,58 +93,99 @@ export const ChallengeCard = ({ challenge, onRefresh }) => {
         }
     };
 
+    const handleChallengeClick = async () => {
+        if (!user?.id) {
+            console.error("No user ID available");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('goal_statistics')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('goal_id', challenge.id)
+                .eq('type_action', 'click');
+
+            if (error) {
+                console.error('Error checking interaction:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                const { error: insertError } = await supabase
+                    .from('goal_statistics')
+                    .insert([{
+                        user_id: user.id,
+                        goal_id: challenge.id,
+                        type_action: 'click'
+                    }]);
+
+                if (insertError) {
+                    console.error('Error inserting interaction:', insertError);
+                } else {
+                    console.log(`Challenge ${challenge.id} clicked`);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling challenge click:', error);
+        }
+    };
+
     return (
-        <Card style={localStyles.card}>
-            {/* Header with Title and Points */}
-            <View style={localStyles.header}>
-                <Text style={localStyles.title} numberOfLines={2}>
-                    {challenge.title || i18n.t('title_placeholder')}
-                </Text>
-                <View style={localStyles.points}>
-                    <Icon name="gift" size={16} color="#fff" />
-                    <Text style={localStyles.pointsText}>
-                        {challenge.points_rewards || 0} {i18n.t('pts')}
+        <TouchableOpacity onPress={handleChallengeClick}>
+            <Card style={localStyles.card}>
+                {/* Header with Title and Points */}
+                <View style={localStyles.header}>
+                    <Text style={localStyles.title} numberOfLines={2}>
+                        {challenge.title || i18n.t('title_placeholder')}
                     </Text>
+                    <View style={localStyles.points}>
+                        <Icon name="gift" size={16} color="#fff" />
+                        <Text style={localStyles.pointsText}>
+                            {challenge.points_rewards || 0} {i18n.t('pts')}
+                        </Text>
+                    </View>
                 </View>
-            </View>
 
-            {/* Description */}
-            <Text style={localStyles.description} numberOfLines={2}>
-                {challenge.description || i18n.t('description_placeholder')}
-            </Text>
-
-            {/* Metrics Grid */}
-            <View style={localStyles.metrics}>
-                <MetricItem
-                    icon="cash"
-                    value={formatCurrency(challenge.monthly_saving)}
-                    label={i18n.t('monthly_amount')}
-                    color="#4CAF50"
-                />
-                <MetricItem
-                    icon="target"
-                    value={formatCurrency(challenge.target_amount)}
-                    label={i18n.t('target_amount')}
-                    color="#2196F3"
-                />
-                <MetricItem
-                    icon="calendar"
-                    value={formatDate(challenge.expiring_date)}
-                    label={i18n.t('expiring_date')}
-                    color="#FF9800"
-                />
-            </View>
-
-            {/* Accept Button */}
-            <TouchableOpacity 
-                style={localStyles.button} 
-                onPress={handleAssignChallenge}
-            >
-                <Text style={localStyles.buttonText}>
-                    {i18n.t('accept_challenge')}
+                {/* Description */}
+                <Text style={localStyles.description} numberOfLines={2}>
+                    {challenge.description || i18n.t('description_placeholder')}
                 </Text>
-            </TouchableOpacity>
-        </Card>
+
+                {/* Metrics Grid */}
+                <View style={localStyles.metrics}>
+                    <MetricItem
+                        icon="cash"
+                        value={formatCurrency(challenge.monthly_saving)}
+                        label={i18n.t('monthly_amount')}
+                        color="#4CAF50"
+                    />
+                    <MetricItem
+                        icon="target"
+                        value={formatCurrency(challenge.target_amount)}
+                        label={i18n.t('target_amount')}
+                        color="#2196F3"
+                    />
+                    <MetricItem
+                        icon="calendar"
+                        value={formatDate(challenge.expiring_date)}
+                        label={i18n.t('expiring_date')}
+                        color="#FF9800"
+                    />
+                </View>
+
+                {/* Accept Button */}
+                <TouchableOpacity 
+                    style={localStyles.button} 
+                    onPress={handleAssignChallenge}
+                >
+                    <Text style={localStyles.buttonText}>
+                        {i18n.t('accept_challenge')}
+                    </Text>
+                </TouchableOpacity>
+            </Card>
+        </TouchableOpacity>
     );
 };
 

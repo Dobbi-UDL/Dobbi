@@ -9,6 +9,7 @@ import { UserPointsDisplay } from '../assets/components/OffersScreen/UserPointsD
 import Header from '../assets/components/Header/Header';
 import { useLanguage } from '@languagecontext';
 import { useLocalSearchParams } from 'expo-router';
+import { styles } from '../assets/styles/offers';
 
 const OffersScreen = () => {
   const { locale } = useLanguage();
@@ -92,14 +93,14 @@ const OffersScreen = () => {
         .select(`
           *,
           companies:company_id (
-            name
+        name
           ),
           offer_interactions(user_id)
         `)
-        .eq('offer_interactions.user_id', userId);
-  
+        .eq('offer_interactions.user_id', userId)
+        .eq('offer_interactions.type_action', 'redeem');
+        
       if (error) throw error;
-  
       const processedOffers = data.map(offer => ({
         ...offer,
         isRedeemed: offer.offer_interactions?.length > 0,
@@ -249,6 +250,11 @@ const OffersScreen = () => {
     });
   };
 
+  const handleOfferView = (offerId) => {
+    console.log(`Offer ${offerId} viewed`);
+    // Add your logic here
+  };
+
   // Move all callbacks to top level and memoize them
   const handleRedeem = useCallback((offerId) => {
     redeemOffer(offerId);
@@ -258,15 +264,19 @@ const OffersScreen = () => {
     setExpandedOfferId(id);
   }, []);
 
-  const renderItem = useCallback(({ item }) => (
-    <OfferCard 
-      offer={item}
-      userPoints={userPoints}
-      onRedeem={() => handleRedeem(item.id)}
-      isExpanded={expandedOfferId === item.id}
-      onToggleExpand={handleToggleExpand}
-    />
-  ), [userPoints, expandedOfferId, handleRedeem, handleToggleExpand]);
+  const renderItem = useCallback(({ item }) => {
+    // handleOfferView(item.id); // Call handleOfferView when the offer card is viewed
+    return (
+      <OfferCard 
+        offer={item}
+        userPoints={userPoints}
+        onRedeem={() => handleRedeem(item.id)}
+        isExpanded={expandedOfferId === item.id}
+        onToggleExpand={handleToggleExpand}
+        userId={userId} // Pass handleOfferClick to OfferCard
+      />
+    );
+  }, [userPoints, expandedOfferId, handleRedeem, handleToggleExpand]);
 
   const keyExtractor = useCallback((item) => item.id.toString(), []);
 
@@ -319,34 +329,5 @@ const OffersScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF5F5",
-  },
-  mainContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  listContent: {
-    paddingTop: 4, // Added small padding to separate from filters
-    paddingBottom: 80,
-  },
-  filterSection: {
-    position: 'relative',
-    zIndex: 1,
-    marginTop: 4, // Reduced from 8
-  },
-  fixedFilterContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFF5F5',
-    zIndex: 2,
-    paddingVertical: 8,
-  },
-});
 
 export default OffersScreen;
