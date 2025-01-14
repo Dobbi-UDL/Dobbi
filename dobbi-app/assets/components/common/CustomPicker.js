@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export const CustomPicker = ({ 
     label,
@@ -8,7 +10,8 @@ export const CustomPicker = ({
     placeholder,
     options,
     onSelect,
-    icon
+    icon,
+    defaultIcon // Add defaultIcon prop
 }) => {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -18,20 +21,24 @@ export const CustomPicker = ({
     };
 
     const selectedOption = options.find(opt => opt.value === value);
+    const displayIcon = selectedOption?.icon || defaultIcon;
 
     return (
         <View style={styles.container}>
             {label && <Text style={styles.label}>{label}</Text>}
             <TouchableOpacity 
-                style={styles.pickerContainer}
+                style={[
+                    styles.pickerContainer,
+                    selectedOption && styles.pickerContainerSelected
+                ]}
                 onPress={() => setIsOpen(true)}
             >
                 <View style={styles.pickerContent}>
-                    {icon && (
+                    {displayIcon && (
                         <MaterialIcons
-                            name={icon}
+                            name={displayIcon}
                             size={20}
-                            color="#666666"
+                            color={selectedOption ? '#EE6567' : '#666666'}
                             style={styles.iconLeft}
                         />
                     )}
@@ -57,12 +64,27 @@ export const CustomPicker = ({
                     activeOpacity={1}
                     onPress={() => setIsOpen(false)}
                 >
-                    <View style={styles.modalContent}>
+                    <TouchableOpacity
+                        style={styles.modalContent}
+                        activeOpacity={1}
+                    >
+                        <View style={styles.modalHeader}>
+                            <TouchableOpacity 
+                                onPress={() => setIsOpen(false)}
+                                style={styles.closeButton}
+                            >
+                                <MaterialIcons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
+                            <Text style={styles.modalTitle}>{placeholder}</Text>
+                        </View>
                         <ScrollView>
                             {options.map((option) => (
                                 <TouchableOpacity
                                     key={option.value}
-                                    style={styles.option}
+                                    style={[
+                                        styles.option,
+                                        value === option.value && styles.optionSelected
+                                    ]}
                                     onPress={() => handleSelect(option)}
                                 >
                                     {option.icon && (
@@ -75,7 +97,7 @@ export const CustomPicker = ({
                                     )}
                                     <Text style={[
                                         styles.optionText,
-                                        value === option.value && styles.optionTextSelected
+                                        value === option.value && { color: '#EE6567', fontWeight: '600' }
                                     ]}>
                                         {option.label}
                                     </Text>
@@ -89,7 +111,7 @@ export const CustomPicker = ({
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
-                    </View>
+                    </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
         </View>
@@ -114,9 +136,13 @@ const styles = StyleSheet.create({
     pickerContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: '#E5E5E5',
         height: 50,
+    },
+    pickerContainerSelected: {
+        borderColor: '#EE6567',
+        backgroundColor: '#FFF5F5',
     },
     pickerContent: {
         flex: 1,
@@ -131,7 +157,8 @@ const styles = StyleSheet.create({
     selectedText: {
         flex: 1,
         fontSize: 16,
-        color: '#333333',
+        color: '#EE6567',
+        fontWeight: '600',
     },
     placeholderText: {
         flex: 1,
@@ -141,20 +168,41 @@ const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
+        justifyContent: 'flex-end'
     },
     modalContent: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        width: '100%',
-        maxHeight: 300,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        maxHeight: SCREEN_HEIGHT * 0.9,
+        minHeight: SCREEN_HEIGHT * 0.5,
+        paddingBottom: 20,
+        // Add shadow for iOS
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOffset: {
+            width: 0,
+            height: -3,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 5,
+        // Add elevation for Android
         elevation: 5,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E5E5',
+    },
+    closeButton: {
+        padding: 4,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+        marginLeft: 12,
     },
     option: {
         flexDirection: 'row',
@@ -162,6 +210,13 @@ const styles = StyleSheet.create({
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#E5E5E5',
+    },
+    optionSelected: {
+        backgroundColor: '#FFF5F5',
+        borderTopWidth: 2,
+        borderBottomWidth: 2,
+        borderColor: '#EE6567',
+        borderRadius: 0,
     },
     optionIcon: {
         marginRight: 12,

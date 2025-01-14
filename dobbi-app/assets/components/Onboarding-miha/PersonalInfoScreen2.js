@@ -8,14 +8,25 @@ import { locationService } from '../../../services/locationService';
 import { CustomPicker } from '../common/CustomPicker';
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, totalSteps = 6 }) {
+export default function PersonalInfoScreen2({ onNext, onBack, data, onDataUpdate, currentStep = 3, totalSteps = 6 }) {
     const [countries, setCountries] = useState([]);
     const [regions, setRegions] = useState([]);
-    const [selectedCountry, setSelectedCountry] = useState(null);
-    const [selectedRegion, setSelectedRegion] = useState(null);
-    const [age, setAge] = useState('');
-    const [gender, setGender] = useState('');
-    const [education, setEducation] = useState('');
+    const [selectedCountry, setSelectedCountry] = useState(data?.country || null);
+    const [selectedRegion, setSelectedRegion] = useState(data?.region || null);
+    const [age, setAge] = useState(data?.age || '');
+    const [gender, setGender] = useState(data?.gender || '');
+    const [education, setEducation] = useState(data?.education || '');
+
+    // Update parent state when any selection changes
+    useEffect(() => {
+        onDataUpdate('personal2', {
+            age,
+            gender,
+            education,
+            country: selectedCountry,
+            region: selectedRegion
+        });
+    }, [age, gender, education, selectedCountry, selectedRegion]);
 
     useEffect(() => {
         loadCountries();
@@ -92,7 +103,7 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
                 <View style={styles.formContainer}>
                     <CustomPicker
                         label="What is your age?"
-                        icon="cake"
+                        defaultIcon="cake"
                         placeholder="Select age"
                         options={AGE_OPTIONS}
                         value={age}
@@ -101,7 +112,7 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
 
                     <CustomPicker
                         label="What is your gender?"
-                        icon="person"
+                        defaultIcon="person"
                         placeholder="Select gender"
                         options={GENDER_OPTIONS}
                         value={gender}
@@ -110,7 +121,7 @@ export default function PersonalInfoScreen2({ onNext, onBack, currentStep = 3, t
 
                     <CustomPicker
                         label="What is your highest level of education?"
-                        icon="school"
+                        defaultIcon="school"
                         placeholder="Select education level"
                         options={EDUCATION_OPTIONS}
                         value={education}
@@ -191,10 +202,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     formContainer: {
-        marginBottom: 24, // Match standard spacing
+        marginBottom: 24,
     },
     inputGroup: {
-        marginBottom: 20, // Slightly reduced for better overall spacing
+        marginBottom: 20,
     },
     labelContainer: {
         flexDirection: 'row',
@@ -205,7 +216,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#333333',
-        marginRight: 8,
+        marginBottom: 8,
     },
     labelIcon: {
         marginTop: 2,
@@ -216,7 +227,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E5E5E5',
         overflow: 'hidden',
-        height: 50, // Match standard input height
+        height: 50,
     },
     picker: {
         height: 50,

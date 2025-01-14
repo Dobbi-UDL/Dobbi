@@ -23,7 +23,8 @@ export const SearchablePicker = ({
     items,
     onSearch,
     onSelect,
-    isLoading
+    isLoading,
+    icon
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -79,23 +80,32 @@ export const SearchablePicker = ({
     return (
         <View style={styles.container}>
             <TouchableOpacity 
-                style={styles.header}
+                style={[
+                    styles.header,
+                    value && styles.headerSelected
+                ]}
                 onPress={animateIn}
             >
                 <View style={styles.headerContent}>
+                    {icon && (
+                        <MaterialIcons
+                            name={icon}
+                            size={20}
+                            color={value ? '#EE6567' : '#666666'}
+                            style={styles.headerIcon}
+                        />
+                    )}
                     <Text 
                         style={[styles.headerText, value ? styles.value : styles.placeholder]}
                         numberOfLines={1}
                     >
                         {value || placeholder}
                     </Text>
-                    <View style={styles.iconContainer}>
-                        <MaterialIcons 
-                            name={isOpen ? "arrow-drop-up" : "arrow-drop-down"} 
-                            size={24} 
-                            color="#666"
-                        />
-                    </View>
+                    <MaterialIcons 
+                        name={isOpen ? "arrow-drop-up" : "arrow-drop-down"} 
+                        size={24} 
+                        color="#666"
+                    />
                 </View>
             </TouchableOpacity>
 
@@ -122,7 +132,7 @@ export const SearchablePicker = ({
                                         >
                                             <MaterialIcons name="close" size={24} color="#333" />
                                         </TouchableOpacity>
-                                        <Text style={styles.modalTitle}>Select {placeholder.toLowerCase()}</Text>
+                                        <Text style={styles.modalTitle}>{placeholder}</Text>
                                     </View>
 
                                     <View style={styles.searchContainer}>
@@ -141,10 +151,13 @@ export const SearchablePicker = ({
                                         keyExtractor={(item) => item.id.toString()}
                                         renderItem={({ item }) => (
                                             <TouchableOpacity 
-                                                style={styles.item}
+                                                style={[
+                                                    styles.item,
+                                                    value === item.name && styles.itemSelected
+                                                ]}
                                                 onPress={() => handleSelect(item)}
                                             >
-                                                <Text style={styles.itemText}>{item.name}</Text>
+                                                <Text style={[styles.itemText, value === item.name && styles.itemTextSelected]}>{item.name}</Text>
                                             </TouchableOpacity>
                                         )}
                                         style={styles.list}
@@ -165,18 +178,27 @@ const styles = StyleSheet.create({
         position: 'relative',
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#E5E5E5',
+        // Remove the container border
     },
     header: {
         height: 50, // Match Picker height
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: '#E5E5E5',
+    },
+    headerSelected: {
+        borderColor: '#EE6567',
+        backgroundColor: '#FFF5F5',
     },
     headerContent: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingLeft: 10,
-        paddingRight: 4,
+        paddingHorizontal: 12,
+    },
+    headerIcon: {
+        marginRight: 12,
     },
     headerText: {
         flex: 1,
@@ -194,7 +216,8 @@ const styles = StyleSheet.create({
         color: '#999999',
     },
     value: {
-        color: '#333333',
+        color: '#EE6567',
+        fontWeight: '600',
     },
     modalOverlay: {
         flex: 1,
@@ -256,12 +279,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     item: {
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#E5E5E5',
     },
+    itemSelected: {
+        backgroundColor: '#FFF5F5',
+        borderTopWidth: 2,
+        borderBottomWidth: 2,
+        borderColor: '#EE6567',
+        borderRadius: 0,
+    },
     itemText: {
         fontSize: 16,
         color: '#333333',
+    },
+    itemTextSelected: {
+        color: '#EE6567',
+        fontWeight: '600',
     },
 });

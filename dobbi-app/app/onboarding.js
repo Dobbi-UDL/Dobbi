@@ -21,7 +21,41 @@ export default function OnboardingScreen() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationTrigger, setAnimationTrigger] = useState(0);
-  const totalSteps = 6; // Update total steps
+  // Add onboarding data state
+  const [onboardingData, setOnboardingData] = useState({
+    // PersonalInfoScreen1
+    role: null,
+
+    // PersonalInfoScreen2
+    age: '',
+    gender: '',
+    education: '',
+    country: null,
+    region: null,
+
+    // MotivationScreen
+    motivations: [],
+    goals: [],
+    otherMotivation: '',
+    otherGoal: '',
+
+    // FinancialContextScreen
+    experience: null,
+    savings: null,
+    situation: null,
+    debtTypes: [],
+    otherDebt: ''
+  });
+
+  // Update data handler
+  const handleDataUpdate = (screen, data) => {
+    setOnboardingData(prev => ({
+      ...prev,
+      ...data
+    }));
+  };
+
+  const totalSteps = 7; // Update total steps
   const router = useRouter();
   
   const translateX = useRef(new Animated.Value(0)).current;
@@ -33,7 +67,9 @@ export default function OnboardingScreen() {
       currentStep: step,
       totalSteps,
       onNext: handleNext,
-      onBack: handleBack
+      onBack: handleBack,
+      data: onboardingData,
+      onDataUpdate: handleDataUpdate
     };
 
     switch (step) {
@@ -49,6 +85,8 @@ export default function OnboardingScreen() {
         return <FinancialContextScreen {...commonProps} />;
       case 6:
         return <NotificationScreen {...commonProps} />;
+      case 7:
+        return <CompletionScreen {...commonProps} />;
       default:
         return null;
     }
