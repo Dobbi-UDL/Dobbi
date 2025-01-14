@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  StyleSheet,
   TextInput,
   Alert,
 } from "react-native";
@@ -9,7 +10,6 @@ import { CustomModal } from "../common/Modal";
 import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
 import i18n from "../../../i18n"
-import { styles } from "../../styles/challenges";
 import { addExperiencePoints } from '../../../utils/experienceSystem';
 
 export const AddContributionForm = ({ visible, onClose, goal, onContributionAdded }) => {
@@ -171,3 +171,45 @@ export const AddContributionForm = ({ visible, onClose, goal, onContributionAdde
     </CustomModal>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  section: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+  amountInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
+  },
+  currencySymbol: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingHorizontal: 12,
+    color: "#333",
+  },
+  amountInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 8,
+  },
+});

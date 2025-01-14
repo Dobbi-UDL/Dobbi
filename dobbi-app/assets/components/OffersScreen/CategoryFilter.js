@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
-import { styles } from '../../styles/offers';
+import { styles } from '../../styles/marketplace';
 import i18n from '../../../i18n';
 
 export const CategoryFilter = ({ categories, onSelectCategories, showRedeemed, onShowRedeemed }) => {

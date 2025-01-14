@@ -14,7 +14,6 @@ import { Button } from "../common/Button";
 import { supabase } from "../../../config/supabaseClient";
 import i18n from "../../../i18n"
 import { calculateGoalMetrics } from '../../utils/goalCalculations';
-import { styles } from "../../styles/challenges";
 
 export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
   const [title, setTitle] = useState("");
@@ -196,7 +195,7 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
       onSubmit={handleSubmit}  // Añadir esta prop
       fullWidth={true}         // Añadir esta prop
     >
-      <View style={styles.EditGoalContainer}>
+      <View style={styles.container}>
         {/* Title */}
         <View style={styles.section}>
           <Text style={styles.label}>{i18n.t('goal_title')}</Text>
@@ -257,14 +256,32 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
         {/* Expiring Date */}
         <View style={styles.section}>
           <Text style={styles.label}>{i18n.t('goal_target_date')}</Text>
-          <View style={styles.dateButtonDisabled}>
-            <Ionicons name="calendar-outline" size={24} color="#999" />
-            <Text style={styles.dateButtonTextDisabled}>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)} // Al tocar, muestra el popup
+          >
+            <Ionicons name="calendar-outline" size={24} color="#EE6567" />
+            <Text style={styles.dateButtonText}>
               {expiringDate instanceof Date && !isNaN(expiringDate.getTime())
                 ? expiringDate.toLocaleDateString()
                 : 'Select date'}
             </Text>
-          </View>
+          </TouchableOpacity>
+
+          {/* Mostrar el popup como un modal solo cuando se toque el botón */}
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={expiringDate instanceof Date && !isNaN(expiringDate.getTime()) 
+                ? expiringDate 
+                : new Date()}
+              mode="date"
+              display="default" // Modo de spinner en dispositivos móviles, tipo popup
+              onChange={handleDateChange}
+              minimumDate={new Date()}
+              style={styles.datePicker}
+            />
+          )}
         </View>
             
         {/* Mostrar información del progreso actual */}
@@ -299,6 +316,105 @@ export const EditGoalForm = ({ visible, onClose, goal, onGoalUpdated }) => {
       </View>
     </CustomModal>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    width: '100%',  // Cambiar a 100%
+  },
+  section: {
+    marginBottom: 16,
+    width: '100%',  // Asegurar que las secciones ocupen todo el ancho
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  multilineInput: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  amountInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
+  },
+  currencySymbol: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingHorizontal: 12,
+    color: "#333",
+  },
+  amountInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+  },
+  dateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
+    padding: 12,
+  },
+  dateButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  submitButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: '100%',  // Asegurar que el contenedor de botones ocupe todo el ancho
+    marginTop: 16,
+  },
+  submitButton: {
+    flex: 1,
+    marginHorizontal: 8,
+    minWidth: 120,  // Asegurar un ancho mínimo para los botones
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
+  },
+  progressInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  inputError: {
+    borderColor: '#ff0000',
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 12,
+    marginTop: 4,
+  },
+});
 
 export default EditGoalForm;

@@ -5,6 +5,7 @@ import { styles } from '../../styles/offers';
 import Card from '../common/Card';
 import i18n from '../../../i18n';
 import { supabase } from '../../../config/supabaseClient';
+
 export const OfferCard = memo(({ offer, userPoints, onRedeem, isExpanded, onToggleExpand, userId}) => {
   const [showCode, setShowCode] = useState(offer.isRedeemed);
   const canRedeem = userPoints >= offer.points_required;
