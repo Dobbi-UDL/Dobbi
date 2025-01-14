@@ -11,8 +11,11 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIViewControllerBasedStatusBarAppearance": true
-      }
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "NSFaceIDUsageDescription": "This app uses Face ID to securely log you in to your account.",
+        "NSFaceIDUsageDescription_es": "Esta aplicación utiliza Face ID para iniciar sesión de forma segura en tu cuenta."
+      },
+      "bundleIdentifier": "eric"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +26,11 @@
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE",
-        "ACCESS_MEDIA_LOCATION"
+        "ACCESS_MEDIA_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -39,6 +46,13 @@
           "photosPermission": "Allow Dobbi to access your photos.",
           "savePhotosPermission": "Allow Dobbi to save photos."
         }
+      ],
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+        }
       ]
     ],
     "extra": {
@@ -51,7 +65,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "sdkVersion": "52.0.0"
   }
 }

@@ -15,6 +15,15 @@
   "noAccount": "¿No tienes una cuenta?",
   "register": "Regístrate",
 
+  "login_with_biometrics": "Iniciar sesión con biometría",
+  "enable_biometrics": "Autenticación Biométrica",
+  "enable_biometrics_prompt": "¿Deseas habilitar el inicio de sesión con biometría?",
+  "biometric_auth_prompt": "Autenticar con huella dactilar",
+  "biometric_fallback": "Usar contraseña",
+  "permissions_required": "Permisos Requeridos",
+  "biometric_error": "Error en la autenticación biométrica",
+  "login_with_face_id": "Iniciar sesión con Face ID",
+  "face_id_prompt": "Autenticar con Face ID",
   
   "haveAccount": "¿Ya tienes una cuenta?",
   "registerTitle": "Crear Cuenta",
@@ -29,6 +38,8 @@
   "privacy": "Política de Privacidad",
   "terms": "Términos y Condiciones", 
   "logout": "Cerrar Sesión",
+  "logout_confirmation": "¿Estás seguro de que quieres cerrar sesión?",
+  "logout_error": "Error al cerrar sesión. Por favor, inténtalo de nuevo.",
   "editProfile": "Editar Perfil",
   "language": "Idioma",
 
@@ -115,7 +126,7 @@
   "add_contribution_button": "Añadir",
   "contribution_success": "Contribución añadida con éxito",
   "invalid_amount": "Cantidad inválida",
-  "enter_valid_amount": "Por favor, introduce una cantidad v��lida.",
+  "enter_valid_amount": "Por favor, introduce una cantidad válida.",
   
   "goal_updated_success": "El objetivo ha sido actualizado con éxito",
   "contribution_error": "Error al añadir la contribución",
@@ -169,5 +180,17 @@
   "save_changes": "Guardar Cambios",
   "discard_changes": "Descartar Cambios",
   "changes_saved": "Cambios guardados",
-  "error_saving": "Error al guardar"
+  "error_saving": "Error al guardar",
+  
+  "security": "Seguridad",
+  "reset_password": "Restablecer contraseña",
+  "delete_account": "Eliminar cuenta",
+  "delete_account_confirmation": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
+  "delete": "Eliminar",
+  "account_deleted": "Cuenta eliminada",
+  "account_deleted_message": "Tu cuenta ha sido eliminada correctamente.",
+  "delete_account_error": "Error al eliminar la cuenta. Por favor, inténtalo de nuevo.",
+  "password_reset_sent": "Correo enviado",
+  "password_reset_instructions": "Se ha enviado un correo con instrucciones para restablecer tu contraseña.",
+  "password_reset_error": "Error al enviar el correo de restablecimiento."
 }

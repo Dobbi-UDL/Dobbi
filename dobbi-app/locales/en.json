@@ -15,6 +15,16 @@
   "noAccount": "Don't have an account?",
   "register": "Register",
 
+  "login_with_biometrics": "Login with biometrics",
+  "enable_biometrics": "Biometric Authentication",
+  "enable_biometrics_prompt": "Would you like to enable biometric login?",
+  "biometric_auth_prompt": "Authenticate with fingerprint",
+  "biometric_fallback": "Use password",
+  "permissions_required": "Permissions Required",
+  "biometric_error": "Biometric authentication error",
+  "login_with_face_id": "Login with Face ID",
+  "face_id_prompt": "Authenticate with Face ID",
+
   "haveAccount": "Already have an account?",
   "registerTitle": "Create Account",
   "registerSubtitle": "Join Dobbi and start managing your finances",
@@ -28,6 +38,8 @@
   "privacy": "Privacy Policy",
   "terms": "Terms & Conditions",
   "logout": "Log Out",
+  "logout_confirmation": "Are you sure you want to log out?",
+  "logout_error": "Error logging out. Please try again.",
   "editProfile": "Edit Profile",
   "language": "Language",
 
@@ -197,5 +209,17 @@
   "save_changes": "Save Changes",
   "discard_changes": "Discard Changes",
   "changes_saved": "Changes saved",
-  "error_saving": "Error saving"
+  "error_saving": "Error saving",
+  
+  "security": "Security",
+  "reset_password": "Reset Password",
+  "delete_account": "Delete Account",
+  "delete_account_confirmation": "Are you sure you want to delete your account? This action cannot be undone.",
+  "delete": "Delete",
+  "account_deleted": "Account Deleted",
+  "account_deleted_message": "Your account has been successfully deleted.",
+  "delete_account_error": "Error deleting account. Please try again.",
+  "password_reset_sent": "Email Sent",
+  "password_reset_instructions": "Password reset instructions have been sent to your email.",
+  "password_reset_error": "Error sending reset password email."
 }
