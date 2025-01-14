@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from '../common/Button';  // Import the Button component
 
-export default function CompletionScreen({ onNext }) {
+export default function CompletionScreen({ onComplete }) {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(50)).current;
     const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -90,7 +90,7 @@ export default function CompletionScreen({ onNext }) {
                 <Animated.View style={{ transform: [{ scale: buttonScaleAnim }], width: '100%', maxWidth: 280 }}>
                     <Button
                         title="Let's Go!"
-                        onPress={onNext}
+                        onPress={onComplete}
                         variant="primary"
                         size="lg"
                         style={styles.button}

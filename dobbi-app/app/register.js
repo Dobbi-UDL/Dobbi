@@ -16,7 +16,7 @@ export default function RegisterScreen() {
   useEffect(() => {
     // Redirect to home if user is authenticated
     if ( user && !authLoading ) {
-      router.replace('/success');
+      router.replace('/onboarding');
     }
   }, [user, authLoading]);
 
@@ -38,6 +38,10 @@ export default function RegisterScreen() {
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleRegistrationComplete = () => {
+    router.replace('/onboarding'); // Direct to onboarding instead of success
   };
 
   return (

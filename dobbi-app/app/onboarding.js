@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { AnimatedProgressIndicator } from '../assets/components/Onboarding-miha/AnimatedProgressIndicator';
+import { onboardingService } from '../services/onboardingService';
+import { useAuth } from '../contexts/AuthContext';
 
 // Screen Components
 import WelcomeScreen from '../assets/components/Onboarding-miha/WelcomeScreen';
@@ -18,6 +20,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
 
 export default function OnboardingScreen() {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationTrigger, setAnimationTrigger] = useState(0);
@@ -44,7 +47,10 @@ export default function OnboardingScreen() {
     savings: null,
     situation: null,
     debtTypes: [],
-    otherDebt: ''
+    otherDebt: '',
+
+    // NotificationScreen
+    notifications: {}
   });
 
   // Update data handler
@@ -61,6 +67,30 @@ export default function OnboardingScreen() {
   const translateX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const panRef = useRef(null);
+
+  const handleCompletion = async () => {
+    try {
+      if (!user) {
+        console.error('No user found in auth context');
+        return;
+      }
+
+      const { success, error } = await onboardingService.saveOnboardingData(
+        user.id,
+        onboardingData
+      );
+
+      if (success) {
+        router.replace('/home');
+      } else {
+        console.error('Failed to save onboarding data:', error);
+        // You might want to show an error message to the user here
+      }
+    } catch (error) {
+      console.error('Error during completion:', error);
+      // Handle error appropriately
+    }
+  };
 
   const getScreen = (step) => {
     const commonProps = {
@@ -86,7 +116,7 @@ export default function OnboardingScreen() {
       case 6:
         return <NotificationScreen {...commonProps} />;
       case 7:
-        return <CompletionScreen {...commonProps} />;
+        return <CompletionScreen {...commonProps} onComplete={handleCompletion} />;
       default:
         return null;
     }

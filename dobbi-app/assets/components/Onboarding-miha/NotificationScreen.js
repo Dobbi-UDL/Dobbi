@@ -38,10 +38,12 @@ const NOTIFICATION_OPTIONS = [
 ];
 
 export default function NotificationScreen({ onNext, onBack, data, onDataUpdate }) {
+    // Initialize with existing data or empty object
     const [preferences, setPreferences] = useState(data?.notifications || {});
 
+    // Update parent state when preferences change
     useEffect(() => {
-        onDataUpdate('notifications', preferences);
+        onDataUpdate('notifications', { notifications: preferences });
     }, [preferences]);
 
     const toggleNotification = (id) => {

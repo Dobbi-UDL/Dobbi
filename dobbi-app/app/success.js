@@ -1,44 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { View, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SuccessHeader } from '../assets/components/SuccessRegister/SuccessHeader';
 import { SuccessContent } from '../assets/components/SuccessRegister/SuccessContent';
-import { styles } from '../assets/styles/success';
 
 const SuccessScreen = () => {
-  const router = useRouter();
-  const [remainingTime, setRemainingTime] = useState(3);
+    const router = useRouter();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setRemainingTime((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const handleContinue = () => {
+        router.replace('/onboarding');
+    };
 
-    return () => clearInterval(timer);
-  }, []);
-
-  // Navigate after countdown completes
-  useEffect(() => {
-    if (remainingTime === 0) {
-      router.replace('/login');
-    }
-  }, [remainingTime, router]);
-
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <SuccessHeader />
-      <SuccessContent remainingTime={remainingTime} />
-    </KeyboardAvoidingView>
-  );
+    return (
+        <View style={styles.container}>
+            <SuccessContent onContinue={handleContinue} />
+        </View>
+    );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+});
 
 export default SuccessScreen;

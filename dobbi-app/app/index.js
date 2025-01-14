@@ -13,7 +13,7 @@ const WelcomeScreen = () => {
   const handleRegisterPress = () => {
     console.log('WelcomeScreen: Register button pressed');
     try {
-      router.push('/onboarding');
+      router.push('/register');
     } catch (error) {
       console.error('Error navigating to register:', error);
     }

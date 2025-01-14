@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Button } from '../common/Button';
 
 const MOTIVATIONS = [
-    { id: 'track', title: 'Track my spending', icon: 'account-balance-wallet' },
+    { id: 'track', title: 'Track spending', icon: 'account-balance-wallet' },
     { id: 'budget', title: 'Create a budget', icon: 'pie-chart' },
     { id: 'save', title: 'Save for specific goals', icon: 'savings' },
     { id: 'rewards', title: 'Redeem rewards and deals', icon: 'card-giftcard' },
