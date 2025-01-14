@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomModal } from "../common/Modal";
