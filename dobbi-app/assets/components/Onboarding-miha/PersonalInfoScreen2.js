@@ -7,6 +7,7 @@ import { SearchablePicker } from '../common/SearchablePicker';
 import { locationService } from '../../../services/locationService';
 import { CustomPicker } from '../common/CustomPicker';
 import { MaterialIcons } from '@expo/vector-icons';
+import { DatePicker } from '../common/DatePicker';
 
 export default function PersonalInfoScreen2({ onNext, onBack, data, onDataUpdate, currentStep = 3, totalSteps = 6 }) {
     const [countries, setCountries] = useState([]);
@@ -16,17 +17,18 @@ export default function PersonalInfoScreen2({ onNext, onBack, data, onDataUpdate
     const [age, setAge] = useState(data?.age || '');
     const [gender, setGender] = useState(data?.gender || '');
     const [education, setEducation] = useState(data?.education || '');
+    const [birthday, setBirthday] = useState(data?.birthday || null);
 
     // Update parent state when any selection changes
     useEffect(() => {
         onDataUpdate('personal2', {
-            age,
+            birthday,
             gender,
             education,
             country: selectedCountry,
             region: selectedRegion
         });
-    }, [age, gender, education, selectedCountry, selectedRegion]);
+    }, [birthday, gender, education, selectedCountry, selectedRegion]);
 
     useEffect(() => {
         loadCountries();
@@ -101,13 +103,10 @@ export default function PersonalInfoScreen2({ onNext, onBack, data, onDataUpdate
                 </View>
 
                 <View style={styles.formContainer}>
-                    <CustomPicker
-                        label="What is your age?"
-                        defaultIcon="cake"
-                        placeholder="Select age"
-                        options={AGE_OPTIONS}
-                        value={age}
-                        onSelect={(option) => setAge(option.value)}
+                    <DatePicker
+                        label="When is your birthday?"
+                        value={birthday}
+                        onChange={setBirthday}
                     />
 
                     <CustomPicker
