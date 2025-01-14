@@ -15,6 +15,16 @@
   "noAccount": "Don't have an account?",
   "register": "Register",
 
+  "login_with_biometrics": "Login with biometrics",
+  "enable_biometrics": "Biometric Authentication",
+  "enable_biometrics_prompt": "Would you like to enable biometric login?",
+  "biometric_auth_prompt": "Authenticate with fingerprint",
+  "biometric_fallback": "Use password",
+  "permissions_required": "Permissions Required",
+  "biometric_error": "Biometric authentication error",
+  "login_with_face_id": "Login with Face ID",
+  "face_id_prompt": "Authenticate with Face ID",
+
   "haveAccount": "Already have an account?",
   "registerTitle": "Create Account",
   "registerSubtitle": "Join Dobbi and start managing your finances",

@@ -99,4 +99,21 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  biometricButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF5F5',
+    padding: 15,
+    borderRadius: 25,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#FFE5E5',
+  },
+  biometricButtonText: {
+    color: '#ff6b6b',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 10,
+  },
 });

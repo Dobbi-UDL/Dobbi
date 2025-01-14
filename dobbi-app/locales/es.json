@@ -15,6 +15,15 @@
   "noAccount": "¿No tienes una cuenta?",
   "register": "Regístrate",
 
+  "login_with_biometrics": "Iniciar sesión con biometría",
+  "enable_biometrics": "Autenticación Biométrica",
+  "enable_biometrics_prompt": "¿Deseas habilitar el inicio de sesión con biometría?",
+  "biometric_auth_prompt": "Autenticar con huella dactilar",
+  "biometric_fallback": "Usar contraseña",
+  "permissions_required": "Permisos Requeridos",
+  "biometric_error": "Error en la autenticación biométrica",
+  "login_with_face_id": "Iniciar sesión con Face ID",
+  "face_id_prompt": "Autenticar con Face ID",
   
   "haveAccount": "¿Ya tienes una cuenta?",
   "registerTitle": "Crear Cuenta",
@@ -117,7 +126,7 @@
   "add_contribution_button": "Añadir",
   "contribution_success": "Contribución añadida con éxito",
   "invalid_amount": "Cantidad inválida",
-  "enter_valid_amount": "Por favor, introduce una cantidad v��lida.",
+  "enter_valid_amount": "Por favor, introduce una cantidad válida.",
   
   "goal_updated_success": "El objetivo ha sido actualizado con éxito",
   "contribution_error": "Error al añadir la contribución",
