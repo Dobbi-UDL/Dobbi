@@ -246,7 +246,7 @@ ${today}
       "Error calling OpenAI API:",
       error.response ? error.response.data : error.message
     );
-    return getMockResponse(userQuestion); // Fallback to mock response on error
+    return getOpenAIResponse(userQuestion, 'generic', username, profileData, financialData, offersData);
   }
 }
 

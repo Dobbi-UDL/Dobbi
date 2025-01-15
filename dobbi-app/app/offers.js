@@ -11,6 +11,7 @@ import { useLanguage } from '@languagecontext';
 import { useLocalSearchParams } from 'expo-router';
 import { styles } from '../assets/styles/offers';
 
+
 const OffersScreen = () => {
   const { locale } = useLanguage();
   const { highlightOffer } = useLocalSearchParams();
@@ -23,6 +24,7 @@ const OffersScreen = () => {
   const [userId, setUserId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [expandedOfferId, setExpandedOfferId] = useState(null);
+  const [showRedeemed, setShowRedeemed] = useState(true);
   const CARD_HEIGHT = 250; // Update to match new card height
   const HEADER_HEIGHT = 60;
   const USER_POINTS_HEIGHT = 70;
@@ -139,19 +141,39 @@ const OffersScreen = () => {
     }
   };
 
+  const applyFilters = (searchTerm = '', selectedCategories = [], includeRedeemed = true) => {
+    let filtered = [...offers];
+  
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(offer =>
+        offer.title.toLowerCase().includes(searchLower) ||
+        offer.description.toLowerCase().includes(searchLower)
+      );
+    }
+  
+    // Apply category filter
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(offer =>
+        selectedCategories.some(category => offer.category_id === category.id)
+      );
+    }
+  
+    // Apply redeemed filter
+    if (!includeRedeemed) {
+      filtered = filtered.filter(offer => !offer.isRedeemed);
+    }
+  
+    setFilteredOffers(filtered);
+  };
+
   const handleSearch = (term) => {
     applyFilters(term, [], showRedeemed);
   };
 
   const handleCategorySelect = (selectedCategories) => {
-    if (selectedCategories.length === 0) {
-      setFilteredOffers(offers);
-    } else {
-      const filtered = offers.filter(offer => 
-        selectedCategories.some(category => offer.category_id === category.id)
-      );
-      setFilteredOffers(filtered);
-    }
+    applyFilters('', selectedCategories, showRedeemed);
   };
 
   const findOfferIndex = useCallback((title) => {
