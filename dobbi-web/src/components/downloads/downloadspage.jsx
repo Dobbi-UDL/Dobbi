@@ -26,7 +26,7 @@ export default function AppDownload() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <a
-              href="/path/to/your/apk/file"
+              //href="/path/to/your/apk/file"
               className="bg-[#F66C72] hover:bg-[#e55c62] text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
