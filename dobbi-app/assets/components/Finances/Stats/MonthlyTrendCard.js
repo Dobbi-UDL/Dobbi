@@ -29,16 +29,22 @@ export const MonthlyTrendCard = ({ data }) => {
         );
     }
 
-    // Transform data for chart
-    const incomeData = data.map((item) => ({
-        x: new Date(item.month_year + '-01'),
-        y: item.total_income
-    }));
+    // Transform data for chart with better validation
+    const incomeData = data
+        .filter(item => item && item.month_year && !isNaN(parseFloat(item.total_income)))
+        .map((item) => ({
+            x: new Date(item.month_year + '-01'),
+            y: Number(item.total_income)
+        }))
+        .sort((a, b) => a.x - b.x);
 
-    const expensesData = data.map((item) => ({
-        x: new Date(item.month_year + '-01'),
-        y: item.total_expenses
-    }));
+    const expensesData = data
+        .filter(item => item && item.month_year && !isNaN(parseFloat(item.total_expenses)))
+        .map((item) => ({
+            x: new Date(item.month_year + '-01'),
+            y: Number(item.total_expenses)
+        }))
+        .sort((a, b) => a.x - b.x);
 
     // Find highest value to set domain
     const maxVal = Math.max(
@@ -66,9 +72,11 @@ export const MonthlyTrendCard = ({ data }) => {
                     width={screenWidth - 40}
                     height={360}
                     padding={{ top: 20, bottom: 90, left: 50, right: 20 }} // increased bottom padding
-                    domainPadding={{ y: [20, 20] }}
                     scale={{ x: "time" }}
-                    domain={{ y: [0, maxVal + 500 ], x: [minDomainDate, maxDomainDate] }}
+                    domain={{ 
+                        y: [0, maxVal * 1.1],
+                        x: [minDate, maxDate] 
+                    }}
                 >
                     <VictoryAxis
                         tickFormat={(x) => {
@@ -95,22 +103,16 @@ export const MonthlyTrendCard = ({ data }) => {
                     />
                     <VictoryLine
                         data={incomeData}
+                        interpolation="monotoneX"
                         style={{
                             data: { stroke: "#4CAF50", strokeWidth: 3 },
-                        }}
-                        animate={{
-                            duration: 2000,
-                            onLoad: { duration: 1000 }
                         }}
                     />
                     <VictoryLine
                         data={expensesData}
+                        interpolation="monotoneX"
                         style={{
                             data: { stroke: "#F44336", strokeWidth: 3 },
-                        }}
-                        animate={{
-                            duration: 2000,
-                            onLoad: { duration: 1000 }
                         }}
                     />
                     <VictoryLegend

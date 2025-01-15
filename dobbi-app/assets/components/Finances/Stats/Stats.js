@@ -210,6 +210,9 @@ export default function Stats() {
         const { startDate: previousStartDate, endDate: previousEndDate } = prevDates;
 
         try {
+            // Add logging for dates
+            console.log('Loading stats for dates:', { startDate, endDate, previousStartDate, previousEndDate });
+
             // Load data in parallel for better performance
             const [summaryData, periodCompData, categoryData, trendData] = await Promise.all([
                 fetchFinancialSummary(user.id, startDate, endDate),
@@ -218,6 +221,9 @@ export default function Stats() {
                 fetchMonthlyIncomeExpensesTrend(user.id, startDate, endDate)
             ]);
 
+            // Add detailed logging
+            console.log('Monthly trend data received:', trendData);
+
             // Batch state updates
             const updates = () => {
                 setSummary(summaryData);
@@ -225,9 +231,9 @@ export default function Stats() {
                 setExpenseCategories(categoryData.expenseData);
                 console.log(categoryData.incomeData);
                 setIncomeCategories(categoryData.incomeData);
-                setMonthlyTrend(trendData);
+                setMonthlyTrend(Array.isArray(trendData) ? trendData : []);
                 
-                if (trendData?.length > 0) {
+                if (Array.isArray(trendData) && trendData.length > 0) {
                     setMetrics(calculateMetrics(trendData));
                 }
             };
@@ -237,6 +243,9 @@ export default function Stats() {
 
         } catch (error) {
             console.error('Error loading stats:', error);
+            // Set empty arrays as fallback
+            setMonthlyTrend([]);
+            setMetrics(null);
         }
     };
 
