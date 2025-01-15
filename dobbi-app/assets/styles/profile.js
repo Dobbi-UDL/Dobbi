@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -38,20 +38,24 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   profileSection: {
-    flex: 1,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFE5E5',
+    backgroundColor: '#fff',
   },
   profileAvatar: {
-    width: 80,  // Reducido de 90 a 80
-    height: 80, // Reducido de 90 a 80
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#ff6b6b",
-    borderWidth: 2,
-    borderColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#FFE5E5',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -71,54 +75,51 @@ export const styles = StyleSheet.create({
   profileInfo: {
     marginLeft: 16,
     flex: 1,
-    justifyContent: 'center',
   },
   profileName: {
     fontSize: 20,
     fontWeight: "700",
     color: "#333",
-    marginBottom: 6,
+    marginBottom: 8,
+    letterSpacing: -0.3,
   },
   profileLevelInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between', // Para poner la experiencia a la derecha
-    marginBottom: 6,
+    marginBottom: 8,
   },
   levelIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFF5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
-    marginRight: 8,
+    alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(255, 107, 107, 0.2)',
+    borderColor: 'rgba(255, 107, 107, 0.15)',
   },
   levelText: {
-    fontSize: 11, // Reducido de 13 a 11
+    fontSize: 13,
     color: '#ff6b6b',
-    fontWeight: '500', // Reducido de 600 a 500
+    fontWeight: '600',
     marginLeft: 4,
   },
   miniProgressBar: {
-    height: 3,
+    height: 4,
     backgroundColor: "#FFE5E5",
-    borderRadius: 1.5,
-    width: '100%', // Cambiado de 85% a 100%
-    marginTop: 4,
+    borderRadius: 2,
+    width: '100%',
+    marginTop: 8,
   },
   miniProgress: {
     height: "100%",
     backgroundColor: "#ff6b6b",
-    borderRadius: 1.5,
+    borderRadius: 2,
   },
   expText: {
-    fontSize: 12, // Aumentado de 11 a 12
+    fontSize: 12,
     color: '#666',
     fontWeight: '500',
-    letterSpacing: 0.2, // Añadido para mejor legibilidad
+    marginTop: 4,
   },
   profileSubtext: {
     fontSize: 14,
@@ -132,43 +133,50 @@ export const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 8,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 18, // Aumentado el padding vertical
-    paddingHorizontal: 24, // Aumentado el padding horizontal
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
-    borderBottomWidth: 0.3, // Reducido aún más el grosor
-    borderBottomColor: 'rgba(0,0,0,0.03)', // Más sutil
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.03)',
   },
   menuItemContent: {
     flexDirection: "row",
     alignItems: "center",
   },
   menuItemText: {
-    fontSize: 16,
-    marginLeft: 16, // Aumentado el espacio entre icono y texto
+    fontSize: 15,
+    marginLeft: 16,
     color: "#333",
-    fontWeight: '400', // Más ligero
+    fontWeight: '500',
   },
   menuItemTextDanger: {
     color: "#ff6b6b",
-    fontWeight: '400',
-    marginLeft: 16, // Añadido para mantener consistencia con menuItemText
+    fontWeight: '500',
+    marginLeft: 16,
   },
   menuItemIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent', // Quitado el fondo
+    backgroundColor: '#FFF5F5',
   },
   menuSection: {
+    marginBottom: 24,
     backgroundColor: '#fff',
-    // Quitados los márgenes y sombras para un diseño más limpio
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   modalContainer: {
     flex: 1,
@@ -264,7 +272,7 @@ export const styles = StyleSheet.create({
   profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   levelSystemContainer: {
     backgroundColor: '#fff',
@@ -300,10 +308,10 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   expText: {
-    fontSize: 12, // Aumentado de 11 a 12
+    fontSize: 12,
     color: '#666',
     fontWeight: '500',
-    letterSpacing: 0.2, // Añadido para mejor legibilidad
+    letterSpacing: 0.2,
   },
   infoSection: {
     backgroundColor: 'white',
@@ -321,7 +329,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingBottom: 16,
-    marginBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#FFE5E5',
   },
@@ -329,7 +336,6 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginLeft: 12,
   },
   infoRow: {
     flexDirection: 'row',
@@ -379,17 +385,36 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFE5E5',
     overflow: 'hidden',
+    height: 50, // Increased height
+    justifyContent: 'center',
   },
   picker: {
-    height: 40,
+    height: 50, // Match container height
     width: '100%',
     color: '#333',
     backgroundColor: 'transparent',
-    marginTop: -8,
+    fontSize: 15,
+    paddingHorizontal: 10, // Add padding
+    marginTop: Platform.OS === 'ios' ? 0 : -8, // Fix Android alignment
   },
   pickerDisabled: {
     backgroundColor: '#f5f5f5',
     color: '#999',
+  },
+  datePickerButton: {
+    flex: 1,
+    marginLeft: 12,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFE5E5',
+    padding: 12,
+    height: 50, // Match picker height
+    justifyContent: 'center',
+  },
+  datePickerText: {
+    fontSize: 15,
+    color: '#333',
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -493,5 +518,222 @@ export const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: '#ff3333',
+  },
+  section: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+  },
+  arrayFieldContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8,
+  },
+  chip: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    margin: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chipText: {
+    color: '#ff6b6b',
+    fontSize: 14,
+  },
+  chipDelete: {
+    marginLeft: 8,
+  },
+  notificationToggle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFE5E5',
+  },
+  notificationLabel: {
+    fontSize: 16,
+    color: '#333',
+  },
+  emptyState: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    color: '#666',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  errorContainer: {
+    backgroundColor: '#FFE5E5',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ff6b6b',
+  },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  pickerDisabled: {
+    opacity: 0.5,
+  },
+  fieldRequired: {
+    borderColor: '#ff6b6b',
+  },
+  requiredText: {
+    color: '#ff6b6b',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  addOptionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8,
+    backgroundColor: '#FFF5F5',
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  addOptionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    margin: 4,
+    borderWidth: 1,
+    borderColor: '#FFE5E5',
+  },
+  addOptionText: {
+    color: '#666',
+    fontSize: 14,
+    marginHorizontal: 8,
+  },
+  otherInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FFE5E5',
+    padding: 12,
+    fontSize: 14,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  headerTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  infoHeaderSubtitle: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 4,  // Increased from 2 for better spacing
+  },
+  editingButtonsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#FFE5E5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  editButtonCancel: {
+    flex: 1,
+    backgroundColor: '#FFE5E5',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#ff6b6b',
+  },
+  editButtonSave: {
+    flex: 2,
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonTextCancel: {
+    color: '#ff6b6b',
+  },
+  buttonTextSave: {
+    color: 'white',
+  },
+  savingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  savingContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  savingText: {
+    marginTop: 12,
+    color: '#333',
+    fontSize: 16,
+  },
+  successOverlay: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 20,
+    left: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  successText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    flex: 1,
+    marginLeft: 12,
   },
 });

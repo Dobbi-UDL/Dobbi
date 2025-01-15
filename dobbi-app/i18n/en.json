@@ -1,0 +1,12 @@
+{
+    // ...existing translations...
+    "financial_profile": "Financial Profile",
+    "your_current_situation": "Your current financial situation",
+    "current_debt": "Current Debt",
+    "select_all_that_apply": "Select all types that apply to you",
+    "edit_profile": "Edit Profile",
+    "saving_changes": "Saving changes...",
+    "changes_saved_successfully": "Changes saved successfully",
+    "save": "Save Changes",
+    "cancel": "Cancel"
+}

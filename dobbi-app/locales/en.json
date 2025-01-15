@@ -221,5 +221,149 @@
   "delete_account_error": "Error deleting account. Please try again.",
   "password_reset_sent": "Email Sent",
   "password_reset_instructions": "Password reset instructions have been sent to your email.",
-  "password_reset_error": "Error sending reset password email."
+  "password_reset_error": "Error sending reset password email.",
+
+  // Flatten the nested structure
+  "motivations": "Motivations",
+  "motivations.title": "Your Motivations",
+  "motivations.save_money": "Save Money",
+  "motivations.debt_free": "Become Debt Free",
+  "motivations.investment": "Start Investing",
+  "motivations.emergency_fund": "Build Emergency Fund",
+  "motivations.retirement": "Plan for Retirement",
+  "motivations.other": "Other Motivation",
+
+  "goals.title": "Your Goals",
+  "goals.short_term": "Short Term Savings",
+  "goals.long_term": "Long Term Investment",
+  "goals.debt_payment": "Debt Payment",
+  "goals.budgeting": "Better Budgeting",
+  "goals.other": "Other Goal",
+
+  "debtTypes.title": "Debt Types",
+  "debtTypes.credit_card": "Credit Card",
+  "debtTypes.student_loan": "Student Loan",
+  "debtTypes.mortgage": "Mortgage",
+  "debtTypes.personal_loan": "Personal Loan",
+  "debtTypes.other": "Other Debt",
+
+  // Array Fields
+  "no_items_selected": "No items selected",
+  "add_item": "Add",
+  "remove_item": "Remove",
+  
+  // Field Labels
+  "otherMotivation": "Other Motivation",
+  "otherGoal": "Other Goal",
+  "otherDebt": "Other Debt",
+
+  // Profile Enums & Labels
+  "role": "Role",
+  "role.student": "Student",
+  "role.early_career": "Early Career",
+  "role.family": "Family",
+  "role.professional": "Professional",
+
+  "birthday": "Birthday",
+  "gender.male": "Male",
+  "gender.female": "Female",
+  "gender.non_binary": "Non-binary",
+  "gender.prefer_not_to_say": "Prefer not to say",
+
+  "education": "Education",
+  "education.high_school": "High School",
+  "education.bachelors": "Bachelor's Degree",
+  "education.masters": "Master's Degree",
+  "education.doctorate": "Doctorate",
+  "education.other": "Other",
+  "education.prefer_not_to_say": "Prefer not to say",
+
+  "experience": "Experience Level",
+  "experience.beginner": "Beginner",
+  "experience.intermediate": "Intermediate",
+  "experience.advanced": "Advanced",
+  "experience.expert": "Expert",
+
+  "savings": "Savings",
+  "savings.no_savings": "No Savings",
+  "savings.occasional": "Occasional",
+  "savings.consistent": "Consistent",
+  "savings.high": "High",
+
+  "situation": "Financial Situation",
+  "situation.comfortable": "Comfortable",
+  "situation.okay": "Okay",
+  "situation.need_improvement": "Needs Improvement",
+  "situation.struggling": "Struggling",
+
+  // Notifications
+  "expenses_reminder": "Expenses Reminders",
+  "goals_updates": "Goals Updates",
+  "rewards_notification": "Rewards Notifications",
+  "app_updates": "App Updates",
+  "ai_tips": "AI Tips & Suggestions",
+
+  // Profile Actions
+  "select": "Select...",
+  "edit_profile": "Edit Profile",
+  "save_profile": "Save Profile",
+  "cancel_edit": "Cancel Edit",
+  "avatar_updated": "Profile Picture Updated",
+  "gallery_permissions_message": "We need access to your gallery to update your profile picture",
+  "image_pick_error": "Error selecting image",
+
+  // Profile Sections
+  "personal_section": "Personal Information",
+  "motivations_section": "Your Motivations",
+  "goals_section": "Your Goals",
+  "financials_section": "Financial Information",
+  "notifications_section": "Notification Preferences",
+  "security_section": "Security & Privacy",
+
+  // Empty States
+  "no_motivation_selected": "No motivations selected yet",
+  "no_goals_selected": "No goals selected yet",
+  "no_debts_selected": "No debt types selected",
+
+  // Error Messages
+  "error_loading_profile": "Error loading profile",
+  "error_saving_profile": "Error saving profile changes",
+  "try_again": "Please try again",
+
+  "app_purpose": "App Purpose",
+  "what_brings_you_here": "What brings you to Dobbi?",
+  "financial_goals": "Financial Goals",
+  "what_you_want_to_achieve": "What do you want to achieve?",
+  "financial_profile": "Financial Profile",
+  "your_current_situation": "Your current financial situation",
+  "current_debt": "Current Debt",
+  "select_all_that_apply": "Select all types that apply to you",
+
+  "app_purpose": "App Purpose",
+  "what_brings_you_here": "What brings you to Dobbi?",
+  "financial_goals": "Financial Goals",
+  "what_you_want_to_achieve": "What do you want to achieve?",
+  "financial_profile": "Financial Profile",
+  "your_current_situation": "Your current financial situation",
+  "current_debt": "Current Debt",
+  "select_all_that_apply": "Select all types that apply to you",
+  "notifications": {
+    "expenses_reminder": "Expense Reminders",
+    "goals_updates": "Goals Updates",
+    "rewards_notification": "Rewards & Deals",
+    "app_updates": "App Updates",
+    "ai_tips": "AI Tips & Insights"
+  },
+  "notifications_section": "Notifications Settings",
+  "financial_profile": "Financial Profile",
+  "your_current_situation": "Your current financial situation",
+  "current_debt": "Current Debt",
+  "select_all_that_apply": "Select all types that apply to you",
+  "edit_profile": "Edit Profile",
+  "saving_changes": "Saving changes...",
+  "changes_saved_successfully": "Changes saved successfully",
+  "save": "Save Changes",
+  "cancel": "Cancel",
+  "debt-subtitle": "Your current debt situation",
 }
+

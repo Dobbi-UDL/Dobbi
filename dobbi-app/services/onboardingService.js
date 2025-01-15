@@ -68,11 +68,11 @@ export const onboardingService = {
                 .from('user_notifications')
                 .insert({
                     user_id: userId,
-                    expenses_reminder: notifications.expenses || false,
-                    goals_updates: notifications.goals || false,
-                    rewards_notification: notifications.rewards || false,
-                    app_updates: notifications.updates || false,
-                    ai_tips: notifications.tips || false
+                    expenses_reminder: notifications.expenses ?? false,
+                    goals_updates: notifications.goals ?? false,
+                    rewards_notification: notifications.rewards ?? false,
+                    app_updates: notifications.updates ?? false,
+                    ai_tips: notifications.tips ?? false
                 });
 
             if (notificationsError) throw notificationsError;

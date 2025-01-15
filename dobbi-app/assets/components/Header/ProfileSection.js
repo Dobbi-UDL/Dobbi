@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { styles } from "../../styles/profile.js";
+import { profileStyles } from "../../styles/profileSection";
 import i18n from "@i18n";
 import { useAuth } from "@authcontext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,7 +24,6 @@ import {
   calculateXPForLevel,
   calculateProgressPercentage,
 } from "../../../utils/experienceSystem";
-import { OnboardingForm } from "../Onboarding/OnboardingForm.js";
 
 export const ProfileSection = ({ userData, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -125,44 +124,11 @@ export const ProfileSection = ({ userData, onClose }) => {
     setIsLanguageModalVisible(true);
   };
 
-  const [isOnboardingFormVisible, setIsOnboardingFormVisible] = useState(false);
-  const handleOpenOnboardingForm = () => {
-    setIsOnboardingFormVisible(true);
-  };
-
   const getCurrentAndNextLevelXP = (currentXP, currentLevel) => {
     const currentLevelXP = calculateXPForLevel(currentLevel);
     const nextLevelXP = calculateXPForLevel(currentLevel + 1);
     return `${currentXP}/${nextLevelXP} XP`;
   };
-
-  const renderAvatar = () => {
-    if (avatar) {
-      return (
-        <Image 
-          source={{ uri: avatar }} 
-          style={[styles.profileAvatar, { backgroundColor: 'transparent' }]}
-        />
-      );
-    }
-    return (
-      <View style={[styles.profileAvatar, styles.avatarPlaceholder]}>
-        <Text style={styles.avatarText}>
-          {getInitials(userData?.username)}
-        </Text>
-      </View>
-    );
-  };
-
-  const renderMenuIcon = (name, danger = false) => (
-    <View style={[styles.menuItemIcon, { backgroundColor: danger ? '#FFF5F5' : 'transparent' }]}>
-      <Icon 
-        name={name} 
-        size={20} 
-        color={danger ? "#ff6b6b" : "#666"}
-      />
-    </View>
-  );
 
   const menuItems = [
     {
@@ -178,7 +144,7 @@ export const ProfileSection = ({ userData, onClose }) => {
     {
       icon: "translate",
       title: i18n.t("language"),
-      onPress: handleLanguagePress, // Updated handler
+      onPress: handleLanguagePress,
     },
     {
       icon: "logout",
@@ -189,37 +155,49 @@ export const ProfileSection = ({ userData, onClose }) => {
   ];
 
   return (
-    <View style={[styles.settingsContainer, { paddingTop: insets.top }]}>
-      <View style={styles.settingsHeader}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileRow}>
+    <View style={[profileStyles.settingsContainer, { paddingTop: insets.top }]}>
+      <View style={profileStyles.settingsHeader}>
+        <View style={profileStyles.profileSection}>
+          <View style={profileStyles.profileRow}>
             <TouchableOpacity 
               onPress={handleEditProfile}
               activeOpacity={0.8}
             >
-              {renderAvatar()}
+              {avatar ? (
+                <Image 
+                  source={{ uri: avatar }} 
+                  style={profileStyles.avatar}
+                />
+              ) : (
+                <View style={[profileStyles.avatar, profileStyles.avatarPlaceholder]}>
+                  <Text style={profileStyles.avatarText}>
+                    {getInitials(userData?.username)}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>
+            
+            <View style={profileStyles.profileInfo}>
+              <Text style={profileStyles.profileName}>
                 {userData?.username || "User"}
               </Text>
-              <View style={styles.profileLevelInfo}>
-                <View style={styles.levelIndicator}>
-                  <Text style={styles.levelText}>
+              <View style={profileStyles.levelWrapper}>
+                <View style={profileStyles.levelBadge}>
+                  <Text style={profileStyles.levelText}>
                     Level {userStats?.current_level || 1}
                   </Text>
                 </View>
-                <Text style={styles.expText}>
+                <Text style={profileStyles.expText}>
                   {getCurrentAndNextLevelXP(
                     userStats?.current_xp || 0,
                     userStats?.current_level || 1
                   )}
                 </Text>
               </View>
-              <View style={styles.miniProgressBar}>
+              <View style={profileStyles.progressBar}>
                 <View
                   style={[
-                    styles.miniProgress,
+                    profileStyles.progressFill,
                     {
                       width: `${calculateProgressPercentage(
                         userStats?.current_xp || 0,
@@ -235,25 +213,35 @@ export const ProfileSection = ({ userData, onClose }) => {
       </View>
 
       <ScrollView 
-        style={styles.menuContainer}
+        style={profileStyles.menuScroll}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.menuSection}>
+        <View style={profileStyles.menuSection}>
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={index}
               onPress={item.onPress}
               style={[
-                styles.menuItem,
+                profileStyles.menuItem,
                 index === menuItems.length - 1 && { borderBottomWidth: 0 }
               ]}
             >
-              <View style={styles.menuItemContent}>
-                {renderMenuIcon(item.icon, item.danger)}
+              <View style={profileStyles.menuItemLeft}>
+                <View style={[
+                  profileStyles.menuIcon,
+                  item.danger && { backgroundColor: '#FFF5F5' }
+                ]}>
+                  <Icon 
+                    name={item.icon} 
+                    size={20} 
+                    color={item.danger ? "#ff6b6b" : "#666"}
+                  />
+                </View>
                 <Text
-                  style={
-                    item.danger ? styles.menuItemTextDanger : styles.menuItemText
-                  }
+                  style={[
+                    profileStyles.menuText,
+                    item.danger && profileStyles.menuTextDanger
+                  ]}
                 >
                   {item.title}
                 </Text>
@@ -262,11 +250,13 @@ export const ProfileSection = ({ userData, onClose }) => {
                 name="chevron-right" 
                 size={20} 
                 color="#CCCCCC"
+                style={profileStyles.chevron}
               />
             </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
+      
       <LanguageModal
         isVisible={isLanguageModalVisible}
         onClose={() => setIsLanguageModalVisible(false)}
@@ -287,16 +277,6 @@ export const ProfileSection = ({ userData, onClose }) => {
         }}
         userData={userData}
       />
-      <Modal
-        visible={isOnboardingFormVisible}
-        animationType="slide"
-        onRequestClose={() => setIsOnboardingFormVisible(false)}
-      >
-        <OnboardingForm
-          userId={userData?.id}
-          onComplete={() => setIsOnboardingFormVisible(false)}
-        />
-      </Modal>
     </View>
   );
 };

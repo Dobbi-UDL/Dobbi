@@ -100,35 +100,41 @@ const Header = ({ title }) => {
         
         return (
             <View style={styles.leftSection}>
-                {showBackButton && (
+                {showBackButton ? (
                     <TouchableOpacity 
                         style={styles.backButton} 
                         onPress={() => router.back()}
                     >
                         <Ionicons name="arrow-back" size={24} color="#EE6567" />
                     </TouchableOpacity>
+                ) : (
+                    <View style={styles.logoContainer}>
+                        <TouchableOpacity onPress={handleLogoPress}>
+                            <Image
+                                source={require('../../images/dobbi-heart.png')}
+                                style={styles.logo}
+                            />
+                        </TouchableOpacity>
+                        <View style={styles.brandContainer}>
+                            <Animated.View style={{ opacity: brandOpacity }}>
+                                <Image
+                                    source={require('../../images/dobbi-brand.png')}
+                                    style={styles.brandImage}
+                                />
+                            </Animated.View>
+                            {title && (
+                                <Animated.Text 
+                                    style={[
+                                        styles.brandName,
+                                        { opacity: titleOpacity }
+                                    ]}
+                                >
+                                    {title}
+                                </Animated.Text>
+                            )}
+                        </View>
+                    </View>
                 )}
-                {!showBackButton && (
-                    <TouchableOpacity onPress={handleLogoPress}>
-                        <Image
-                            source={require('../../images/dobbi-heart.png')}
-                            style={styles.logo}
-                        />
-                    </TouchableOpacity>
-                )}
-                <View style={styles.brandContainer}>
-                    <Animated.View style={{ opacity: brandOpacity }}>
-                        <Image
-                            source={require('../../images/dobbi-brand.png')}
-                            style={styles.brandImage}
-                        />
-                    </Animated.View>
-                    {title && (
-                        <Animated.View style={{ opacity: titleOpacity, position: 'absolute', top: 0, left: 0 }}>
-                            <Text style={styles.brandName}>{title}</Text>
-                        </Animated.View>
-                    )}
-                </View>
             </View>
         );
     };
