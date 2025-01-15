@@ -103,11 +103,22 @@ export const ProfileSection = ({ userData, onClose }) => {
           style: 'destructive',
           onPress: async () => {
             try {
+              await signOut(); // Call signOut first
+              onClose(); // Close the profile section before navigation
               const { error } = await supabase.auth.signOut();
               if (error) throw error;
               
-              signOut(); // Llama a la función del contexto de autenticación
-              router.replace('/'); // Redirige al inicio
+              // Replace with index and prevent going back
+              router.replace({
+                pathname: '/',
+                params: {
+                  reset: true // Add param to indicate full reset
+                }
+              });
+              
+              // Reset router history
+              router.setParams({ reset: true });
+
             } catch (error) {
               console.error('Error during logout:', error);
               Alert.alert(

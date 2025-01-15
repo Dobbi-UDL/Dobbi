@@ -28,6 +28,12 @@ export const BiometricService = {
 
   async authenticate() {
     try {
+      const isAvailable = await this.isBiometricAvailable();
+      if (!isAvailable) {
+        console.log('Biometric authentication not available');
+        return false;
+      }
+
       const biometricType = await this.getBiometricType();
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: biometricType === 'face' 
@@ -36,10 +42,14 @@ export const BiometricService = {
         fallbackLabel: i18n.t('biometric_fallback'),
         disableDeviceFallback: false,
         cancelLabel: i18n.t('cancel'),
-        requireConfirmation: false, // Importante para iOS
+        requireConfirmation: false,
+        promptDescriptionIOS: i18n.t('biometric_prompt_description')
       });
 
-      console.log('Authentication result:', result); // Para debugging
+      console.log('Authentication result:', result);
+      if (!result.success) {
+        console.log('Authentication failed:', result.error);
+      }
       return result.success;
     } catch (error) {
       console.error('Error en autenticación biométrica:', error);

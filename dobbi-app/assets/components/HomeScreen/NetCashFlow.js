@@ -49,6 +49,13 @@ export const NetCashFlow = () => {
   };
 
   useEffect(() => {
+    // Return early and reset state if no user
+    if (!user) {
+        setLoading(false);
+        setIncome(0);
+        setExpense(0);
+        return;
+    }
     fetchFinancialData();
   }, [user]);
 
@@ -72,56 +79,60 @@ export const NetCashFlow = () => {
   const netCashFlow = income - expense;
 
   return (
-    <View style={styles.mainContainer}>
-      <Card style={styles.container}>
-        <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
+    <>
+      {!user ? null : (
+        <View style={styles.mainContainer}>
+          <Card style={styles.container}>
+            <Text style={styles.title}>{i18n.t('netCashFlowTitle')}</Text>
 
-        <View style={styles.flowContainer}>
-          {/* Income Section */}
-          <View style={styles.flowSection}>
-            <View style={[styles.iconContainer, styles.incomeIcon]}>
-              <Icon name="trending-up" size={24} color="#4CAF50" />
-            </View>
-            <View style={styles.flowInfo}>
-              <Text style={styles.flowLabel}>{i18n.t('monthlyIncome')}</Text>
-              <Text style={[styles.flowAmount, styles.incomeText]}>
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(income)}
-              </Text>
-            </View>
-          </View>
+            <View style={styles.flowContainer}>
+              {/* Income Section */}
+              <View style={styles.flowSection}>
+                <View style={[styles.iconContainer, styles.incomeIcon]}>
+                  <Icon name="trending-up" size={24} color="#4CAF50" />
+                </View>
+                <View style={styles.flowInfo}>
+                  <Text style={styles.flowLabel}>{i18n.t('monthlyIncome')}</Text>
+                  <Text style={[styles.flowAmount, styles.incomeText]}>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(income)}
+                  </Text>
+                </View>
+              </View>
 
-          {/* Expenses Section */}
-          <View style={styles.flowSection}>
-            <View style={[styles.iconContainer, styles.expenseIcon]}>
-              <Icon name="trending-down" size={24} color="#FF5252" />
-            </View>
-            <View style={styles.flowInfo}>
-              <Text style={styles.flowLabel}>{i18n.t('monthlyExpenses')}</Text>
-              <Text style={[styles.flowAmount, styles.expenseText]}>
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(expense)}
-              </Text>
-            </View>
-          </View>
+              {/* Expenses Section */}
+              <View style={styles.flowSection}>
+                <View style={[styles.iconContainer, styles.expenseIcon]}>
+                  <Icon name="trending-down" size={24} color="#FF5252" />
+                </View>
+                <View style={styles.flowInfo}>
+                  <Text style={styles.flowLabel}>{i18n.t('monthlyExpenses')}</Text>
+                  <Text style={[styles.flowAmount, styles.expenseText]}>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(expense)}
+                  </Text>
+                </View>
+              </View>
 
-          {/* Net Flow Section */}
-          <View style={styles.netFlowSection}>
-            <View style={[styles.netFlowContainer, netCashFlow >= 0 ? styles.positiveFlow : styles.negativeFlow]}>
-              <Icon 
-                name={netCashFlow >= 0 ? "arrow-up-circle" : "arrow-down-circle"} 
-                size={28} 
-                color="#FFF" 
-              />
-              <View style={styles.netFlowInfo}>
-                <Text style={styles.netFlowLabel}>{i18n.t('netCashFlow')}</Text>
-                <Text style={styles.netFlowAmount}>
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(netCashFlow)}
-                </Text>
+              {/* Net Flow Section */}
+              <View style={styles.netFlowSection}>
+                <View style={[styles.netFlowContainer, netCashFlow >= 0 ? styles.positiveFlow : styles.negativeFlow]}>
+                  <Icon 
+                    name={netCashFlow >= 0 ? "arrow-up-circle" : "arrow-down-circle"} 
+                    size={28} 
+                    color="#FFF" 
+                  />
+                  <View style={styles.netFlowInfo}>
+                    <Text style={styles.netFlowLabel}>{i18n.t('netCashFlow')}</Text>
+                    <Text style={styles.netFlowAmount}>
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(netCashFlow)}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
+          </Card>
         </View>
-      </Card>
-    </View>
+      )}
+    </>
   );
 };
 

@@ -404,7 +404,7 @@ export const EditProfileModal = ({ isVisible, onClose, userData }) => {
     <Modal visible={isVisible} animationType="slide" transparent={false}>
       <SafeAreaView edges={["top"]} style={styles.modalContainer}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>{i18n.t("profile")}</Text>
+          <Text style={[styles.modalTitle, { color: '#ff6b6b', textAlign: 'left' }]}>{i18n.t("profile")}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Icon name="close" size={24} color="#ff6b6b" />
           </TouchableOpacity>
