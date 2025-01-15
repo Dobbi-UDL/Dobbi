@@ -15,10 +15,29 @@ const LoginScreen = () => {
   const { signIn, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
+  const [showBiometric, setShowBiometric] = useState(false);
 
   useEffect(() => {
     checkBiometrics();
   }, []);
+
+  const checkBiometrics = async () => {
+    try {
+      const available = await BiometricService.isBiometricAvailable();
+      const enabled = await BiometricService.isBiometricsEnabled();
+      console.log('Biometrics check:', { available, enabled });
+      
+      setIsBiometricAvailable(available && enabled);
+      setShowBiometric(available && enabled);
+
+      // Only auto-trigger biometric prompt on first load
+      if (available && enabled) {
+        handleBiometricAuth();
+      }
+    } catch (error) {
+      console.error('Biometrics check error:', error);
+    }
+  };
 
   useEffect(() => {
     // Redirect to home if user is authenticated
@@ -26,27 +45,6 @@ const LoginScreen = () => {
       router.replace('/home');
     }
   }, [user, authLoading]);
-
-  const checkBiometrics = async () => {
-    const available = await BiometricService.isBiometricAvailable();
-    const enabled = await BiometricService.isBiometricsEnabled();
-    setIsBiometricAvailable(available && enabled); // Solo habilitar si ambos son true
-    
-    // Solo intentar autenticación biométrica si está habilitada
-    if (available && enabled) {
-      handleBiometricAuth();
-    }
-  };
-
-  const handleBiometricAuth = async () => {
-    const authenticated = await BiometricService.authenticate();
-    if (authenticated) {
-      const credentials = await BiometricService.getCredentials();
-      if (credentials) {
-        handleLogin(credentials);
-      }
-    }
-  };
 
   const handleLogin = async ({ email, password }) => {
     if (!email || !password) {
@@ -60,28 +58,78 @@ const LoginScreen = () => {
       
       if (signInError) throw signInError;
 
-      // Preguntar si desea habilitar la autenticación biométrica
-      if (isBiometricAvailable && !(await BiometricService.isBiometricsEnabled())) {
-        Alert.alert(
-          i18n.t('enable_biometrics'),
-          i18n.t('enable_biometrics_prompt'),
-          [
-            { 
-              text: i18n.t('cancel'), 
-              style: "cancel" 
-            },
-            { 
-              text: i18n.t('yes'), 
-              onPress: () => BiometricService.saveCredentials(email, password)
-            }
-          ]
-        );
+      // Check if biometrics available but not yet enabled
+      const biometricsAvailable = await BiometricService.isBiometricAvailable();
+      const biometricsEnabled = await BiometricService.isBiometricsEnabled();
+      
+      if (biometricsAvailable && !biometricsEnabled) {
+        // Show biometric enrollment prompt before redirecting
+        return new Promise((resolve) => {
+          Alert.alert(
+            i18n.t('enable_biometrics'),
+            i18n.t('enable_biometrics_prompt'),
+            [
+              { 
+                text: i18n.t('cancel'), 
+                style: "cancel",
+                onPress: () => {
+                  router.replace('/home');
+                  resolve();
+                }
+              },
+              { 
+                text: i18n.t('yes'), 
+                onPress: async () => {
+                  try {
+                    await BiometricService.saveCredentials(email, password);
+                    Alert.alert('Success', 'Biometric login has been enabled!', [
+                      {
+                        text: 'OK',
+                        onPress: () => {
+                          router.replace('/home');
+                          resolve();
+                        }
+                      }
+                    ]);
+                  } catch (error) {
+                    console.error('Error saving biometric credentials:', error);
+                    Alert.alert('Error', 'Failed to enable biometric login');
+                    router.replace('/home');
+                    resolve();
+                  }
+                }
+              }
+            ]
+          );
+        });
       }
+
+      // If biometrics already enabled or not available, redirect immediately
+      router.replace('/home');
     } catch (error) {
       console.log('Login error:', error);
       alert(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Modified biometric authentication handler
+  const handleBiometricAuth = async () => {
+    try {
+      const authenticated = await BiometricService.authenticate();
+      if (authenticated) {
+        const credentials = await BiometricService.getCredentials();
+        console.log('Retrieved credentials after auth:', credentials ? 'yes' : 'no');
+        
+        if (credentials) {
+          handleLogin(credentials);
+        } else {
+          console.log('No stored credentials found after successful biometric auth');
+        }
+      }
+    } catch (error) {
+      console.error('Biometric auth error:', error);
     }
   };
 
@@ -112,6 +160,8 @@ const LoginScreen = () => {
             <LoginForm
               onLogin={handleLogin}
               onRegister={handleRegister}
+              onBiometricAuth={handleBiometricAuth}
+              showBiometric={showBiometric}
             />
           </>
         )}

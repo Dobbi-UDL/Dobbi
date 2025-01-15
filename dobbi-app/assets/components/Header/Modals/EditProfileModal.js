@@ -18,7 +18,7 @@ import { styles } from "../../../styles/profile";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import i18n from "@i18n";
 import { format } from 'date-fns';
-import { supabase } from "../../../../config/supabaseClient"; // Add database import
+import { supabase } from "../../../../config/supabaseClient";
 import * as FileSystem from "expo-file-system";
 import { decode } from "base64-arraybuffer";
 import { useRouter } from "expo-router"; // Añadir este import al principio
@@ -27,7 +27,6 @@ import { NotificationToggle } from './../../NotificationToggle'; // Import the N
 import { profileService } from "../../../../services/profileService";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { locationService } from '../../../../services/locationService';
-import { SearchablePicker } from '../../common/SearchablePicker';
 import { ProfileSearchablePicker } from '../../Profile/ProfileSearchablePicker';
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -119,21 +118,99 @@ export const EditProfileModal = ({ isVisible, onClose, userData }) => {
 
       if (error) throw error;
 
+      // Initialize default profile data structure
+      const defaultProfileData = {
+        personal: {
+          role: null,
+          birthday: null,
+          gender: null,
+          education: null,
+          country: null,
+          region: null,
+          country_id: null,
+          region_id: null,
+        },
+        motivations: {
+          motivation_ids: [],
+          other_motivation: '',
+        },
+        goals: {
+          goal_ids: [],
+          other_goal: '',
+        },
+        financials: {
+          experience: null,
+          savings: null,
+          situation: null,
+          debt_types: [],
+          other_debt: '',
+        },
+        notifications: {
+          expenses_reminder: false,
+          goals_updates: false,
+          rewards_notification: false,
+          app_updates: false,
+          ai_tips: false,
+        }
+      };
+
+      // If we have data, merge it with the default structure
       if (data && data[0]) {
         setProfileData({
+          ...defaultProfileData,
           personal: {
+            ...defaultProfileData.personal,
             ...data[0].profile,
-            country: profileDetails?.country,
-            region: profileDetails?.region
+            country: profileDetails?.country || null,
+            region: profileDetails?.region || null
           },
-          motivations: data[0].motivations || {},
-          goals: data[0].goals || {},
-          financials: data[0].financials || {},
-          notifications: data[0].notifications || {}
+          motivations: data[0].motivations || defaultProfileData.motivations,
+          goals: data[0].goals || defaultProfileData.goals,
+          financials: data[0].financials || defaultProfileData.financials,
+          notifications: data[0].notifications || defaultProfileData.notifications
         });
+      } else {
+        // If no data is found, use the default structure
+        setProfileData(defaultProfileData);
+        console.log('No profile data found, using default structure');
       }
     } catch (error) {
       console.error('Error fetching profile data:', error);
+      // Set default data structure even when there's an error
+      setProfileData({
+        personal: {
+          role: null,
+          birthday: null,
+          gender: null,
+          education: null,
+          country: null,
+          region: null,
+          country_id: null,
+          region_id: null,
+        },
+        motivations: {
+          motivation_ids: [],
+          other_motivation: '',
+        },
+        goals: {
+          goal_ids: [],
+          other_goal: '',
+        },
+        financials: {
+          experience: null,
+          savings: null,
+          situation: null,
+          debt_types: [],
+          other_debt: '',
+        },
+        notifications: {
+          expenses_reminder: false,
+          goals_updates: false,
+          rewards_notification: false,
+          app_updates: false,
+          ai_tips: false,
+        }
+      });
     }
   };
 
@@ -189,15 +266,12 @@ export const EditProfileModal = ({ isVisible, onClose, userData }) => {
 
   const uploadAvatar = async (uri) => {
     try {
-      console.log('Starting upload process with URI:', uri);
-
-      // Ensure we have a user ID
       if (!userData?.id) {
         throw new Error('User ID is required');
       }
 
+      setIsUpdating(true);
       const filePath = `${userData.id}/avatar.png`;
-      console.log('Uploading to path:', filePath);
 
       // Convert to base64
       const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -216,19 +290,16 @@ export const EditProfileModal = ({ isVisible, onClose, userData }) => {
           duplex: 'half'
         });
 
-      if (uploadError) {
-        console.error('Upload error details:', uploadError);
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      // Get the public URL using the same path
-      const { data: publicUrlData } = await supabase.storage
+      // Get the signed URL immediately after upload
+      const { data } = await supabase
+        .storage
         .from('avatars')
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 3600);
 
-      if (publicUrlData?.publicUrl) {
-        console.log('Upload successful, URL:', publicUrlData.publicUrl);
-        setAvatar(publicUrlData.publicUrl);
+      if (data?.signedUrl) {
+        setAvatar(data.signedUrl); // Update local state
         Alert.alert('Success', i18n.t("avatar_updated"));
       }
 
@@ -238,6 +309,8 @@ export const EditProfileModal = ({ isVisible, onClose, userData }) => {
         'Error',
         'Failed to upload image: ' + (error.message || 'Unknown error')
       );
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -539,12 +612,11 @@ const renderArrayField = (fieldType, items = []) => {
           <Image 
             source={{ uri: avatar }} 
             style={styles.avatarImage}
-            defaultSource={require('../../../images/profile-placeholder.png')}
           />
         ) : (
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarText}>
-              {getInitials(dbUserData?.username)}
+              {getInitials(userData?.username)}
             </Text>
           </View>
         )}
@@ -903,27 +975,6 @@ const renderArrayField = (fieldType, items = []) => {
 
   // Add form validation handler
   const validateForm = () => {
-    const requiredFields = {
-      personal: ['role', 'gender'],
-      financials: ['experience', 'situation']
-    };
-
-    const errors = [];
-
-    for (const [section, fields] of Object.entries(requiredFields)) {
-      for (const field of fields) {
-        if (!profileData[section][field]) {
-          errors.push(i18n.t(`${field}_required`));
-        }
-      }
-    }
-
-    if (errors.length > 0) {
-      setUpdateError(errors.join('\n'));
-      return false;
-    }
-
-    setUpdateError(null);
     return true;
   };
 

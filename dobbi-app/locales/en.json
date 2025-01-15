@@ -24,6 +24,8 @@
   "biometric_error": "Biometric authentication error",
   "login_with_face_id": "Login with Face ID",
   "face_id_prompt": "Authenticate with Face ID",
+  "login_with_fingerprint": "Login with Fingerprint",
+  "login_with_face": "Login with Face ID",
 
   "haveAccount": "Already have an account?",
   "registerTitle": "Create Account",
@@ -44,8 +46,8 @@
   "language": "Language",
 
   "netCashFlowTitle": "Net Cash Flow",
-  "monthlyIncome": "Monthly Income",
-  "monthlyExpenses": "Monthly Expenses",
+  "monthlyIncome": "Total Income",
+  "monthlyExpenses": "Total Expenses",
   "netCashFlow": "Net Cash Flow",
 
   "quickActionsTitle": "Quick Actions",
@@ -365,5 +367,7 @@
   "save": "Save Changes",
   "cancel": "Cancel",
   "debt-subtitle": "Your current debt situation",
+  "select_date": "Select date",
+  "select_country": "Select country"
 }
 

@@ -116,4 +116,24 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 10,
   },
+  biometricEmailHint: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  biometricButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    marginHorizontal: 20,
+  },
+  biometricButtonText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#000',
+  },
 });

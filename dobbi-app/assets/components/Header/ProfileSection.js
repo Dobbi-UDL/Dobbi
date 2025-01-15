@@ -44,6 +44,12 @@ export const ProfileSection = ({ userData, onClose }) => {
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (isEditProfileModalVisible) {
+      fetchAvatar(); // Refresh avatar when modal is opened
+    }
+  }, [isEditProfileModalVisible]);
+
   const fetchUserStats = async () => {
     try {
       const { data, error } = await supabase
@@ -102,22 +108,11 @@ export const ProfileSection = ({ userData, onClose }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await signOut(); // Call signOut first
-              onClose(); // Close the profile section before navigation
               const { error } = await supabase.auth.signOut();
               if (error) throw error;
-              
-              // Replace with index and prevent going back
-              router.replace({
-                pathname: '/',
-                params: {
-                  reset: true // Add param to indicate full reset
-                }
-              });
-              
-              // Reset router history
-              router.setParams({ reset: true });
 
+              signOut(); // Llama a la función del contexto de autenticación
+              router.replace('/'); // Redirige al inicio
             } catch (error) {
               console.error('Error during logout:', error);
               Alert.alert(
@@ -170,13 +165,13 @@ export const ProfileSection = ({ userData, onClose }) => {
       <View style={profileStyles.settingsHeader}>
         <View style={profileStyles.profileSection}>
           <View style={profileStyles.profileRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleEditProfile}
               activeOpacity={0.8}
             >
               {avatar ? (
-                <Image 
-                  source={{ uri: avatar }} 
+                <Image
+                  source={{ uri: avatar }}
                   style={profileStyles.avatar}
                 />
               ) : (
@@ -187,7 +182,7 @@ export const ProfileSection = ({ userData, onClose }) => {
                 </View>
               )}
             </TouchableOpacity>
-            
+
             <View style={profileStyles.profileInfo}>
               <Text style={profileStyles.profileName}>
                 {userData?.username || "User"}
@@ -223,7 +218,7 @@ export const ProfileSection = ({ userData, onClose }) => {
         </View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={profileStyles.menuScroll}
         showsVerticalScrollIndicator={false}
       >
@@ -242,9 +237,9 @@ export const ProfileSection = ({ userData, onClose }) => {
                   profileStyles.menuIcon,
                   item.danger && { backgroundColor: '#FFF5F5' }
                 ]}>
-                  <Icon 
-                    name={item.icon} 
-                    size={20} 
+                  <Icon
+                    name={item.icon}
+                    size={20}
                     color={item.danger ? "#ff6b6b" : "#666"}
                   />
                 </View>
@@ -257,9 +252,9 @@ export const ProfileSection = ({ userData, onClose }) => {
                   {item.title}
                 </Text>
               </View>
-              <Icon 
-                name="chevron-right" 
-                size={20} 
+              <Icon
+                name="chevron-right"
+                size={20}
                 color="#CCCCCC"
                 style={profileStyles.chevron}
               />
@@ -267,7 +262,7 @@ export const ProfileSection = ({ userData, onClose }) => {
           ))}
         </View>
       </ScrollView>
-      
+
       <LanguageModal
         isVisible={isLanguageModalVisible}
         onClose={() => setIsLanguageModalVisible(false)}
@@ -284,9 +279,10 @@ export const ProfileSection = ({ userData, onClose }) => {
         isVisible={isEditProfileModalVisible}
         onClose={() => {
           setIsEditProfileModalVisible(false);
-          fetchAvatar(); // Refetch avatar when modal closes
+          fetchAvatar(); // Keep this as a backup refresh
         }}
         userData={userData}
+        onAvatarUpdate={() => fetchAvatar()} // Add this new prop
       />
     </View>
   );

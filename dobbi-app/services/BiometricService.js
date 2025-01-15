@@ -6,21 +6,28 @@ import i18n from '../i18n';
 export const BiometricService = {
   async isBiometricAvailable() {
     try {
+      console.log('Checking biometric hardware...');
       const compatible = await LocalAuthentication.hasHardwareAsync();
+      console.log('Hardware compatible:', compatible);
+
       if (!compatible) {
         console.log('Biometric hardware not available');
         return false;
       }
       
+      console.log('Checking biometric enrollment...');
       const enrolled = await LocalAuthentication.isEnrolledAsync();
+      console.log('Biometrics enrolled:', enrolled);
+
       if (!enrolled) {
         console.log('No biometrics enrolled on this device');
         return false;
       }
       
+      console.log('Biometrics are fully available');
       return true;
     } catch (error) {
-      console.error('Error checking biometric availability:', error);
+      console.error('Detailed biometric check error:', error);
       return false;
     }
   },
@@ -45,6 +52,8 @@ export const BiometricService = {
   async authenticate() {
     try {
       const isAvailable = await this.isBiometricAvailable();
+      console.log('Starting biometric authentication, available:', isAvailable);
+      
       if (!isAvailable) {
         return false;
       }
@@ -59,10 +68,10 @@ export const BiometricService = {
 
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage,
-        fallbackLabel: Platform.OS === 'ios' ? i18n.t('biometric_fallback') : undefined,
-        cancelLabel: Platform.OS === 'ios' ? i18n.t('cancel') : undefined,
-        disableDeviceFallback: Platform.OS === 'android',
+        disableDeviceFallback: true, // Changed to true for both platforms
         requireConfirmation: false,
+        cancelLabel: i18n.t('cancel'),
+        // Remove iOS specific options for Android compatibility
         promptDescriptionIOS: Platform.OS === 'ios' ? i18n.t('biometric_prompt_description') : undefined,
       });
 
@@ -76,24 +85,37 @@ export const BiometricService = {
 
   async saveCredentials(email, password) {
     try {
+      console.log('Saving credentials for:', email);
       await SecureStore.setItemAsync('userCredentials', JSON.stringify({ email, password }));
       await SecureStore.setItemAsync('biometricsEnabled', 'true');
+      console.log('Credentials saved successfully');
     } catch (error) {
-      console.error('Error guardando credenciales:', error);
+      console.error('Error saving credentials:', error);
+      throw error;
     }
   },
 
   async getCredentials() {
     try {
-      const credentials = await SecureStore.getItemAsync('userCredentials');
-      return credentials ? JSON.parse(credentials) : null;
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      console.log('Retrieved credentials:', credentialsStr ? 'exists' : 'null');
+      if (!credentialsStr) return null;
+      
+      const credentials = JSON.parse(credentialsStr);
+      return credentials.email && credentials.password ? credentials : null;
     } catch (error) {
-      console.error('Error obteniendo credenciales:', error);
+      console.error('Error getting credentials:', error);
       return null;
     }
   },
 
   async isBiometricsEnabled() {
-    return await SecureStore.getItemAsync('biometricsEnabled') === 'true';
-  }
+    try {
+      const enabled = await SecureStore.getItemAsync('biometricsEnabled');
+      return enabled === 'true';
+    } catch (error) {
+      console.error('Error checking biometrics enabled:', error);
+      return false;
+    }
+  },
 };

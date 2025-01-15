@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from '../../styles/login';
 import i18n from '@i18n';
 import { BiometricService } from '../../../services/BiometricService';
 
-export const LoginForm = ({ onLogin, onRegister }) => {
+export const LoginForm = ({ onLogin, onRegister, onBiometricAuth }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
@@ -13,28 +14,40 @@ export const LoginForm = ({ onLogin, onRegister }) => {
 
   useEffect(() => {
     const checkBiometrics = async () => {
-      const available = await BiometricService.isBiometricAvailable();
-      const enabled = await BiometricService.isBiometricsEnabled(); // Verificar si está habilitado
-      const type = await BiometricService.getBiometricType();
-      setBiometricType(type);
-      setIsBiometricAvailable(available && enabled); // Solo mostrar si está disponible Y habilitado
+      try {
+        const available = await BiometricService.isBiometricAvailable();
+        console.log('Biometric hardware check:', available);
+        
+        const enabled = await BiometricService.isBiometricsEnabled();
+        console.log('Biometric enabled check:', enabled);
+        
+        const type = await BiometricService.getBiometricType();
+        console.log('Biometric type:', type);
+        
+        // Temporarily force to true for testing
+        setIsBiometricAvailable(true);
+        setBiometricType(type || 'fingerprint');
+      } catch (error) {
+        console.error('Biometric check error:', error);
+        // Still show button even if checks fail
+        setIsBiometricAvailable(true);
+      }
     };
     checkBiometrics();
   }, []);
 
   const handleBiometricAuth = async () => {
     try {
-      console.log('Attempting biometric authentication...'); // Para debugging
+      // First check if we have stored credentials
+      const storedCredentials = await BiometricService.getCredentials();
+      if (storedCredentials) {
+        // Pre-fill the form with stored email
+        setEmail(storedCredentials.email);
+      }
+
       const authenticated = await BiometricService.authenticate();
-      console.log('Authentication result:', authenticated); // Para debugging
-      
-      if (authenticated) {
-        const credentials = await BiometricService.getCredentials();
-        console.log('Credentials retrieved:', credentials ? 'yes' : 'no'); // Para debugging
-        
-        if (credentials) {
-          onLogin(credentials);
-        }
+      if (authenticated && storedCredentials) {
+        onLogin(storedCredentials);
       }
     } catch (error) {
       console.error('Error in biometric auth:', error);
@@ -73,21 +86,29 @@ export const LoginForm = ({ onLogin, onRegister }) => {
         <Text style={styles.forgotPasswordText}>{i18n.t('forgotPassword')}</Text>
       </TouchableOpacity>
 
-      {isBiometricAvailable && (
-        <TouchableOpacity 
-          style={styles.biometricButton}
-          onPress={handleBiometricAuth}
-        >
-          <Icon 
-            name={biometricType === 'face' ? 'face-recognition' : 'fingerprint'} 
-            size={24} 
-            color="#ff6b6b" 
-          />
+      {/* Force button to show regardless of isBiometricAvailable */}
+      <TouchableOpacity 
+        style={styles.biometricButton}
+        onPress={handleBiometricAuth}
+      >
+        <MaterialIcons 
+          name={biometricType === 'face' ? "face" : "fingerprint"} 
+          size={24} 
+          color="#000" 
+        />
+        <View>
           <Text style={styles.biometricButtonText}>
-            {i18n.t(biometricType === 'face' ? 'login_with_face_id' : 'login_with_biometrics')}
+            {biometricType === 'face' 
+              ? i18n.t('login_with_face') 
+              : i18n.t('login_with_fingerprint')}
           </Text>
-        </TouchableOpacity>
-      )}
+          {email && (
+            <Text style={styles.biometricEmailHint}>
+              {email}
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.loginButton}

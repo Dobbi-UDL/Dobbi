@@ -29,6 +29,7 @@ import * as Haptics from 'expo-haptics';
 import { getFinancialContextData } from "../assets/components/Finances/Stats/Stats";
 import { useAuth } from '../contexts/AuthContext';
 import { getAllUnredeemedOffers } from "../services/marketplaceService";
+import { profileService } from "../services/profileService"; // Add this import
 import i18n from "../i18n";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
@@ -355,19 +356,26 @@ const ChatbotScreen = () => {
       // Start typing immediately after user message
       let typingCompleted = await showAssistantResponse(false);
       
-      const financialData = await getFinancialContextData(user.id);
-      const offersData = await getAllUnredeemedOffers(user.id);
-
-      // Get AI response while showing typing indicator
-      console.log('User:', user);
+      // Fetch all required user context
+      const [financialData, offersData, profileData] = await Promise.all([
+        getFinancialContextData(user.id),
+        getAllUnredeemedOffers(user.id),
+        profileService.getProfileDetails(user.id)
+      ]);
+  
+      // Log raw data
+      console.log('Raw Profile Data:', profileData);
+      console.log('Raw Financial Data:', financialData);
+  
+      // Get AI response with complete user context
       const aiResponse = await getOpenAIResponse(
         inputText, 
-        user.username, 
+        profileData?.role,
+        user.username,
+        profileData,
         financialData, 
         offersData,
-        user.user_type
       );
-      console.log('🤖 Dobbi:', aiResponse);
       
       const responseChunks = splitResponse(aiResponse);
       const botMessages = [];

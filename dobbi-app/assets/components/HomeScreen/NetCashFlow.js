@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
     color: '#FF5252',
   },
   netFlowSection: {
-    marginTop: 8,
     width: '100%', // Asegura que la sección ocupe todo el ancho
   },
   netFlowContainer: {
@@ -217,7 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5252',
   },
   netFlowInfo: {
-    marginLeft: 16,
+    alignSelf: 'center',
   },
   netFlowLabel: {
     color: '#FFF',

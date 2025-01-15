@@ -3,21 +3,93 @@ import { supabase } from '../config/supabaseClient';
 export const profileService = {
   async getProfileDetails(userId) {
     try {
+      // First check if user exists in users_profile
+      const { data: existingProfile } = await supabase
+        .from('users_profile')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+
+      // If no profile exists, create one
+      if (!existingProfile) {
+        await supabase
+          .from('users_profile')
+          .insert([{ id: userId }]);
+      }
+
+      // Now fetch the complete profile with left joins
       const { data, error } = await supabase
         .from('users_profile')
         .select(`
           *,
-          country:available_countries!country_id(id, name, country_code),
-          region:regions!region_id(id, name)
+          country:available_countries!left(id, name, country_code),
+          region:regions!left(id, name),
+          motivations:user_motivations!left(
+            motivation_ids,
+            other_motivation
+          ),
+          goals:user_goals!left(
+            goal_ids,
+            other_goal
+          ),
+          financials:user_financials!left(
+            experience,
+            savings,
+            situation,
+            debt_types,
+            other_debt
+          )
         `)
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error in profile details query:', error);
+        throw error;
+      }
+
+      // If no data returned, return default structure
+      if (!data) {
+        return {
+          id: userId,
+          role: null,
+          gender: null,
+          education: null,
+          country: null,
+          region: null,
+          motivations: { motivation_ids: [], other_motivation: '' },
+          goals: { goal_ids: [], other_goal: '' },
+          financials: {
+            experience: null,
+            savings: null,
+            situation: null,
+            debt_types: [],
+            other_debt: ''
+          }
+        };
+      }
+
       return data;
     } catch (error) {
-      console.error('Error fetching profile details:', error);
-      return null;
+      console.error('Error in getProfileDetails:', error);
+      // Return default structure on error
+      return {
+        id: userId,
+        role: null,
+        gender: null,
+        education: null,
+        country: null,
+        region: null,
+        motivations: { motivation_ids: [], other_motivation: '' },
+        goals: { goal_ids: [], other_goal: '' },
+        financials: {
+          experience: null,
+          savings: null,
+          situation: null,
+          debt_types: [],
+          other_debt: ''
+        }
+      };
     }
   },
 

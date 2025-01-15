@@ -1,16 +1,10 @@
 import { openai } from "../config/openaiClient.js";
+import { PROFILE_ENUMS, MOTIVATIONS, GOALS, DEBT_TYPES } from '../constants/profileEnums';
 
 const USE_AI = true; // Toggle for AI responses
 
-const USER_TYPE = {
-  STUDENT: 'STUDENT',
-  YOUNG_PROFESSIONAL: 'YOUNG_PROFESSIONAL',
-  REGULAR_WORKER: 'REGULAR_WORKER',
-  PROFESSIONAL: 'PROFESSIONAL',
-};
-
 const USER_PROFILES = {
-  'STUDENT': {
+  'student': {
     role: 'supportive student finance mentor',
     style: {
       tone: 'encouraging but educational',
@@ -20,7 +14,7 @@ const USER_PROFILES = {
     context: 'student life, part-time work, limited income, education expenses',
     approach: 'practical examples relevant to student life, step-by-step guidance, celebration of small progress, break down complex concepts into digestible pieces',
   },
-  'YOUNG_PROFESSIONAL': {
+  'early_career': {
     role: 'career-savvy financial advisor',
     style: {
       tone: 'dynamic and growth-focused',
@@ -30,7 +24,7 @@ const USER_PROFILES = {
     context: 'career growth, first major purchases, investment basics',
     approach: 'career advice and progression, investment guidance,  balance immediate needs with long-term planning, emphisize strong financial foundations',
   },
-  'REGULAR_WORKER': {
+  'family': {
     role: 'practical family financial planner',
     style: {
       tone: 'direct and solution-oriented, no-nonsense',
@@ -40,7 +34,7 @@ const USER_PROFILES = {
     context: 'family expenses, mortgage, retirement planning, insurance',
     approach: 'practical advice, realistic goals, focus on household financial stability, actionable cost-saving strategies, long-term security and family well-being',
   },
-  'PROFESSIONAL': {
+  'professional': {
     role: 'sophisticated financial strategist',
     style: {
       tone: 'analytical and strategic',
@@ -49,15 +43,32 @@ const USER_PROFILES = {
     },
     context: 'wealth management, tax strategy, portfolio optimization',
     approach: 'data-driven recommendations, market insights, wealth preservation, strategic financial planning',
-  }
+  },
+  'generic': {
+    role: 'general financial advisor',
+    style: {
+      tone: 'friendly and informative',
+      language: 'clear and concise',
+      emojis: 'occasional'
+    },
+    context: 'general financial advice, budgeting, saving, investing',
+    approach: 'general financial advice, budgeting, saving, investing',
+  },
 };
 
-// Add this mapping object to convert database types to profile types
-const USER_TYPE_MAPPING = {
-  'student': 'STUDENT',
-  'young_professional': 'YOUNG_PROFESSIONAL',
-  'family': 'REGULAR_WORKER',
-  'professional': 'PROFESSIONAL'
+const getEnumLabel = (enumType, value) => {
+  if (!value) return null;
+  
+  switch(enumType) {
+    case 'motivations':
+      return MOTIVATIONS.find(opt => opt.value === value)?.label || value;
+    case 'goals':
+      return GOALS.find(opt => opt.value === value)?.label || value;
+    case 'debt_types':
+      return DEBT_TYPES.find(opt => opt.value === value)?.label || value;
+    default:
+      return PROFILE_ENUMS[enumType]?.find(opt => opt.value === value)?.label || value;
+  }
 };
 
 const getMockResponse = async () => {
@@ -74,50 +85,136 @@ What specific financial concerns do you have for your family?
  * @param {string} userQuestion - La pregunta del usuario.
  * @returns {Promise<string>} - La respuesta generada por el modelo.
  */
-export async function getOpenAIResponse(userQuestion, username = null, financialData = null, offersData = null, userType = 'STUDENT') {
-  // Map the database user type to profile type
-  const normalizedUserType = USER_TYPE_MAPPING[userType?.toLowerCase()] || 'STUDENT';
+const formatUserContext = (username, userData) => {
+  if (!userData) return '';
   
-  const profile = USER_PROFILES[normalizedUserType];
+  const age = userData.birthday ? 
+    Math.floor((new Date() - new Date(userData.birthday)) / 31557600000) : null;
+
+  const sections = [
+    userData.username && `Name: ${username}`,
+    age && `Age: ${age}`,
+    userData.gender && `Gender: ${getEnumLabel('gender', userData.gender)}`,
+    userData.education && `Education: ${getEnumLabel('education', userData.education)}`,
+    userData.country?.name && `Location: ${userData.country.name}${userData.region?.name ? `, ${userData.region.name}` : ''}`,
+    
+    // App usage purpose (motivations)
+    userData.motivations?.length > 0 && (
+      userData.motivations[0]?.motivation_ids?.length > 0 || userData.motivations[0]?.other_motivation
+    ) && `Motivations: ${[
+      ...(userData.motivations[0].motivation_ids?.map(id => getEnumLabel('motivations', id)) || []),
+      userData.motivations[0].other_motivation
+    ].filter(Boolean).join(', ')}`,
+
+    // Financial goals
+    userData.goals?.length > 0 && (
+      userData.goals[0]?.goal_ids?.length > 0 || userData.goals[0]?.other_goal
+    ) && `Goals: ${[
+      ...(userData.goals[0].goal_ids?.map(id => getEnumLabel('goals', id)) || []),
+      userData.goals[0].other_goal
+    ].filter(Boolean).join(', ')}`,
+
+    // Financial profile details
+    userData.financials?.length > 0 && userData.financials[0]?.experience &&
+      `Financial Experience: ${getEnumLabel('experience', userData.financials[0].experience)}`,
+    userData.financials?.length > 0 && userData.financials[0]?.savings &&
+      `Savings Habits: ${getEnumLabel('savings', userData.financials[0].savings)}`,
+    userData.financials?.length > 0 && userData.financials[0]?.situation &&
+      `Financial Situation: ${getEnumLabel('situation', userData.financials[0].situation)}`,
   
-  if (!profile) {
-    console.error(`Invalid user type: ${userType} (normalized: ${normalizedUserType}), falling back to STUDENT profile`);
-    profile = USER_PROFILES['STUDENT'];
-  }
+    // Debt information
+    userData.financials?.length > 0 && (
+      userData.financials[0]?.debt_types?.length > 0 || userData.financials[0]?.other_debt
+    ) && `Debt Types: ${[
+      ...(userData.financials[0].debt_types?.map(id => getEnumLabel('debt_types', id)) || []),
+      userData.financials[0].other_debt
+    ].filter(Boolean).join(', ')}`
+  ].filter(Boolean);
 
-  // Add debug logging
-  console.log('User type:', userType);
-  console.log('Normalized type:', normalizedUserType);
-  console.log('Selected profile:', profile?.role);
+  return sections.length ? `User Context:\n${sections.join('\n')}` : '';
+};
 
-  const userContext = username ? `\nUser: ${username}` : '';
-  const today = `Today: ${new Date().toLocaleDateString()}`; // Add current date to context
-  const financialContext = financialData ? formatFinancialMetrics(financialData) : '';
+export async function getOpenAIResponse(userQuestion, userType = null, username = null, profileData = null, financialData = null, offersData = null) {
+
+  // Get user type
+  const userTypeLabel = userType ? getEnumLabel('role', userType) : 'General User';
+  userType = userType || profileData?.personal?.role || 'generic';
+  
+  // Get chatbot profile based on user type
+  const profile = USER_PROFILES[userType];
+
+  // Get user context
+  const userContext = profileData ? formatUserContext(username, profileData) : '';
+
+  console.log('User Context:', userContext);
+  // Get financial context
+  const financialContext = financialData? formatFinancialMetrics(financialData) : '';
+
+  // Get offer context and date for today
   const offersContext = offersData ? formatOffers(offersData) : '';
+  const today = `Today: ${new Date().toLocaleDateString()}`;
 
   // Create system prompt using the provided user type and profile
-  const systemPrompt = `You are Dobbi, a financial AI assistant for a ${userType}.
-Act as a ${profile.role} with a ${profile.style.tone} tone and ${profile.style.language}.
-${profile.style.emojis !== 'none' ? `Use ${profile.style.emojis} emojis.` : ''}
-Focus on ${profile.context}. 
-Approach: ${profile.approach}.
+  const systemPrompt = `
+=== DOBBI AI ASSISTANT CONFIGURATION ===
+Role: Financial AI assistant for a ${userTypeLabel}
+Acting as: ${profile.role}
+Communication Style:
+- Tone: ${profile.style.tone}
+- Language: ${profile.style.language}
+- Emojis: ${profile.style.emojis !== 'none' ? profile.style.emojis : 'none'}
 
-SHORT TOTAL OUTPUT.
-!!!Split into short natural length chat messages. mark split with -- 
-Don't want long unnatural chat bubbles.
-Be helpful and positive
-Only discuss financial topics decline others
-Don't recommend other apps except Dobbi app yourself
-Make sure to reference user's situation/type in responses
+=== DOMAIN FOCUS ===
+Primary Focus: ${profile.context}
+Approach: ${profile.approach}
 
-Dobbi is a financial advisor app that let's you track your finances, set saving goals, and redeem offers from partner companies using points earned using the app.
+=== RESPONSE GUIDELINES ===
+Format Requirements:
+1. Keep total output concise and focused
+2. Split into natural chat-length messages (mark splits with --)
+3. Avoid long, unnatural chat bubbles
+4. Never start a split message with a list, it's not supported.
 
-If there's a relevant offer available, related to the user's query, you can suggest it naturally. Don't suggest offers if they don't fit the context or query, only if they are helpful for the user.
+Behavioral Requirements:
+1. Be helpful and positive in responses
+2. Only discuss financial topics, politely decline others
+4. Only recommend Dobbi app features, not other apps
 
-Show offers with the following format: [**Title** for x points], expiring on mm-dd-yyyy.`;
+=== ABOUT DOBBI APP ===
+Description: Financial advisor app offering:
+- Finance tracking
+- Saving goal settings
+- Points-based reward system
+- Partner company offers
 
-  const contextualPrompt = `${systemPrompt}\n\n${userContext}\n\n${today}\n${financialContext}\n\n${offersContext}`;
-  
+=== OFFER HANDLING ===
+When suggesting offers:
+- If appropriate mention mention relevant offers that fit the context
+- Use format: [**Title** for x points], expiring on mm-dd-yyyy
+- Integrate naturally into responses`;
+
+  const contextualPrompt = `${systemPrompt}
+
+=== USER CONTEXT ===
+${userContext}
+
+=== FINANCIAL DATA ===
+${financialContext}
+
+=== AVAILABLE OFFERS ===
+${offersContext}
+
+=== CURRENT DATE ===
+${today}
+
+=== RESPONSE CONSIDERATIONS ===
+1. Adapt to user's profile and experience level
+2. Reference specific goals and motivations when relevant
+3. Match financial terminology to user's knowledge level
+4. Consider current savings habits and situation
+5. Account for debt situation in advice
+6. Tailor suggestions to user's financial context`;
+
   try {
     if (!USE_AI) {
       console.log('-----------------PROMPT-----------------');
@@ -155,6 +252,10 @@ Show offers with the following format: [**Title** for x points], expiring on mm-
 
 const formatFinancialMetrics = (data) => {
   const { monthlyTrend = [], expenseCategories = [], incomeCategories = [] } = data;
+
+  if (monthlyTrend.length === 0 && expenseCategories.length === 0 && incomeCategories.length === 0) {
+    return 'User has no financial data available on record.';
+  }
 
   return `Monthly Trend:
 ${monthlyTrend.map(t => 
