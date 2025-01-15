@@ -193,11 +193,9 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 24, // Changed from 20 to 24
     fontWeight: "bold",
-    color: "#000000",
-    flex: 1,
-    textAlign: 'center',
+    flex: 1
   },
   closeButton: {
     padding: 8,

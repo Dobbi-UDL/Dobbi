@@ -962,14 +962,10 @@ const renderArrayField = (fieldType, items = []) => {
     <Modal visible={isVisible} animationType="slide" transparent={false}>
       <SafeAreaView edges={["top"]} style={styles.modalContainer}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>
-            {isEditing ? i18n.t("edit_profile") : i18n.t("profile")}
-          </Text>
-          {!isEditing && (
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Icon name="close" size={24} color="#ff6b6b" />
-            </TouchableOpacity>
-          )}
+          <Text style={[styles.modalTitle, { color: '#ff6b6b', textAlign: 'left' }]}>{i18n.t("profile")}</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Icon name="close" size={24} color="#ff6b6b" />
+          </TouchableOpacity>
         </View>
 
         <ScrollView 

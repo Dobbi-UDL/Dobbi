@@ -1,18 +1,34 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import i18n from '../i18n';
 
 export const BiometricService = {
   async isBiometricAvailable() {
-    const compatible = await LocalAuthentication.hasHardwareAsync();
-    const enrolled = await LocalAuthentication.isEnrolledAsync();
-    return compatible && enrolled;
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      if (!compatible) {
+        console.log('Biometric hardware not available');
+        return false;
+      }
+      
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!enrolled) {
+        console.log('No biometrics enrolled on this device');
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking biometric availability:', error);
+      return false;
+    }
   },
 
   async getBiometricType() {
     try {
       const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-      console.log('Supported biometric types:', supportedTypes); // Para debugging
+      console.log('Supported biometric types:', supportedTypes);
       
       if (supportedTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
         return 'face';
@@ -28,21 +44,32 @@ export const BiometricService = {
 
   async authenticate() {
     try {
+      const isAvailable = await this.isBiometricAvailable();
+      if (!isAvailable) {
+        return false;
+      }
+
       const biometricType = await this.getBiometricType();
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: biometricType === 'face' 
+      const promptMessage = Platform.select({
+        ios: biometricType === 'face' 
           ? i18n.t('face_id_prompt') 
           : i18n.t('biometric_auth_prompt'),
-        fallbackLabel: i18n.t('biometric_fallback'),
-        disableDeviceFallback: false,
-        cancelLabel: i18n.t('cancel'),
-        requireConfirmation: false, // Importante para iOS
+        android: i18n.t('biometric_auth_prompt'),
       });
 
-      console.log('Authentication result:', result); // Para debugging
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage,
+        fallbackLabel: Platform.OS === 'ios' ? i18n.t('biometric_fallback') : undefined,
+        cancelLabel: Platform.OS === 'ios' ? i18n.t('cancel') : undefined,
+        disableDeviceFallback: Platform.OS === 'android',
+        requireConfirmation: false,
+        promptDescriptionIOS: Platform.OS === 'ios' ? i18n.t('biometric_prompt_description') : undefined,
+      });
+
+      console.log('Authentication result:', result);
       return result.success;
     } catch (error) {
-      console.error('Error en autenticación biométrica:', error);
+      console.error('Biometric authentication error:', error);
       return false;
     }
   },

@@ -4,32 +4,40 @@ export const authService = {
   // Registro de usuario
   async signUp({ username, email, password, phone, user_type = 'STUDENT' }) {
     try {
-      // 1. Crear usuario en auth.users
+      // 1. Crear usuario en auth.users con opciones de email
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username,     // Include username in auth metadata
+            user_type,    // Include user type in auth metadata
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (authError) throw authError;
 
-      // 2. Crear entrada en la tabla users
+      // 2. Crear entrada en la tabla users asegurando que el email se incluya
       const { data: userData, error: userError } = await supabase
         .from('users')
         .insert([
           {
-            id: authData.user.id, // Usar el mismo UID de auth.users
+            id: authData.user.id,
             username,
-            email,
+            email: email.toLowerCase(), // Explicitly include email and normalize it
             points: 0,
-            user_type, // Add user_type to the creation
+            user_type,
             created_at: new Date(),
+            email_confirmed: false, // Track email confirmation status
           },
         ])
         .select()
         .single();
 
       if (userError) {
-        // Si hay error al crear el usuario en la tabla users, eliminar el auth user
+        // Rollback: eliminar el auth user si falla la creación del perfil
         await supabase.auth.admin.deleteUser(authData.user.id);
         throw userError;
       }
@@ -39,6 +47,7 @@ export const authService = {
         session: authData.session,
       };
     } catch (error) {
+      console.error('Registration error:', error);
       throw error;
     }
   },

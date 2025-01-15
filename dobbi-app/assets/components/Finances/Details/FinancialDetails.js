@@ -77,14 +77,22 @@ export default function FinancialDetails() {
     };
 
     useEffect(() => {
+        // Immediately redirect if no user and prevent going back
         if (!user) {
-            router.push('/login');
+            router.replace({
+                pathname: '/login',
+                params: {
+                    reset: true
+                }
+            });
             return;
         }
         loadFinancialData();
     }, [user, selectedDate]); 
 
     const loadFinancialData = async () => {
+        if (!user?.id) return; // Add early return if no user
+        
         try{
             setLoading(true); // Show loading state while fetching
             let fetchedCategories = categories;
@@ -489,142 +497,146 @@ export default function FinancialDetails() {
     );
 
     return (
-        <View style={styles.container}>
-            {showSnoozeSuccess && (
-                <View style={styles.snoozeSuccess}>
-                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                    <Text style={styles.snoozeSuccessText}>
-                        Issues snoozed until <Text style={styles.snoozeTime}>{formatSnoozeTime(snoozedUntil)}</Text>
-                    </Text>
-                </View>
-            )}
+        <>
+            {!user ? null : (
+                <View style={styles.container}>
+                    {showSnoozeSuccess && (
+                        <View style={styles.snoozeSuccess}>
+                            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                            <Text style={styles.snoozeSuccessText}>
+                                Issues snoozed until <Text style={styles.snoozeTime}>{formatSnoozeTime(snoozedUntil)}</Text>
+                            </Text>
+                        </View>
+                    )}
 
-            {dataErrors.length > 0 && !snoozedUntil && (
-                <TouchableOpacity 
-                    style={styles.errorBanner}
-                    onPress={handleReportIssue}
-                >
-                    <Ionicons name="warning" size={20} color="#CC0000" />
-                    <Text style={styles.errorText}>
-                        {dataErrors.length} {dataErrors.length === 1 ? 'issue' : 'issues'} found with your data. Tap to review.
-                    </Text>
-                </TouchableOpacity>
-            )}
+                    {dataErrors.length > 0 && !snoozedUntil && (
+                        <TouchableOpacity 
+                            style={styles.errorBanner}
+                            onPress={handleReportIssue}
+                        >
+                            <Ionicons name="warning" size={20} color="#CC0000" />
+                            <Text style={styles.errorText}>
+                                {dataErrors.length} {dataErrors.length === 1 ? 'issue' : 'issues'} found with your data. Tap to review.
+                            </Text>
+                        </TouchableOpacity>
+                    )}
 
-            <MonthSelector 
-                onMonthChange={handleMonthChange}
-                onStatsPress={handleStats}
-                issuesCount={dataErrors.length}
-                onIssuesPress={handleReportIssue}
-                isSnoozed={!!snoozedUntil}
-                selectedDate={selectedDate}
-            />
+                    <MonthSelector 
+                        onMonthChange={handleMonthChange}
+                        onStatsPress={handleStats}
+                        issuesCount={dataErrors.length}
+                        onIssuesPress={handleReportIssue}
+                        isSnoozed={!!snoozedUntil}
+                        selectedDate={selectedDate}
+                    />
 
-            {loading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#EE6567" />
-                </View>
-            ) : (
-                <ScrollView
-                    style={styles.scrollView}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                >
-                    {['income', 'expenses'].map((type) => (
-                        <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
-                            {financialData[type].length > 0 ? (
-                                financialData[type].map((category) => (
-                                    <CategoryHeader
-                                        key={category.id}
-                                        category={category}
-                                        expandedCategory={expandedCategory}
-                                        setExpandedCategory={setExpandedCategory}
-                                        handleEdit={handleEdit}
-                                        handleAddEntry={handleAddEntry}
-                                    />
-                                ))
-                            ) : (
-                                <EmptyTypeState 
-                                    type={type} 
-                                    onAdd={() => handleFloatingButtonPress(type)}
-                                />
-                            )}
-                        </Card>
-                    ))}
-                    <View style={styles.footer} />
-                </ScrollView>
-            )}
-
-            <TouchableOpacity
-                style={styles.floatingButton}
-                onPress={() => handleFloatingButtonPress()}
-                accessibilityLabel={i18n.t("addNewEntry")}
-            >
-                <Ionicons name="add" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            
-
-            <AddEntryForm
-                visible={addEntryModalVisible}
-                categories={categories}
-                preselectedCategory={preselectedCategory}
-                userId={user.id}
-                onSubmit={addEntry}
-                onClose={() => {
-                    setAddEntryModalVisible(false);
-                    setPreselectedCategory(null);
-                }}
-                onRefresh={onRefresh}
-            />
-
-            <EditEntryForm
-                visible={editCategoryModalVisible}
-                entry={entryToEdit}
-                userId={user.id}
-                onUpdate={editEntry}
-                onDelete={deleteEntry}
-                onClose={closeEditModal}  // Use the new close handler
-                onRefresh={onRefresh}
-            />
-
-            <CustomModal
-                visible={showErrorDetails}
-                onClose={() => setShowErrorDetails(false)}
-                title="Data Issues Found"
-            >
-                <View style={styles.errorModalContent}>
-                    {allIssuesResolved ? (
-                        <View style={styles.successContainer}>
-                            <Ionicons name="checkmark-circle" size={48} color="#4CAF50" />
-                            <Text style={styles.successText}>All data issues have been successfully resolved!</Text>
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#EE6567" />
                         </View>
                     ) : (
-                        <>
-                            <Text style={styles.errorModalDescription}>
-                                The following entries have invalid or missing data:
-                            </Text>
-                            <View style={styles.errorEntriesList}>
-                                {dataErrors.map((entry, index) => renderErrorEntry(entry, index, dataErrors.length))}
-                            </View>
-                            <View style={styles.errorActions}>
-                                <Button
-                                    title="Dismiss"
-                                        variant="outline"
-                                        onPress={handleDismiss}
-                                        style={styles.dismissButton}
-                                />
-                                <Button
-                                    title="Report"
-                                    onPress={handleReport}
-                                    style={styles.reportButton}
-                                />
-                            </View>
-                        </>
+                        <ScrollView
+                            style={styles.scrollView}
+                            refreshControl={
+                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                            }
+                        >
+                            {['income', 'expenses'].map((type) => (
+                                <Card key={type} title={i18n.t(type)} cardStyle={styles.card}>
+                                    {financialData[type].length > 0 ? (
+                                        financialData[type].map((category) => (
+                                            <CategoryHeader
+                                                key={category.id}
+                                                category={category}
+                                                expandedCategory={expandedCategory}
+                                                setExpandedCategory={setExpandedCategory}
+                                                handleEdit={handleEdit}
+                                                handleAddEntry={handleAddEntry}
+                                            />
+                                        ))
+                                    ) : (
+                                        <EmptyTypeState 
+                                            type={type} 
+                                            onAdd={() => handleFloatingButtonPress(type)}
+                                        />
+                                    )}
+                                </Card>
+                            ))}
+                            <View style={styles.footer} />
+                        </ScrollView>
                     )}
+
+                    <TouchableOpacity
+                        style={styles.floatingButton}
+                        onPress={() => handleFloatingButtonPress()}
+                        accessibilityLabel={i18n.t("addNewEntry")}
+                    >
+                        <Ionicons name="add" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
+
+                    
+
+                    <AddEntryForm
+                        visible={addEntryModalVisible}
+                        categories={categories}
+                        preselectedCategory={preselectedCategory}
+                        userId={user.id}
+                        onSubmit={addEntry}
+                        onClose={() => {
+                            setAddEntryModalVisible(false);
+                            setPreselectedCategory(null);
+                        }}
+                        onRefresh={onRefresh}
+                    />
+
+                    <EditEntryForm
+                        visible={editCategoryModalVisible}
+                        entry={entryToEdit}
+                        userId={user.id}
+                        onUpdate={editEntry}
+                        onDelete={deleteEntry}
+                        onClose={closeEditModal}  // Use the new close handler
+                        onRefresh={onRefresh}
+                    />
+
+                    <CustomModal
+                        visible={showErrorDetails}
+                        onClose={() => setShowErrorDetails(false)}
+                        title="Data Issues Found"
+                    >
+                        <View style={styles.errorModalContent}>
+                            {allIssuesResolved ? (
+                                <View style={styles.successContainer}>
+                                    <Ionicons name="checkmark-circle" size={48} color="#4CAF50" />
+                                    <Text style={styles.successText}>All data issues have been successfully resolved!</Text>
+                                </View>
+                            ) : (
+                                <>
+                                    <Text style={styles.errorModalDescription}>
+                                        The following entries have invalid or missing data:
+                                    </Text>
+                                    <View style={styles.errorEntriesList}>
+                                        {dataErrors.map((entry, index) => renderErrorEntry(entry, index, dataErrors.length))}
+                                    </View>
+                                    <View style={styles.errorActions}>
+                                        <Button
+                                            title="Dismiss"
+                                                variant="outline"
+                                                onPress={handleDismiss}
+                                                style={styles.dismissButton}
+                                        />
+                                        <Button
+                                            title="Report"
+                                            onPress={handleReport}
+                                            style={styles.reportButton}
+                                        />
+                                    </View>
+                                </>
+                            )}
+                        </View>
+                    </CustomModal>
                 </View>
-            </CustomModal>
-        </View>
+            )}
+        </>
     );
 }
