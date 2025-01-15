@@ -154,40 +154,61 @@ const AssignedGoalsView = ({ userId, refreshTrigger, onGoalUpdate, highlightGoal
 
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView ref={scrollViewRef} style={styles.container}>
-                <Collapsible
-                    title={`${i18n.t('personal_goals')} (${personalGoals.length})`}
-                    isExpanded={isPersonalExpanded}
-                    onToggle={() => setIsPersonalExpanded(!isPersonalExpanded)}
-                >
-                    {personalGoals.map((goal) => (
-                        <MyGoalsCard
-                            key={goal.id}
-                            goal={goal}
-                            onStatusChange={(status) => handleStatusChange(goal.id, status)}
-                            onEdit={() => handleEditGoal(goal)}
-                            onAddMoney={handleAddMoney}  // Cambiado aquí
-                            isHighlighted={goal.id === parseInt(highlightGoalId)}
-                        />
-                    ))}
-                </Collapsible>
+            <ScrollView ref={scrollViewRef} style={[styles.container, { paddingHorizontal: 0 }]}>
+                <View style={{ paddingHorizontal: 16 }}>
+                    <Collapsible
+                        title={`${i18n.t('personal_goals')} (${personalGoals.length})`}
+                        isExpanded={isPersonalExpanded}
+                        onToggle={() => setIsPersonalExpanded(!isPersonalExpanded)}
+                        style={{ marginBottom: 8 }}
+                    >
+                        {personalGoals.length > 0 ? (
+                            personalGoals.map((goal) => (
+                                <MyGoalsCard
+                                    key={goal.id}
+                                    goal={goal}
+                                    onStatusChange={(status) => handleStatusChange(goal.id, status)}
+                                    onEdit={() => handleEditGoal(goal)}
+                                    onAddMoney={handleAddMoney}
+                                    isHighlighted={goal.id === parseInt(highlightGoalId)}
+                                    style={{ marginHorizontal: 0 }}
+                                />
+                            ))
+                        ) : (
+                            <View style={styles.emptyStateContainer}>
+                                <Text style={styles.emptyStateText}>
+                                    {i18n.t('no_personal_goals')}
+                                </Text>
+                            </View>
+                        )}
+                    </Collapsible>
 
-                {/* También añadir la prop a los sponsored goals si es necesario */}
-                <Collapsible
-                    title={`${i18n.t('sponsored_goals')} (${sponsoredGoals.length})`}
-                    isExpanded={isSponsoredExpanded}
-                    onToggle={() => setIsSponsoredExpanded(!isSponsoredExpanded)}
-                >
-                    {sponsoredGoals.map((goal) => (
-                        <MyGoalsCard
-                            key={goal.id}
-                            goal={goal}
-                            onStatusChange={(status) => handleStatusChange(goal.id, status)}
-                            onEdit={() => handleEditGoal(goal)}
-                            onAddMoney={handleAddMoney}  // Añadir aquí también si es necesario
-                        />
-                    ))}
-                </Collapsible>
+                    <Collapsible
+                        title={`${i18n.t('sponsored_goals')} (${sponsoredGoals.length})`}
+                        isExpanded={isSponsoredExpanded}
+                        onToggle={() => setIsSponsoredExpanded(!isSponsoredExpanded)}
+                        style={{ marginBottom: 8 }}
+                    >
+                        {sponsoredGoals.length > 0 ? (
+                            sponsoredGoals.map((goal) => (
+                                <MyGoalsCard
+                                    key={goal.id}
+                                    goal={goal}
+                                    onStatusChange={(status) => handleStatusChange(goal.id, status)}
+                                    onEdit={() => handleEditGoal(goal)}
+                                    onAddMoney={handleAddMoney}
+                                    style={{ marginHorizontal: 0 }}
+                                />
+                            ))
+                        ) : (
+                            <View style={styles.emptyStateContainer}>
+                                <Text style={styles.emptyStateText}>
+                                    {i18n.t('no_sponsored_goals')}
+                                </Text>
+                            </View>
+                        )}
+                    </Collapsible>
+                </View>
             </ScrollView>
             <TouchableOpacity
                 style={styles.floatingButton}

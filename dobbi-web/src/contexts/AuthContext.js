@@ -1,10 +1,12 @@
+"use client";
+
 //Web app context for user authentication
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "../lib/supabase";
 
-const AuthContext = createContext();
+const AuthContext = createContext(undefined);
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -23,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
 
-    fetchSession();
+    fetchSession();  // removed the extra 's' here
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -146,6 +148,13 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+// Single export statement for all exports
+export { AuthContext, AuthProvider };

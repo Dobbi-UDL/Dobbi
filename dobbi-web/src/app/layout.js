@@ -1,10 +1,17 @@
-"use client";
-
 import "./globals.css";
 import { ScrollProvider } from "../contexts/ScrollContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
+
+export const metadata = {
+  title: 'Dobbi',
+  description: 'Your financial advisor',
+  icons: {
+    icon: '/dobbi-avatar.png',
+    apple: '/dobbi-avatar.png',
+  },
+}
 
 export default function RootLayout({ children }) {
   return (
@@ -13,7 +20,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ScrollProvider>
             <Header />
-            <main className="flex-grow">{children}</main>
+            {children}
             <Footer />
           </ScrollProvider>
         </AuthProvider>
