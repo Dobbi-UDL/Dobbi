@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { StyleSheet, Dimensions, Animated, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -6,6 +6,7 @@ import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-
 import { AnimatedProgressIndicator } from '../assets/components/Onboarding-miha/AnimatedProgressIndicator';
 import { onboardingService } from '../services/onboardingService';
 import { useAuth } from '../contexts/AuthContext';
+import debounce from 'lodash/debounce';
 
 // Screen Components
 import WelcomeScreen from '../assets/components/Onboarding-miha/WelcomeScreen';
@@ -53,13 +54,16 @@ export default function OnboardingScreen() {
     notifications: {}
   });
 
-  // Update data handler
-  const handleDataUpdate = (screen, data) => {
-    setOnboardingData(prev => ({
-      ...prev,
-      ...data
-    }));
-  };
+  // Debounce the data update handler
+  const handleDataUpdate = useMemo(
+    () => debounce((screen, data) => {
+      setOnboardingData(prev => ({
+        ...prev,
+        ...data
+      }));
+    }, 300),
+    []
+  );
 
   const totalSteps = 7; // Update total steps
   const router = useRouter();
@@ -68,27 +72,20 @@ export default function OnboardingScreen() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const panRef = useRef(null);
 
+  // Optimize completion handler
   const handleCompletion = async () => {
     try {
-      if (!user) {
-        console.error('No user found in auth context');
-        return;
-      }
+      if (!user) return;
 
-      const { success, error } = await onboardingService.saveOnboardingData(
-        user.id,
-        onboardingData
-      );
+      // Start the navigation immediately
+      router.replace('/home');
 
-      if (success) {
-        router.replace('/home');
-      } else {
-        console.error('Failed to save onboarding data:', error);
-        // You might want to show an error message to the user here
-      }
+      // Save data in the background
+      onboardingService.saveOnboardingData(user.id, onboardingData)
+        .catch(error => console.error('Error saving onboarding data:', error));
+        
     } catch (error) {
       console.error('Error during completion:', error);
-      // Handle error appropriately
     }
   };
 
@@ -122,31 +119,34 @@ export default function OnboardingScreen() {
     }
   };
 
+  // Optimize animations
   const animateTransition = (direction) => {
-    fadeAnim.setValue(0);
+    setIsAnimating(true);
     translateX.setValue(direction === 'next' ? SCREEN_WIDTH : -SCREEN_WIDTH);
     
     Animated.parallel([
-        Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-            friction: 8,
-            tension: 40,
-        }),
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 400,
-            useNativeDriver: true,
-        })
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+        friction: 6, // Reduced friction for faster animation
+        tension: 50, // Increased tension for snappier movement
+        restDisplacementThreshold: 0.01,
+        restSpeedThreshold: 0.01,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200, // Reduced duration
+        useNativeDriver: true,
+      })
     ]).start(() => {
-        setIsAnimating(false);
-        setAnimationTrigger(prev => prev + 1);
+      setIsAnimating(false);
+      setAnimationTrigger(prev => prev + 1);
     });
   };
 
+  // Pre-emptively save data
   const handleNext = () => {
     if (isAnimating || currentStep >= totalSteps) return;
-    
     setIsAnimating(true);
     setCurrentStep(prev => prev + 1);
     animateTransition('next');

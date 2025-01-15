@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -48,16 +48,16 @@ export default function FinancialContextScreen({ onNext, onBack, data, onDataUpd
         onDataUpdate('financial', selections);
     }, [selections]);
 
-    const handleDebtSelect = (id) => {
+    const handleDebtSelect = useCallback((id) => {
         setSelections(prev => ({
             ...prev,
             debtTypes: prev.debtTypes.includes(id)
                 ? prev.debtTypes.filter(item => item !== id)
                 : [...prev.debtTypes, id]
         }));
-    };
+    }, []);
 
-    const SelectionCard = ({ item, isSelected }) => (
+    const SelectionCard = memo(({ item, isSelected }) => (
         <TouchableOpacity
             style={[styles.card, isSelected && styles.cardSelected]}
             onPress={() => handleDebtSelect(item.id)}
@@ -76,7 +76,7 @@ export default function FinancialContextScreen({ onNext, onBack, data, onDataUpd
                 </View>
             )}
         </TouchableOpacity>
-    );
+    ));
 
     const isValid = selections.experience && selections.savings && 
                    selections.situation && selections.debtTypes.length > 0;

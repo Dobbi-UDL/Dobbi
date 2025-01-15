@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-export const CustomPicker = ({ 
+export const CustomPicker = memo(({ 
     label,
     value,
     placeholder,
@@ -116,7 +116,7 @@ export const CustomPicker = ({
             </Modal>
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
