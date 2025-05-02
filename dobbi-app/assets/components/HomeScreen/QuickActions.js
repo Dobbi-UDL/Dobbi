@@ -33,20 +33,6 @@ export const QuickActions = ({ additionalActions = [] }) => {
       label: i18n.t('setGoal'), 
       color: '#3F51B5', 
       onClick: () => openModal('setGoal') 
-    },
-    {
-      icon: 'bell',
-      label: 'Test Notif.',
-      color: '#9C27B0',
-      onClick: async () => {
-        try {
-          await NotificationService.sendTestNotification();
-          console.log('Notificación enviada');
-        } catch (error) {
-          console.error('Error:', error);
-          Alert.alert('Error', error.message);
-        }
-      }
     }
   ];
 

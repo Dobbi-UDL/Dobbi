@@ -171,7 +171,7 @@ const ChatbotScreen = () => {
 
   const WELCOME_MESSAGE = {
     id: uuidv4(),  
-    text: "Hi! I'm Dobbi, your personal AI assistant. I can help you with questions, coding, research, or just friendly chat. What would you like to talk about?",
+    text: "Hi! I'm Dobbi, your personal AI assistant. I can help you with your finances, goals, and more. How can I assist you today?",
     isUser: false,
   };
 

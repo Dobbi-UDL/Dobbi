@@ -88,7 +88,6 @@ export default function HomeScreen() {
           style={styles.contentContainer}
           data={[
             { key: 'netCashFlow' },
-            { key: 'quickActions' },
             { key: 'activeGoals' },
             { key: 'savingGoals' },
           ]}
